@@ -1,0 +1,2271 @@
+/* =========================================================
+   STREAMAI — COMPLETE HOME PAGE CSS
+   LIGHT PREMIUM DESIGN
+   RESPONSIVE HERO FIX
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap");
+
+
+/* =========================================================
+   GLOBAL HOME SETTINGS
+========================================================= */
+
+.streamai-home {
+     --hm-blue: #408fff;
+     --hm-mint: #27c5b1;
+     --hm-heading: #14213e;
+     --hm-text: #65738b;
+     --hm-border: #e8eef8;
+
+     --hm-gradient: linear-gradient(110deg,
+               #408fff 0%,
+               #36a8ef 48%,
+               #27c5b1 100%);
+
+     width: 100%;
+     min-width: 0;
+     overflow-x: clip;
+
+     background: #ffffff;
+     color: var(--hm-heading);
+
+     font-family: "Manrope", sans-serif;
+     -webkit-font-smoothing: antialiased;
+}
+
+.streamai-home *,
+.streamai-home *::before,
+.streamai-home *::after {
+     box-sizing: border-box;
+}
+
+.streamai-home h1,
+.streamai-home h2,
+.streamai-home h3 {
+     font-family: "Sora", sans-serif;
+}
+
+.streamai-home a {
+     text-decoration: none;
+}
+
+.hm-container {
+     width: min(92%, 1280px);
+     margin: 0 auto;
+}
+
+
+/* =========================================================
+   HERO SECTION — FIXED
+========================================================= */
+
+.hm-hero {
+     width: 100%;
+     min-height: 0;
+     height: auto;
+
+     position: relative;
+     display: block;
+
+     overflow: hidden;
+     isolation: isolate;
+
+     background: linear-gradient(110deg,
+               #ffffff 0%,
+               #f8fcff 48%,
+               #eef9ff 100%);
+}
+
+
+/* =========================================================
+   ANIMATED SVG BACKGROUND
+========================================================= */
+
+.hm-animated-bg {
+     position: absolute;
+     inset: 0;
+
+     width: 100%;
+     height: 100%;
+
+     overflow: hidden;
+     pointer-events: none;
+
+     z-index: 0;
+}
+
+.hm-animated-bg svg {
+     position: absolute;
+
+     width: 100%;
+     height: 100%;
+
+     opacity: 0.38;
+}
+
+.hm-svg-wave {
+     stroke-dasharray: 15 15;
+     animation: hmWave 25s linear infinite;
+}
+
+.hm-svg-wave-2 {
+     animation-direction: reverse;
+}
+
+.hm-bg-circle {
+     position: absolute;
+
+     border-radius: 50%;
+     filter: blur(65px);
+
+     pointer-events: none;
+}
+
+.hm-circle-one {
+     width: 380px;
+     height: 380px;
+
+     top: -150px;
+     left: -140px;
+
+     background: rgba(163, 215, 255, 0.2);
+
+     animation: hmBlob 15s ease-in-out infinite alternate;
+}
+
+.hm-circle-two {
+     width: 430px;
+     height: 430px;
+
+     right: -160px;
+     bottom: -160px;
+
+     background: rgba(155, 235, 217, 0.2);
+
+     animation: hmBlob 19s ease-in-out infinite alternate-reverse;
+}
+
+.hm-bg-dots {
+     position: absolute;
+
+     width: 150px;
+     height: 150px;
+
+     background-image: radial-gradient(#8dcfff 1.5px,
+               transparent 1.5px);
+
+     background-size: 15px 15px;
+     opacity: 0.28;
+}
+
+.hm-dots-one {
+     top: 60px;
+     right: 15%;
+}
+
+.hm-dots-two {
+     bottom: 30px;
+     left: -60px;
+}
+
+
+/* =========================================================
+   HERO GRID — IMPORTANT FIX
+========================================================= */
+
+.hm-hero-inner {
+     position: relative;
+     z-index: 1;
+
+     display: grid;
+
+     grid-template-columns:
+          minmax(0, 1.05fr) minmax(0, 0.95fr);
+
+     align-items: center;
+
+     gap: clamp(25px, 4vw, 65px);
+
+     min-height: 590px;
+     height: auto;
+
+     padding-top: 35px;
+     padding-bottom: 45px;
+}
+
+
+/* =========================================================
+   HERO LEFT CONTENT
+========================================================= */
+
+.hm-hero-content {
+     width: 100%;
+     min-width: 0;
+     max-width: 620px;
+
+     position: relative;
+     z-index: 5;
+
+     padding: 20px 0;
+}
+
+
+/* HERO BADGE */
+
+.hm-hero-badge {
+     display: inline-flex;
+     align-items: center;
+
+     max-width: 100%;
+
+     padding: 9px 15px;
+
+     margin-bottom: 19px;
+
+     border-radius: 50px;
+
+     background: linear-gradient(90deg,
+               #e8f0ff,
+               #e2f9f5);
+
+     color: #3985ce;
+
+     font-size: 11px;
+     font-weight: 800;
+
+     line-height: 1.5;
+}
+
+
+/* =========================================================
+   HERO TITLE — SIZE FIXED
+========================================================= */
+
+.streamai-home .hm-hero-title {
+     margin: 0;
+
+     max-width: 100%;
+
+     color: #14213e;
+
+     font-family: "Sora", sans-serif;
+
+     font-size: clamp(37px, 3.1vw, 56px);
+
+     font-weight: 800;
+
+     line-height: 1.16;
+
+     letter-spacing: -2.5px;
+
+     overflow-wrap: normal;
+     word-break: normal;
+}
+
+.hm-hero-title span {
+     background: linear-gradient(90deg,
+               #408fff,
+               #28b8ce,
+               #23bea2);
+
+     -webkit-background-clip: text;
+     background-clip: text;
+
+     -webkit-text-fill-color: transparent;
+}
+
+
+/* =========================================================
+   HERO DESCRIPTION
+========================================================= */
+
+.hm-hero-description {
+     max-width: 460px;
+
+     margin: 19px 0 0;
+
+     color: #67758c;
+
+     font-size: 13px;
+     font-weight: 500;
+
+     line-height: 1.85;
+}
+
+
+/* =========================================================
+   HERO BUTTONS
+========================================================= */
+
+.hm-hero-buttons {
+     display: flex;
+     align-items: center;
+     flex-wrap: wrap;
+
+     gap: 12px;
+
+     margin-top: 23px;
+}
+
+.hm-primary-btn {
+     min-height: 46px;
+
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+
+     gap: 13px;
+
+     padding: 0 22px;
+
+     color: #ffffff;
+
+     font-size: 12px;
+     font-weight: 800;
+
+     border: none;
+     border-radius: 50px;
+
+     background: var(--hm-gradient);
+
+     box-shadow:
+          0 8px 20px rgba(57, 147, 218, 0.18);
+
+     transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+}
+
+.hm-primary-btn:hover {
+     transform: translateY(-3px);
+
+     box-shadow:
+          0 13px 28px rgba(57, 147, 218, 0.28);
+}
+
+.hm-primary-btn svg {
+     transition: transform 0.3s ease;
+}
+
+.hm-primary-btn:hover svg {
+     transform: translateX(4px);
+}
+
+.hm-secondary-btn {
+     min-height: 46px;
+
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+
+     gap: 10px;
+
+     padding: 0 19px;
+
+     border-radius: 50px;
+
+     color: #233550;
+     background: #ffffff;
+
+     font-size: 12px;
+     font-weight: 800;
+
+     border: 1px solid #e8eef9;
+
+     box-shadow:
+          0 5px 18px rgba(48, 86, 140, 0.05);
+
+     transition: transform 0.3s ease;
+}
+
+.hm-secondary-btn:hover {
+     transform: translateY(-3px);
+}
+
+.hm-play-circle {
+     color: #408fff;
+     font-size: 12px;
+}
+
+
+/* =========================================================
+   HERO BENEFITS — NO CUTTING
+========================================================= */
+
+.hm-hero-benefits {
+     width: 100%;
+     max-width: 480px;
+
+     display: grid;
+     grid-template-columns: repeat(4, minmax(0, 1fr));
+
+     gap: 10px;
+
+     margin-top: 32px;
+}
+
+.hm-hero-benefit {
+     min-width: 0;
+
+     display: flex;
+     align-items: center;
+     flex-direction: column;
+
+     text-align: center;
+}
+
+.hm-benefit-icon {
+     width: 46px;
+     height: 46px;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     margin-bottom: 9px;
+
+     color: #408fff;
+
+     background: rgba(255, 255, 255, 0.95);
+
+     border: 1px solid #e8f0ff;
+     border-radius: 14px;
+
+     box-shadow:
+          0 5px 17px rgba(49, 103, 165, 0.07);
+
+     transition:
+          transform 0.3s ease,
+          color 0.3s ease;
+}
+
+.hm-hero-benefit:hover .hm-benefit-icon {
+     transform: translateY(-5px);
+     color: #27bda7;
+}
+
+.hm-hero-benefit strong {
+     color: #24354f;
+
+     font-size: 10px;
+     font-weight: 800;
+
+     line-height: 1.5;
+}
+
+.hm-hero-benefit span {
+     margin-top: 2px;
+
+     color: #61728b;
+
+     font-size: 9px;
+     line-height: 1.5;
+}
+
+
+/* =========================================================
+   HERO RIGHT VISUAL — FIXED
+========================================================= */
+
+.hm-hero-visual {
+     position: relative;
+
+     width: 100%;
+     min-width: 0;
+
+     height: 480px;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+}
+
+
+/* REAL INDIAN IMAGE */
+
+.hm-hero-image {
+     position: absolute;
+
+     width: 84%;
+     height: 405px;
+
+     right: 6%;
+     bottom: 0;
+
+     overflow: hidden;
+
+     border-radius: 160px 160px 22px 22px;
+
+     background: #e9f3fb;
+
+     box-shadow:
+          0 20px 50px rgba(58, 100, 155, 0.1);
+}
+
+.hm-hero-image::after {
+     content: "";
+
+     position: absolute;
+     inset: 0;
+
+     pointer-events: none;
+
+     background: linear-gradient(180deg,
+               rgba(255, 255, 255, 0.05),
+               transparent 60%,
+               rgba(20, 50, 80, 0.04));
+}
+
+.hm-hero-image img {
+     width: 100%;
+     height: 100%;
+
+     display: block;
+
+     object-fit: cover;
+     object-position: center 42%;
+}
+
+
+/* =========================================================
+   FLOATING OTT + AI LOGOS
+========================================================= */
+
+.hm-floating-logo {
+     position: absolute;
+
+     z-index: 5;
+
+     pointer-events: none;
+
+     filter: drop-shadow(0 8px 18px rgba(50, 75, 130, 0.14));
+}
+
+.hm-float-netflix {
+     top: 45px;
+     left: 14%;
+}
+
+.hm-float-prime {
+     top: 10px;
+     left: 43%;
+}
+
+.hm-float-hotstar {
+     top: 50px;
+     right: 6%;
+}
+
+.hm-float-zee {
+     top: 145px;
+     right: 1%;
+}
+
+.hm-float-chatgpt {
+     top: 250px;
+     right: 2%;
+}
+
+.hm-float-gemini {
+     top: 180px;
+     left: 3%;
+}
+
+.hm-float-claude {
+     top: 325px;
+     left: 7%;
+}
+
+
+/* =========================================================
+   BRAND LOGOS
+========================================================= */
+
+.hm-brand-logo {
+     width: 70px;
+     height: 70px;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     padding: 14px;
+
+     border-radius: 17px;
+
+     overflow: hidden;
+     flex-shrink: 0;
+}
+
+.hm-brand-logo img {
+     width: 100%;
+     height: 100%;
+
+     display: block;
+
+     object-fit: contain;
+}
+
+.hm-brand-logo span {
+     font-size: 21px;
+     font-weight: 800;
+}
+
+.hm-brand-logo-floating {
+     width: 56px;
+     height: 56px;
+
+     padding: 10px;
+
+     border: 3px solid rgba(255, 255, 255, 0.9);
+
+     border-radius: 15px;
+}
+
+
+/* =========================================================
+   DECORATIVE STARS
+========================================================= */
+
+.hm-floating-star {
+     position: absolute;
+
+     z-index: 4;
+
+     font-size: 29px;
+
+     color: #83c4ff;
+
+     animation: hmStar 5s ease-in-out infinite;
+}
+
+.hm-star-one {
+     top: 140px;
+     left: 35%;
+}
+
+.hm-star-two {
+     top: 280px;
+     right: 21%;
+
+     color: #76dbc8;
+}
+
+
+/* =========================================================
+   PLATFORM STRIP
+========================================================= */
+
+.hm-platform-strip {
+     padding: 24px 0;
+
+     background: #ffffff;
+
+     border-bottom: 1px solid #edf2f8;
+}
+
+.hm-strip-inner {
+     display: flex;
+     align-items: center;
+     justify-content: space-evenly;
+
+     flex-wrap: wrap;
+
+     gap: 20px;
+}
+
+.hm-strip-item {
+     display: flex;
+     align-items: center;
+
+     gap: 12px;
+
+     color: #405777;
+
+     font-size: 12px;
+     font-weight: 800;
+}
+
+.hm-strip-item svg {
+     color: #469cf3;
+}
+
+.hm-strip-divider {
+     width: 1px;
+     height: 26px;
+
+     background: #e8edf5;
+}
+
+
+/* =========================================================
+   COMMON SECTIONS
+========================================================= */
+
+.hm-section {
+     padding: 75px 0;
+}
+
+.hm-ott-section {
+     background: #ffffff;
+}
+
+.hm-ai-section {
+     background: #f8fcff;
+}
+
+.hm-section-heading {
+     display: flex;
+     align-items: flex-end;
+     justify-content: space-between;
+
+     gap: 25px;
+
+     margin-bottom: 32px;
+}
+
+.hm-eyebrow {
+     display: block;
+
+     margin-bottom: 11px;
+
+     color: #329ccc;
+
+     font-size: 10px;
+     font-weight: 800;
+
+     letter-spacing: 2px;
+}
+
+.hm-section-heading h2 {
+     margin: 0;
+
+     color: #172441;
+
+     font-size: clamp(27px, 3vw, 40px);
+
+     font-weight: 800;
+     line-height: 1.25;
+
+     letter-spacing: -1.5px;
+}
+
+.hm-section-heading p {
+     margin: 11px 0 0;
+
+     color: #74829a;
+
+     font-size: 13px;
+     line-height: 1.7;
+}
+
+.hm-view-all {
+     display: inline-flex;
+     align-items: center;
+
+     gap: 8px;
+
+     color: #368de9;
+
+     font-size: 12px;
+     font-weight: 800;
+
+     white-space: nowrap;
+}
+
+.hm-view-all svg {
+     transition: transform 0.3s ease;
+}
+
+.hm-view-all:hover svg {
+     transform: translateX(5px);
+}
+
+
+/* =========================================================
+   OTT + AI PLATFORM GRID
+========================================================= */
+
+.hm-platform-grid {
+     display: grid;
+
+     grid-template-columns: repeat(5, minmax(0, 1fr));
+
+     gap: 18px;
+}
+
+.hm-platform-card {
+     position: relative;
+
+     min-height: 178px;
+     min-width: 0;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-direction: column;
+
+     gap: 15px;
+
+     padding: 23px 12px;
+
+     border-radius: 20px;
+
+     background: #ffffff;
+
+     border: 1px solid #edf1f8;
+
+     box-shadow:
+          0 8px 26px rgba(48, 85, 140, 0.045);
+
+     transition:
+          transform 0.35s ease,
+          border-color 0.35s ease,
+          box-shadow 0.35s ease;
+}
+
+.hm-platform-card:hover {
+     transform: translateY(-6px);
+
+     border-color: #cce8ff;
+
+     box-shadow:
+          0 18px 35px rgba(48, 105, 160, 0.1);
+}
+
+.hm-platform-card h3 {
+     margin: 0;
+
+     color: #24324c;
+
+     font-size: 12px;
+     font-weight: 800;
+
+     text-align: center;
+}
+
+.hm-card-arrow {
+     position: absolute;
+
+     top: 14px;
+     right: 14px;
+
+     color: #9badc4;
+
+     opacity: 0;
+
+     transform: translate(-5px, 5px);
+
+     transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
+}
+
+.hm-platform-card:hover .hm-card-arrow {
+     opacity: 1;
+     transform: translate(0, 0);
+}
+
+
+/* =========================================================
+   ENTERTAINMENT BANNER
+========================================================= */
+
+.hm-banner-section {
+     padding: 70px 0;
+
+     background: #ffffff;
+}
+
+.hm-entertainment-banner {
+     position: relative;
+
+     min-height: 340px;
+
+     display: grid;
+     grid-template-columns: 1fr 0.9fr;
+
+     overflow: hidden;
+
+     border-radius: 28px;
+
+     background: linear-gradient(110deg,
+               #e7f4ff 0%,
+               #dff8f5 60%,
+               #e6efff 100%);
+}
+
+.hm-banner-content {
+     position: relative;
+     z-index: 3;
+
+     align-self: center;
+
+     padding: 45px;
+}
+
+.hm-banner-label {
+     color: #329eb9;
+
+     font-size: 10px;
+     font-weight: 800;
+
+     letter-spacing: 1.3px;
+}
+
+.hm-banner-content h2 {
+     margin: 16px 0;
+
+     color: #182543;
+
+     font-size: clamp(27px, 2.8vw, 39px);
+
+     font-weight: 800;
+     line-height: 1.22;
+
+     letter-spacing: -1.4px;
+}
+
+.hm-banner-content h2 span {
+     background: var(--hm-gradient);
+
+     -webkit-background-clip: text;
+     background-clip: text;
+
+     -webkit-text-fill-color: transparent;
+}
+
+.hm-banner-content p {
+     max-width: 430px;
+
+     margin-bottom: 23px;
+
+     color: #63758d;
+
+     font-size: 13px;
+     line-height: 1.8;
+}
+
+.hm-banner-image {
+     position: relative;
+     min-height: 300px;
+
+     overflow: hidden;
+}
+
+.hm-banner-image::after {
+     content: "";
+
+     position: absolute;
+     inset: 0;
+
+     background: linear-gradient(90deg,
+               #e1f6fc 0%,
+               rgba(225, 246, 252, 0.45) 25%,
+               transparent 65%);
+}
+
+.hm-banner-image img {
+     width: 100%;
+     height: 100%;
+
+     position: absolute;
+     inset: 0;
+
+     object-fit: cover;
+}
+
+.hm-banner-svg {
+     position: absolute;
+
+     width: 300px;
+     height: 300px;
+
+     right: -90px;
+     top: -90px;
+
+     z-index: 2;
+     pointer-events: none;
+
+     animation: hmRotate 28s linear infinite;
+}
+
+
+/* =========================================================
+   FEATURED BUNDLE
+========================================================= */
+
+.hm-featured-section {
+     padding: 30px 0 90px;
+
+     background: #ffffff;
+}
+
+.hm-featured-bundle {
+     min-height: 370px;
+
+     display: grid;
+     grid-template-columns: 1fr 0.8fr;
+
+     overflow: hidden;
+
+     border-radius: 28px;
+
+     background: linear-gradient(115deg,
+               #f2f7ff,
+               #eafaff,
+               #e4faf2);
+}
+
+.hm-featured-copy {
+     align-self: center;
+     padding: 45px;
+}
+
+.hm-featured-label {
+     display: inline-block;
+
+     padding: 9px 14px;
+
+     border-radius: 30px;
+
+     background: #ffffff;
+
+     color: #389dce;
+
+     font-size: 10px;
+     font-weight: 800;
+
+     letter-spacing: 1px;
+}
+
+.hm-featured-copy h2 {
+     margin: 21px 0 16px;
+
+     color: #172440;
+
+     font-size: clamp(29px, 3vw, 43px);
+
+     font-weight: 800;
+     line-height: 1.2;
+
+     letter-spacing: -1.5px;
+}
+
+.hm-featured-copy h2 span {
+     color: #329bc9;
+}
+
+.hm-featured-copy p {
+     max-width: 390px;
+
+     color: #6a7c91;
+
+     font-size: 13px;
+     line-height: 1.8;
+}
+
+.hm-featured-brands {
+     display: flex;
+     align-items: center;
+
+     gap: 17px;
+
+     margin: 23px 0;
+}
+
+.hm-featured-brands .hm-brand-logo {
+     width: 60px;
+     height: 60px;
+
+     border-radius: 15px;
+}
+
+.hm-featured-plus {
+     color: #64a4d9;
+
+     font-size: 24px;
+     font-weight: 800;
+}
+
+.hm-featured-price {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     padding: 35px;
+
+     background: radial-gradient(circle at center,
+               rgba(121, 208, 255, 0.2),
+               transparent 65%);
+}
+
+.hm-price-ring {
+     width: 245px;
+     height: 245px;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-direction: column;
+
+     border-radius: 50%;
+
+     background: #ffffff;
+
+     border: 16px solid rgba(103, 193, 255, 0.2);
+
+     box-shadow:
+          0 15px 40px rgba(75, 145, 200, 0.1);
+
+     animation: hmPriceFloat 5s ease-in-out infinite;
+}
+
+.hm-price-ring>span {
+     color: #7990a3;
+
+     font-size: 10px;
+     font-weight: 800;
+}
+
+.hm-price-regular {
+     margin-top: 12px;
+
+     color: #a6b2bf;
+
+     font-size: 18px;
+     text-decoration: line-through;
+}
+
+.hm-price-ring strong {
+     color: #308fe7;
+
+     font-size: 47px;
+     font-weight: 800;
+
+     letter-spacing: -2px;
+}
+
+.hm-price-ring small {
+     color: #71859a;
+     font-size: 13px;
+}
+
+.hm-price-save {
+     margin-top: 13px;
+
+     padding: 8px 13px;
+
+     border-radius: 30px;
+
+     color: #188e78;
+     background: #ddf8ed;
+
+     font-size: 11px;
+     font-weight: 800;
+}
+
+.hm-price-note {
+     margin: 14px 4px 0;
+
+     color: #8290a3;
+
+     font-size: 11px;
+     line-height: 1.6;
+}
+
+
+/* =========================================================
+   WHY CHOOSE STREAMAI
+========================================================= */
+
+.hm-why-section {
+     background: #f8fcff;
+}
+
+.hm-features-grid {
+     display: grid;
+     grid-template-columns: repeat(4, minmax(0, 1fr));
+
+     gap: 18px;
+}
+
+.hm-feature-card {
+     min-height: 220px;
+
+     padding: 25px 22px;
+
+     border-radius: 20px;
+
+     background: #ffffff;
+
+     border: 1px solid #edf2f9;
+
+     box-shadow:
+          0 8px 25px rgba(54, 94, 145, 0.04);
+
+     transition:
+          transform 0.35s ease,
+          box-shadow 0.35s ease;
+}
+
+.hm-feature-card:hover {
+     transform: translateY(-6px);
+
+     box-shadow:
+          0 16px 35px rgba(54, 94, 145, 0.1);
+}
+
+.hm-feature-icon {
+     width: 53px;
+     height: 53px;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     margin-bottom: 23px;
+
+     border-radius: 16px;
+
+     color: #3994ef;
+
+     background: linear-gradient(135deg,
+               #e8f3ff,
+               #e4fbf5);
+}
+
+.hm-feature-card h3 {
+     margin: 0 0 12px;
+
+     color: #24324e;
+
+     font-size: 15px;
+     font-weight: 800;
+}
+
+.hm-feature-card p {
+     margin: 0;
+
+     color: #76869c;
+
+     font-size: 12px;
+     line-height: 1.8;
+}
+
+
+/* =========================================================
+   HOW IT WORKS
+========================================================= */
+
+.hm-how-section {
+     padding: 90px 0;
+
+     background: #ffffff;
+
+     scroll-margin-top: 95px;
+}
+
+.hm-how-heading {
+     max-width: 620px;
+
+     margin: 0 auto 45px;
+
+     text-align: center;
+}
+
+.hm-how-heading h2 {
+     margin: 0;
+
+     color: #172441;
+
+     font-size: clamp(29px, 3vw, 43px);
+
+     font-weight: 800;
+
+     letter-spacing: -1.5px;
+}
+
+.hm-how-heading h2 span {
+     color: #32a8c9;
+}
+
+.hm-how-heading p {
+     margin-top: 16px;
+
+     color: #75849a;
+
+     font-size: 13px;
+     line-height: 1.8;
+}
+
+.hm-steps-grid {
+     display: grid;
+     grid-template-columns: repeat(3, minmax(0, 1fr));
+
+     gap: 19px;
+}
+
+.hm-step-card {
+     position: relative;
+
+     min-height: 255px;
+
+     padding: 33px 28px;
+
+     border: 1px solid #e8eff8;
+
+     border-radius: 21px;
+
+     background: #fbfdff;
+
+     transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+}
+
+.hm-step-card:hover {
+     transform: translateY(-6px);
+
+     box-shadow:
+          0 15px 35px rgba(55, 100, 150, 0.07);
+}
+
+.hm-step-number {
+     position: absolute;
+
+     right: 25px;
+     top: 23px;
+
+     color: #c1d4e6;
+
+     font-size: 18px;
+     font-weight: 800;
+}
+
+.hm-step-icon {
+     width: 55px;
+     height: 55px;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     margin-bottom: 26px;
+
+     border-radius: 16px;
+
+     color: #3e99ec;
+
+     background: #e8f4ff;
+}
+
+.hm-step-card h3 {
+     margin: 0 0 12px;
+
+     color: #24314c;
+
+     font-size: 17px;
+     font-weight: 800;
+}
+
+.hm-step-card p {
+     margin: 0;
+
+     color: #78879b;
+
+     font-size: 13px;
+     line-height: 1.8;
+}
+
+
+/* =========================================================
+   LIFESTYLE SECTION
+========================================================= */
+
+.hm-lifestyle-section {
+     padding: 80px 0;
+
+     background: #f8fcff;
+}
+
+.hm-lifestyle-grid {
+     display: grid;
+     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+     align-items: center;
+
+     gap: 65px;
+}
+
+.hm-lifestyle-image {
+     height: 420px;
+
+     overflow: hidden;
+
+     border-radius: 27px;
+
+     box-shadow:
+          0 20px 45px rgba(60, 110, 150, 0.09);
+}
+
+.hm-lifestyle-image img {
+     width: 100%;
+     height: 100%;
+
+     display: block;
+     object-fit: cover;
+}
+
+.hm-lifestyle-content h2 {
+     margin: 0;
+
+     color: #192642;
+
+     font-size: clamp(35px, 3.6vw, 52px);
+
+     font-weight: 800;
+     line-height: 1.18;
+
+     letter-spacing: -2px;
+}
+
+.hm-lifestyle-content h2 span {
+     background: var(--hm-gradient);
+
+     -webkit-background-clip: text;
+     background-clip: text;
+
+     -webkit-text-fill-color: transparent;
+}
+
+.hm-lifestyle-content p {
+     max-width: 460px;
+
+     margin: 22px 0;
+
+     color: #728198;
+
+     font-size: 14px;
+     line-height: 1.9;
+}
+
+.hm-text-button {
+     display: inline-flex;
+     align-items: center;
+
+     gap: 12px;
+
+     color: #358fdc;
+
+     font-size: 13px;
+     font-weight: 800;
+}
+
+.hm-text-button svg {
+     transition: transform 0.3s ease;
+}
+
+.hm-text-button:hover svg {
+     transform: translate(4px, -4px);
+}
+
+
+/* =========================================================
+   FINAL CTA
+========================================================= */
+
+.hm-final-section {
+     padding: 85px 0;
+
+     background: #ffffff;
+}
+
+.hm-final-banner {
+     min-height: 350px;
+
+     display: grid;
+     grid-template-columns: 1fr 0.9fr;
+
+     overflow: hidden;
+
+     border-radius: 28px;
+
+     background: linear-gradient(115deg,
+               #e7f4ff,
+               #e2faf5);
+}
+
+.hm-final-copy {
+     align-self: center;
+     padding: 45px;
+}
+
+.hm-final-copy>span {
+     color: #319fc4;
+
+     font-size: 10px;
+     font-weight: 800;
+
+     letter-spacing: 1.6px;
+}
+
+.hm-final-copy h2 {
+     margin: 20px 0 17px;
+
+     color: #192641;
+
+     font-size: clamp(29px, 3vw, 42px);
+
+     font-weight: 800;
+     line-height: 1.2;
+
+     letter-spacing: -1.5px;
+}
+
+.hm-final-copy h2 em {
+     font-style: normal;
+     color: #2db5b4;
+}
+
+.hm-final-copy p {
+     max-width: 390px;
+
+     margin-bottom: 23px;
+
+     color: #71839a;
+
+     font-size: 13px;
+     line-height: 1.8;
+}
+
+.hm-final-image {
+     position: relative;
+
+     min-height: 300px;
+
+     overflow: hidden;
+}
+
+.hm-final-image::after {
+     content: "";
+
+     position: absolute;
+     inset: 0;
+
+     background: linear-gradient(90deg,
+               #e4f7fa 0%,
+               transparent 45%);
+}
+
+.hm-final-image img {
+     position: absolute;
+     inset: 0;
+
+     width: 100%;
+     height: 100%;
+
+     object-fit: cover;
+}
+
+
+/* =========================================================
+   KEYFRAME ANIMATIONS
+========================================================= */
+
+@keyframes hmWave {
+     from {
+          stroke-dashoffset: 0;
+     }
+
+     to {
+          stroke-dashoffset: 600;
+     }
+}
+
+@keyframes hmBlob {
+     from {
+          transform: translate(0, 0);
+     }
+
+     to {
+          transform: translate(60px, 45px);
+     }
+}
+
+@keyframes hmStar {
+
+     0%,
+     100% {
+          transform: translateY(0);
+     }
+
+     50% {
+          transform: translateY(-12px) rotate(15deg);
+     }
+}
+
+@keyframes hmRotate {
+     from {
+          transform: rotate(0deg);
+     }
+
+     to {
+          transform: rotate(360deg);
+     }
+}
+
+@keyframes hmPriceFloat {
+
+     0%,
+     100% {
+          transform: translateY(0);
+     }
+
+     50% {
+          transform: translateY(-12px);
+     }
+}
+
+
+/* =========================================================
+   LAPTOP — 1100px
+========================================================= */
+
+@media (max-width: 1100px) {
+     .hm-container {
+          width: calc(100% - 55px);
+     }
+
+     .hm-hero-inner {
+          gap: 25px;
+          min-height: 560px;
+     }
+
+     .streamai-home .hm-hero-title {
+          font-size: clamp(35px, 4.2vw, 47px);
+          letter-spacing: -2px;
+     }
+
+     .hm-hero-visual {
+          height: 430px;
+     }
+
+     .hm-hero-image {
+          height: 365px;
+     }
+
+     .hm-floating-logo .hm-brand-logo {
+          width: 49px;
+          height: 49px;
+     }
+
+     .hm-platform-grid {
+          gap: 12px;
+     }
+
+     .hm-feature-card {
+          padding: 23px 18px;
+     }
+
+     .hm-lifestyle-grid {
+          gap: 35px;
+     }
+
+     .hm-lifestyle-image {
+          height: 375px;
+     }
+}
+
+
+/* =========================================================
+   SHORT LAPTOP SCREENS — IMPORTANT
+========================================================= */
+
+@media (min-width: 851px) and (max-height: 760px) {
+     .hm-hero-inner {
+          min-height: 530px;
+          padding-top: 25px;
+          padding-bottom: 35px;
+     }
+
+     .streamai-home .hm-hero-title {
+          font-size: clamp(35px, 3vw, 49px);
+     }
+
+     .hm-hero-badge {
+          margin-bottom: 15px;
+     }
+
+     .hm-hero-description {
+          margin-top: 15px;
+     }
+
+     .hm-hero-buttons {
+          margin-top: 18px;
+     }
+
+     .hm-hero-benefits {
+          margin-top: 23px;
+     }
+
+     .hm-hero-visual {
+          height: 420px;
+     }
+
+     .hm-hero-image {
+          height: 360px;
+     }
+}
+
+
+/* =========================================================
+   TABLET — 850px
+========================================================= */
+
+@media (max-width: 850px) {
+     .hm-hero {
+          min-height: 0;
+     }
+
+     .hm-hero-inner {
+          grid-template-columns: 1fr;
+
+          min-height: 0;
+
+          gap: 20px;
+
+          padding-top: 20px;
+          padding-bottom: 40px;
+     }
+
+     .hm-hero-content {
+          max-width: 700px;
+
+          padding: 35px 0 10px;
+     }
+
+     .streamai-home .hm-hero-title {
+          font-size: clamp(43px, 6.5vw, 58px);
+          letter-spacing: -2px;
+     }
+
+     .hm-hero-description {
+          max-width: 540px;
+     }
+
+     .hm-hero-benefits {
+          margin-top: 28px;
+     }
+
+     .hm-hero-visual {
+          width: 100%;
+          max-width: 600px;
+
+          height: 440px;
+
+          margin: 10px auto 0;
+     }
+
+     .hm-hero-image {
+          width: 82%;
+          height: 370px;
+
+          right: 8%;
+     }
+
+     .hm-platform-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+     }
+
+     .hm-features-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+     }
+
+     .hm-entertainment-banner,
+     .hm-featured-bundle,
+     .hm-final-banner {
+          grid-template-columns: 1fr 1fr;
+     }
+
+     .hm-banner-content,
+     .hm-featured-copy,
+     .hm-final-copy {
+          padding: 30px;
+     }
+
+     .hm-lifestyle-grid {
+          gap: 25px;
+     }
+
+     .hm-lifestyle-image {
+          height: 340px;
+     }
+
+     .hm-lifestyle-content h2 {
+          font-size: 35px;
+     }
+}
+
+
+/* =========================================================
+   MOBILE — 600px
+========================================================= */
+
+@media (max-width: 600px) {
+     .hm-container {
+          width: calc(100% - 32px);
+     }
+
+     /* HERO */
+
+     .hm-hero-inner {
+          gap: 15px;
+
+          padding-top: 10px;
+          padding-bottom: 35px;
+     }
+
+     .hm-hero-content {
+          padding: 30px 0 0;
+     }
+
+     .hm-hero-badge {
+          font-size: 10px;
+          margin-bottom: 18px;
+     }
+
+     .streamai-home .hm-hero-title {
+          font-size: clamp(36px, 9vw, 49px);
+
+          line-height: 1.15;
+
+          letter-spacing: -1.8px;
+     }
+
+     .hm-hero-description {
+          max-width: 100%;
+
+          margin-top: 17px;
+
+          font-size: 12px;
+          line-height: 1.8;
+     }
+
+     .hm-hero-buttons {
+          gap: 10px;
+          margin-top: 22px;
+     }
+
+     .hm-primary-btn {
+          min-height: 44px;
+
+          padding: 0 17px;
+
+          font-size: 11px;
+     }
+
+     .hm-secondary-btn {
+          min-height: 44px;
+
+          padding: 0 14px;
+
+          font-size: 11px;
+     }
+
+     /* BENEFITS */
+
+     .hm-hero-benefits {
+          gap: 5px;
+          margin-top: 27px;
+     }
+
+     .hm-benefit-icon {
+          width: 40px;
+          height: 40px;
+     }
+
+     .hm-hero-benefit strong {
+          font-size: 9px;
+     }
+
+     .hm-hero-benefit span {
+          font-size: 8px;
+     }
+
+     /* HERO IMAGE */
+
+     .hm-hero-visual {
+          width: 100%;
+          height: 345px;
+
+          margin-top: 20px;
+     }
+
+     .hm-hero-image {
+          width: 84%;
+          height: 285px;
+
+          right: 8%;
+
+          border-radius: 115px 115px 17px 17px;
+     }
+
+     .hm-hero-image img {
+          object-position: center;
+     }
+
+     /* FLOATING LOGOS */
+
+     .hm-floating-logo .hm-brand-logo {
+          width: 42px;
+          height: 42px;
+
+          padding: 7px;
+
+          border-radius: 11px;
+     }
+
+     .hm-float-netflix {
+          top: 20px;
+          left: 8%;
+     }
+
+     .hm-float-prime {
+          top: 0;
+          left: 42%;
+     }
+
+     .hm-float-hotstar {
+          top: 35px;
+          right: 7%;
+     }
+
+     .hm-float-zee {
+          top: 110px;
+          right: 1%;
+     }
+
+     .hm-float-chatgpt {
+          top: 195px;
+          right: 0;
+     }
+
+     .hm-float-gemini {
+          top: 125px;
+          left: 0;
+     }
+
+     .hm-float-claude {
+          top: 235px;
+          left: 6%;
+     }
+
+     .hm-star-one {
+          top: 105px;
+     }
+
+     .hm-star-two {
+          top: 205px;
+     }
+
+     /* PLATFORM STRIP */
+
+     .hm-platform-strip {
+          padding: 23px 0;
+     }
+
+     .hm-strip-inner {
+          gap: 13px;
+     }
+
+     .hm-strip-item {
+          font-size: 10px;
+     }
+
+     .hm-strip-divider {
+          display: none;
+     }
+
+     /* COMMON SECTIONS */
+
+     .hm-section {
+          padding: 55px 0;
+     }
+
+     .hm-section-heading {
+          gap: 13px;
+          margin-bottom: 25px;
+     }
+
+     .hm-section-heading h2 {
+          font-size: 27px;
+     }
+
+     .hm-section-heading p {
+          font-size: 12px;
+     }
+
+     .hm-view-all {
+          margin-top: 15px;
+          font-size: 11px;
+     }
+
+     /* PLATFORM GRID */
+
+     .hm-platform-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+
+          gap: 11px;
+     }
+
+     .hm-platform-card {
+          min-height: 145px;
+
+          padding: 17px 10px;
+
+          border-radius: 16px;
+     }
+
+     .hm-brand-logo {
+          width: 58px;
+          height: 58px;
+
+          border-radius: 13px;
+     }
+
+     .hm-platform-card h3 {
+          font-size: 11px;
+     }
+
+     /* ENTERTAINMENT BANNER */
+
+     .hm-banner-section {
+          padding: 55px 0;
+     }
+
+     .hm-entertainment-banner {
+          grid-template-columns: 1fr;
+
+          border-radius: 21px;
+     }
+
+     .hm-banner-content {
+          padding: 28px 23px;
+     }
+
+     .hm-banner-content h2 {
+          font-size: 29px;
+     }
+
+     .hm-banner-content p {
+          font-size: 12px;
+     }
+
+     .hm-banner-image {
+          height: 220px;
+          min-height: 220px;
+     }
+
+     .hm-banner-image::after {
+          background: linear-gradient(180deg,
+                    #e0f6fc,
+                    transparent 40%);
+     }
+
+     /* FEATURED BUNDLE */
+
+     .hm-featured-section {
+          padding: 20px 0 60px;
+     }
+
+     .hm-featured-bundle {
+          grid-template-columns: 1fr;
+
+          border-radius: 21px;
+     }
+
+     .hm-featured-copy {
+          padding: 30px 23px 10px;
+     }
+
+     .hm-featured-copy h2 {
+          font-size: 31px;
+     }
+
+     .hm-featured-price {
+          padding: 25px;
+     }
+
+     .hm-price-ring {
+          width: 205px;
+          height: 205px;
+     }
+
+     .hm-price-ring strong {
+          font-size: 40px;
+     }
+
+     /* WHY CHOOSE */
+
+     .hm-features-grid {
+          grid-template-columns: 1fr 1fr;
+
+          gap: 11px;
+     }
+
+     .hm-feature-card {
+          min-height: 205px;
+
+          padding: 19px 15px;
+
+          border-radius: 16px;
+     }
+
+     .hm-feature-icon {
+          width: 43px;
+          height: 43px;
+
+          margin-bottom: 17px;
+     }
+
+     .hm-feature-card h3 {
+          font-size: 12px;
+     }
+
+     .hm-feature-card p {
+          font-size: 10px;
+     }
+
+     /* HOW IT WORKS */
+
+     .hm-how-section {
+          padding: 65px 0;
+     }
+
+     .hm-how-heading {
+          margin-bottom: 32px;
+     }
+
+     .hm-how-heading h2 {
+          font-size: 31px;
+     }
+
+     .hm-steps-grid {
+          grid-template-columns: 1fr;
+
+          gap: 12px;
+     }
+
+     .hm-step-card {
+          min-height: 0;
+          padding: 27px;
+     }
+
+     /* LIFESTYLE */
+
+     .hm-lifestyle-section {
+          padding: 60px 0;
+     }
+
+     .hm-lifestyle-grid {
+          grid-template-columns: 1fr;
+
+          gap: 30px;
+     }
+
+     .hm-lifestyle-image {
+          height: 275px;
+     }
+
+     .hm-lifestyle-content h2 {
+          font-size: 36px;
+     }
+
+     .hm-lifestyle-content p {
+          font-size: 12px;
+     }
+
+     /* FINAL CTA */
+
+     .hm-final-section {
+          padding: 60px 0;
+     }
+
+     .hm-final-banner {
+          grid-template-columns: 1fr;
+
+          border-radius: 21px;
+     }
+
+     .hm-final-copy {
+          padding: 30px 23px;
+     }
+
+     .hm-final-copy h2 {
+          font-size: 30px;
+     }
+
+     .hm-final-image {
+          height: 225px;
+          min-height: 225px;
+     }
+
+     .hm-final-image::after {
+          background: linear-gradient(180deg,
+                    #e4f7fa,
+                    transparent 40%);
+     }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE — 370px
+========================================================= */
+
+@media (max-width: 370px) {
+     .streamai-home .hm-hero-title {
+          font-size: 34px;
+     }
+
+     .hm-hero-buttons {
+          align-items: flex-start;
+          flex-direction: column;
+     }
+
+     .hm-hero-visual {
+          height: 305px;
+     }
+
+     .hm-hero-image {
+          height: 260px;
+     }
+
+     .hm-features-grid {
+          grid-template-columns: 1fr;
+     }
+
+     .hm-section-heading {
+          flex-direction: column;
+     }
+
+     .hm-view-all {
+          margin-top: 0;
+     }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+     .streamai-home *,
+     .streamai-home *::before,
+     .streamai-home *::after {
+          animation: none !important;
+          transition: none !important;
+     }
+}

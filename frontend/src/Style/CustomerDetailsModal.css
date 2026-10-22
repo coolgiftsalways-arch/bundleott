@@ -1,0 +1,433 @@
+/* bundleupott — customer details before payment */
+.bup-checkout-overlay,
+.bup-checkout-overlay * {
+     box-sizing: border-box;
+}
+
+.bup-checkout-overlay {
+     position: fixed;
+     inset: 0;
+     z-index: 999999;
+     display: grid;
+     place-items: center;
+     padding: 20px;
+     background: rgba(13, 22, 51, .66);
+     backdrop-filter: blur(10px);
+     font-family: "Manrope", Arial, sans-serif;
+}
+
+.bup-checkout-dialog {
+     position: relative;
+     width: min(100%, 940px);
+     max-height: min(91vh, 850px);
+     overflow: auto;
+     background: #fff;
+     border-radius: 28px;
+     box-shadow: 0 25px 95px rgba(7, 21, 50, .28);
+     color: #18243e;
+     overscroll-behavior: contain;
+}
+
+.bup-checkout-close {
+     position: absolute;
+     z-index: 2;
+     top: 22px;
+     right: 22px;
+     display: grid;
+     place-items: center;
+     width: 38px;
+     height: 38px;
+     border: 1px solid #dce8f6;
+     border-radius: 50%;
+     background: #fff;
+     color: #354760;
+     cursor: pointer;
+}
+
+.bup-checkout-close:hover {
+     background: #eaf6ff;
+}
+
+.bup-checkout-heading {
+     padding: 40px 44px 25px;
+}
+
+.bup-checkout-eyebrow {
+     color: #4098e6;
+     font-size: 11px;
+     font-weight: 800;
+     letter-spacing: 1.6px;
+}
+
+.bup-checkout-heading h2 {
+     margin: 10px 45px 10px 0;
+     font: 800 clamp(23px, 2.6vw, 34px)/1.28 "Sora", "Manrope", sans-serif;
+     letter-spacing: -1px;
+}
+
+.bup-checkout-heading>p {
+     margin: 0;
+     color: #66778e;
+     font-size: 13px;
+     line-height: 1.7;
+}
+
+.bup-checkout-steps {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 8px;
+     margin-top: 22px;
+}
+
+.bup-checkout-steps span {
+     padding: 8px 12px;
+     border: 1px solid #e3edf6;
+     border-radius: 999px;
+     background: #f7f9fc;
+     color: #8a98ad;
+     font-size: 11px;
+     font-weight: 800;
+}
+
+.bup-checkout-steps .bup-step-done {
+     background: #e8faf3;
+     color: #179c80;
+     border-color: #d5f3e8;
+}
+
+.bup-checkout-steps .bup-step-active {
+     background: #eaf4ff;
+     color: #358ce0;
+     border-color: #d6e9ff;
+}
+
+.bup-checkout-columns {
+     display: grid;
+     grid-template-columns: minmax(0, 1.15fr) minmax(270px, .85fr);
+     border-top: 1px solid #ebf1f7;
+}
+
+.bup-checkout-main {
+     padding: 28px 44px 40px;
+}
+
+.bup-checkout-form h3,
+.bup-checkout-success h3 {
+     margin: 0 0 23px;
+     font: 800 18px "Sora", sans-serif;
+}
+
+.bup-checkout-form>label:not(.bup-confirm-row) {
+     display: block;
+     margin: 17px 0 8px;
+     color: #263750;
+     font-size: 12px;
+     font-weight: 800;
+}
+
+.bup-checkout-form>label span {
+     color: #e36883;
+}
+
+.bup-checkout-form>input,
+.bup-phone-wrapper {
+     display: block;
+     width: 100%;
+     min-height: 49px;
+     border: 1px solid #dce7f2;
+     border-radius: 13px;
+     background: #fcfdff;
+     color: #14213e;
+     font-size: 13px;
+}
+
+.bup-checkout-form>input {
+     padding: 12px 15px;
+}
+
+.bup-checkout-form input:focus {
+     outline: 2px solid #a8d1ff;
+     outline-offset: 1px;
+}
+
+.bup-checkout-form input::placeholder {
+     color: #9aa9b9;
+}
+
+.bup-phone-wrapper {
+     display: flex;
+     align-items: center;
+     overflow: hidden;
+}
+
+.bup-phone-wrapper>span {
+     padding: 0 13px;
+     border-right: 1px solid #e4edf6;
+     color: #526782;
+     font-size: 12px;
+     font-weight: 800;
+}
+
+.bup-phone-wrapper>input {
+     width: 100%;
+     min-width: 0;
+     min-height: 47px;
+     padding: 12px;
+     border: 0;
+     background: transparent;
+     font: inherit;
+}
+
+.bup-confirm-row {
+     display: flex !important;
+     align-items: flex-start;
+     gap: 11px;
+     margin: 23px 0 0;
+     cursor: pointer;
+}
+
+.bup-confirm-row input {
+     flex-shrink: 0;
+     width: 17px;
+     height: 17px;
+     margin: 2px 0 0;
+     accent-color: #3d9ee8;
+}
+
+.bup-confirm-row span {
+     color: #63758b !important;
+     font-size: 11px;
+     line-height: 1.65;
+}
+
+.bup-checkout-error {
+     color: #c52851;
+     background: #fff1f4;
+     border-radius: 8px;
+     padding: 10px;
+     font-size: 12px;
+}
+
+.bup-checkout-button {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 12px;
+     width: 100%;
+     min-height: 51px;
+     margin-top: 23px;
+     border: none;
+     border-radius: 13px;
+     color: #fff;
+     background: linear-gradient(110deg, #438bff, #30bdb2);
+     box-shadow: 0 10px 24px rgba(45, 141, 223, .17);
+     font-family: inherit;
+     font-size: 13px;
+     font-weight: 800;
+     cursor: pointer;
+}
+
+.bup-checkout-button:hover:not(:disabled) {
+     filter: brightness(1.05);
+}
+
+.bup-checkout-button:disabled {
+     opacity: .56;
+     cursor: not-allowed;
+     box-shadow: none;
+}
+
+.bup-checkout-help {
+     color: #9aa6b6;
+     font-size: 11px;
+     text-align: center;
+     margin: 13px 0 0;
+}
+
+.bup-checkout-summary {
+     min-width: 0;
+     padding: 30px 30px 38px;
+     background: linear-gradient(150deg, #f0f7ff, #f1fffa);
+}
+
+.bup-summary-label {
+     color: #398fda;
+     font-size: 10px;
+     font-weight: 800;
+     letter-spacing: 1.4px;
+}
+
+.bup-checkout-summary h3 {
+     margin: 8px 0 20px;
+     font: 800 19px "Sora", sans-serif;
+}
+
+.bup-summary-items {
+     display: flex;
+     flex-direction: column;
+     gap: 15px;
+     max-height: 220px;
+     overflow: auto;
+}
+
+.bup-summary-item,
+.bup-summary-discount {
+     display: flex;
+     justify-content: space-between;
+     gap: 10px;
+     align-items: flex-start;
+}
+
+.bup-summary-item strong {
+     display: block;
+     font-size: 12px;
+}
+
+.bup-summary-item small {
+     display: block;
+     margin-top: 4px;
+     color: #889bb0;
+     font-size: 10px;
+}
+
+.bup-summary-item b {
+     white-space: nowrap;
+     font-size: 12px;
+}
+
+.bup-summary-discount {
+     margin-top: 20px;
+     color: #149a7d;
+     font-size: 12px;
+     font-weight: 800;
+}
+
+.bup-summary-total {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     gap: 12px;
+     margin-top: 21px;
+     padding-top: 20px;
+     border-top: 1px solid #d9e9ed;
+}
+
+.bup-summary-total span {
+     font-size: 12px;
+     font-weight: 700;
+}
+
+.bup-summary-total strong {
+     white-space: nowrap;
+     font: 800 24px "Sora", sans-serif;
+     color: #2787d7;
+}
+
+.bup-summary-disclaimer {
+     margin-top: 20px;
+     color: #8c9caa;
+     font-size: 10px;
+     line-height: 1.7;
+}
+
+.bup-checkout-success {
+     text-align: left;
+}
+
+.bup-success-mark {
+     display: grid;
+     place-items: center;
+     width: 54px;
+     height: 54px;
+     margin-bottom: 20px;
+     background: #dcf8ea;
+     border-radius: 18px;
+     color: #179b77;
+     font-size: 28px;
+}
+
+.bup-checkout-success h3 {
+     margin-bottom: 12px;
+}
+
+.bup-checkout-success>p {
+     margin: 5px 0;
+     color: #576a83;
+     font-size: 13px;
+}
+
+.bup-payment-notice {
+     display: flex;
+     flex-direction: column;
+     gap: 8px;
+     padding: 16px;
+     margin-top: 21px;
+     border-radius: 13px;
+     background: #fff9ed;
+     border: 1px solid #fae7b8;
+}
+
+.bup-payment-notice strong {
+     font-size: 12px;
+     color: #936016;
+}
+
+.bup-payment-notice span {
+     font-size: 11px;
+     line-height: 1.6;
+     color: #8e784f;
+}
+
+.bup-checkout-edit {
+     display: block;
+     margin: 15px auto 0;
+     padding: 5px;
+     border: 0;
+     background: transparent;
+     color: #2689ce;
+     font-weight: 800;
+     cursor: pointer;
+}
+
+.bup-checkout-overlay button:focus-visible {
+     outline: 3px solid #438bff;
+     outline-offset: 3px;
+}
+
+@media (max-width: 740px) {
+     .bup-checkout-overlay {
+          padding: 8px;
+     }
+
+     .bup-checkout-dialog {
+          width: 100%;
+          max-height: 96dvh;
+          border-radius: 20px;
+     }
+
+     .bup-checkout-heading {
+          padding: 29px 23px 22px;
+     }
+
+     .bup-checkout-close {
+          top: 13px;
+          right: 14px;
+     }
+
+     .bup-checkout-columns {
+          grid-template-columns: 1fr;
+     }
+
+     .bup-checkout-main {
+          padding: 24px 23px;
+     }
+
+     .bup-checkout-summary {
+          padding: 26px 23px;
+     }
+
+     .bup-checkout-steps span {
+          font-size: 9px;
+          padding: 7px 9px;
+     }
+}

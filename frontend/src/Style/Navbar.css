@@ -1,0 +1,486 @@
+/* =========================================
+   STREAMAI PREMIUM NAVBAR
+========================================= */
+
+.sa-navbar {
+     width: 100%;
+     height: 82px;
+     position: sticky;
+     top: 0;
+     left: 0;
+     z-index: 9999;
+
+     background: rgba(255, 255, 255, 0.92);
+
+     backdrop-filter: blur(22px);
+     -webkit-backdrop-filter: blur(22px);
+
+     border-bottom: 1px solid rgba(105, 105, 155, 0.09);
+
+     box-shadow: 0 4px 28px rgba(48, 42, 95, 0.025);
+
+     font-family: "Inter", sans-serif;
+}
+
+/* NAVBAR CONTAINER */
+
+.sa-navbar-inner {
+     width: min(100% - 80px, 1320px);
+     height: 100%;
+
+     margin: 0 auto;
+
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+
+     position: relative;
+}
+
+/* =========================================
+   BRAND
+========================================= */
+
+.sa-brand {
+     display: inline-flex;
+     align-items: center;
+     gap: 8px;
+
+     text-decoration: none;
+     flex-shrink: 0;
+}
+
+.sa-brand-icon {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     width: 37px;
+     height: 37px;
+
+     transition: transform 0.35s ease;
+}
+
+.sa-brand:hover .sa-brand-icon {
+     transform: rotate(-8deg) scale(1.08);
+}
+
+.sa-brand-text {
+     font-size: 23px;
+     font-weight: 800;
+
+     color: #141425;
+
+     letter-spacing: -1.2px;
+     line-height: 1;
+}
+
+.sa-brand-text span {
+     background: linear-gradient(120deg,
+               #5447ff 0%,
+               #ae39ed 100%);
+
+     -webkit-background-clip: text;
+     background-clip: text;
+
+     -webkit-text-fill-color: transparent;
+}
+
+/* =========================================
+   CENTER NAVIGATION
+========================================= */
+
+.sa-nav-links {
+     position: absolute;
+
+     left: 50%;
+     top: 50%;
+
+     transform: translate(-50%, -50%);
+
+     display: flex;
+     align-items: center;
+
+     gap: 45px;
+
+     height: 100%;
+}
+
+.sa-nav-link {
+     height: 100%;
+
+     position: relative;
+
+     display: inline-flex;
+     align-items: center;
+
+     font-size: 13px;
+     font-weight: 600;
+
+     color: #596078;
+
+     text-decoration: none;
+     white-space: nowrap;
+
+     transition: color 0.3s ease;
+}
+
+.sa-nav-link:hover {
+     color: #6d3eff;
+}
+
+.sa-nav-link::after {
+     content: "";
+
+     position: absolute;
+
+     bottom: 17px;
+     left: 0;
+
+     width: 100%;
+     height: 2px;
+
+     border-radius: 20px;
+
+     background: linear-gradient(90deg,
+               #3758ff,
+               #a332f5);
+
+     transform: scaleX(0);
+     transform-origin: center;
+
+     transition: transform 0.35s ease;
+}
+
+.sa-nav-link:hover::after,
+.sa-nav-active::after {
+     transform: scaleX(1);
+}
+
+.sa-nav-active {
+     color: #16182e;
+     font-weight: 700;
+}
+
+/* =========================================
+   RIGHT BUTTONS
+========================================= */
+
+.sa-nav-actions {
+     display: flex;
+     align-items: center;
+
+     gap: 13px;
+     margin-left: auto;
+}
+
+/* LOGIN */
+
+.sa-login-btn {
+     height: 39px;
+     padding: 0 21px;
+
+     border-radius: 30px;
+
+     background: transparent;
+
+     border: 1px solid #dadcf4;
+
+     color: #232440;
+
+     font-size: 12px;
+     font-weight: 600;
+
+     cursor: pointer;
+
+     transition:
+          background 0.3s ease,
+          border-color 0.3s ease,
+          transform 0.3s ease;
+}
+
+.sa-login-btn:hover {
+     background: #f7f5ff;
+
+     border-color: #a894ff;
+
+     transform: translateY(-2px);
+}
+
+/* GET STARTED */
+
+.sa-getstarted-btn {
+     min-height: 40px;
+
+     display: inline-flex;
+     justify-content: center;
+     align-items: center;
+
+     gap: 9px;
+
+     padding: 0 20px;
+
+     border-radius: 30px;
+
+     color: #ffffff;
+     text-decoration: none;
+
+     font-size: 12px;
+     font-weight: 700;
+
+     background: linear-gradient(105deg,
+               #5546ff 0%,
+               #853af4 55%,
+               #bb47ed 100%);
+
+     box-shadow:
+          0 5px 16px rgba(118, 64, 246, 0.18);
+
+     transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+}
+
+.sa-getstarted-btn:hover {
+     transform: translateY(-3px);
+
+     box-shadow:
+          0 9px 23px rgba(118, 64, 246, 0.28);
+}
+
+.sa-getstarted-btn svg {
+     transition: transform 0.3s ease;
+}
+
+.sa-getstarted-btn:hover svg {
+     transform: translateX(4px);
+}
+
+/* =========================================
+   MOBILE MENU BUTTON
+========================================= */
+
+.sa-menu-toggle {
+     display: none;
+
+     width: 42px;
+     height: 42px;
+
+     border: 1px solid #ece8ff;
+     border-radius: 12px;
+
+     background: #f8f6ff;
+
+     cursor: pointer;
+
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+
+     gap: 5px;
+
+     padding: 0;
+}
+
+.sa-menu-toggle span {
+     width: 18px;
+     height: 2px;
+
+     background: #623bf1;
+
+     border-radius: 10px;
+
+     transition:
+          transform 0.3s ease,
+          opacity 0.3s ease;
+}
+
+.sa-menu-open span:nth-child(1) {
+     transform: translateY(7px) rotate(45deg);
+}
+
+.sa-menu-open span:nth-child(2) {
+     opacity: 0;
+}
+
+.sa-menu-open span:nth-child(3) {
+     transform: translateY(-7px) rotate(-45deg);
+}
+
+/* =========================================
+   MOBILE DROPDOWN
+========================================= */
+
+.sa-mobile-menu {
+     display: none;
+
+     background: rgba(255, 255, 255, 0.98);
+
+     border-bottom: 1px solid #eeebff;
+
+     box-shadow: 0 18px 35px rgba(50, 40, 100, 0.07);
+}
+
+.sa-mobile-links {
+     display: flex;
+     flex-direction: column;
+
+     gap: 8px;
+}
+
+.sa-mobile-link {
+     display: block;
+
+     padding: 14px 16px;
+
+     color: #42425a;
+
+     text-decoration: none;
+
+     font-size: 15px;
+     font-weight: 600;
+
+     border-radius: 12px;
+
+     transition:
+          background 0.3s ease,
+          color 0.3s ease;
+}
+
+.sa-mobile-link:hover,
+.sa-mobile-active {
+     background: #f4efff;
+     color: #7540ea;
+}
+
+.sa-mobile-actions {
+     display: flex;
+     gap: 12px;
+
+     margin-top: 18px;
+}
+
+.sa-mobile-login,
+.sa-mobile-start {
+     flex: 1;
+
+     min-height: 46px;
+
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     border-radius: 12px;
+
+     font-size: 13px;
+     font-weight: 700;
+
+     text-decoration: none;
+     cursor: pointer;
+}
+
+.sa-mobile-login {
+     border: 1px solid #ded7fa;
+
+     color: #524b70;
+     background: #ffffff;
+}
+
+.sa-mobile-start {
+     border: none;
+
+     color: #ffffff;
+
+     background: linear-gradient(110deg,
+               #5347ff,
+               #b43ff3);
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+     .sa-navbar-inner {
+          width: calc(100% - 40px);
+     }
+
+     .sa-nav-links {
+          gap: 22px;
+     }
+
+     .sa-brand-text {
+          font-size: 20px;
+     }
+
+     .sa-login-btn {
+          padding: 0 15px;
+     }
+
+     .sa-getstarted-btn {
+          padding: 0 15px;
+     }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+     .sa-navbar {
+          height: 70px;
+     }
+
+     .sa-navbar-inner {
+          width: calc(100% - 32px);
+     }
+
+     .sa-brand-text {
+          font-size: 21px;
+     }
+
+     .sa-nav-links,
+     .sa-nav-actions {
+          display: none;
+     }
+
+     .sa-menu-toggle {
+          display: flex;
+     }
+
+     .sa-mobile-menu.sa-mobile-visible {
+          display: block;
+
+          position: absolute;
+          top: 70px;
+          left: 0;
+
+          width: 100%;
+
+          padding: 18px 16px 24px;
+
+          animation: saMenuReveal 0.3s ease both;
+     }
+}
+
+@keyframes saMenuReveal {
+     from {
+          opacity: 0;
+          transform: translateY(-10px);
+     }
+
+     to {
+          opacity: 1;
+          transform: translateY(0);
+     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+     .sa-navbar *,
+     .sa-navbar *::before,
+     .sa-navbar *::after {
+          animation: none !important;
+          transition: none !important;
+     }
+}
