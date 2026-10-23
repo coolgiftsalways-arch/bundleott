@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect } from "react";
 
 import { Routes, Route, useLocation } from "react-router-dom";
-
+import { Navigate } from "react-router-dom";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // ========================================
@@ -20,10 +20,12 @@ import OurPlans from "./pages/OurPlans";
 import About from "./pages/About";
 
 // ========================================
-// ADMIN DASHBOARD
+// ADMIN COMPONENTS
 // ========================================
 
 import AdminDashboard from "./Admin/AdminDashboard";
+import AdminLogin from "./Admin/AdminLogin";
+import AdminProtectedRoute from "./Admin/AdminProtectedRoute";
 
 // ========================================
 // SCROLL TO TOP ON PAGE CHANGE
@@ -34,7 +36,6 @@ function ScrollToTop() {
 
   useEffect(() => {
     const previous = window.history.scrollRestoration;
-
     window.history.scrollRestoration = "manual";
 
     return () => {
@@ -66,21 +67,14 @@ function ScrollToTop() {
       document.body.scrollTop = 0;
     };
 
-    // Reset immediately
     resetScroll();
 
-    // Reset again after rendering
     frame1 = requestAnimationFrame(() => {
       resetScroll();
 
       frame2 = requestAnimationFrame(() => {
-        // Refresh Lenis
         window.lenis?.resize();
-
-        // Refresh GSAP
         ScrollTrigger.refresh();
-
-        // Ensure new page starts at top
         resetScroll();
       });
     });
@@ -101,66 +95,61 @@ function ScrollToTop() {
 export default function App() {
   const location = useLocation();
 
-  // ======================================
-  // DETECT ADMIN ROUTES
-  // ======================================
-
+  // Hide the public website navbar and footer on admin routes.
   const isAdminPage =
-    location.pathname === "/admin" || location.pathname.startsWith("/admin/");
+    location.pathname === "/admin" ||
+    location.pathname.startsWith("/admin/");
 
   return (
     <>
-      {/* =====================================
-          AUTOMATIC SCROLL RESET
-      ===================================== */}
-
       <ScrollToTop />
 
-      {/* =====================================
-          WEBSITE NAVBAR
-          HIDDEN ON ADMIN PAGES
-      ===================================== */}
-
+      {/* WEBSITE NAVBAR */}
       {!isAdminPage && <Navbar />}
 
-      {/* =====================================
-          WEBSITE ROUTES
-      ===================================== */}
-
+      {/* APPLICATION ROUTES */}
       <Routes>
-        {/* HOME */}
-
+        {/* PUBLIC WEBSITE */}
         <Route path="/" element={<Home />} />
-
-        {/* =====================================
-            OUR PLANS
-
-            Customer selects OTT + AI plans.
-
-            Continue to Checkout opens the
-            CustomerDetailsModal inside OurPlans.
-
-            No login or signup required.
-        ===================================== */}
 
         <Route path="/our-plans" element={<OurPlans />} />
 
-        {/* ABOUT US */}
-
         <Route path="/about" element={<About />} />
 
-        {/* =====================================
-            ADMIN DASHBOARD
-        ===================================== */}
+        {/* ADMIN LOGIN */}
+        <Route
+          path="/admin/login"
+          element={<AdminLogin />}
+        />
 
-        <Route path="/admin/*" element={<AdminDashboard />} />
+        {/* PROTECTED ADMIN DASHBOARD */}
+        <Route
+          path="/admin"
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          }
+        />
+
+        {/* Keep all other admin URLs protected too */}
+        <Route
+          path="/admin/*"
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          }
+        />
+
+        {/* UNKNOWN ROUTES */}
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
 
-      {/* =====================================
-          WEBSITE FOOTER
-          HIDDEN ON ADMIN PAGES
-      ===================================== */}
-
+      {/* WEBSITE FOOTER */}
       {!isAdminPage && <Footer />}
     </>
   );

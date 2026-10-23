@@ -286,18 +286,74 @@ router.post("/notification", webhookLimit, authenticateWebhook, async (req, res)
 // =============================
 router.post("/admin/login", loginLimit, async (req, res) => {
   try {
-    const email = String(req.body?.email || "").trim().toLowerCase();
+    const email = String(req.body?.email || "")
+      .trim()
+      .toLowerCase();
+
     const password = String(req.body?.password || "");
-    const validEmail = safeEqual(email, String(process.env.ADMIN_EMAIL || "").toLowerCase());
-    const validPassword = password.length <= 1024 && await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
-    if (!validEmail || !validPassword) return res.status(401).json({ message: "Invalid admin credentials" });
-    const token = jwt.sign({ role: "admin", email }, process.env.ADMIN_JWT_SECRET, { algorithm: "HS256", expiresIn: "2h" });
-    return res.json({ success: true, token, expiresIn: 7200 });
+
+    const configuredEmail = String(process.env.ADMIN_EMAIL || "")
+      .trim()
+      .toLowerCase();
+
+    const passwordHash = String(
+      process.env.ADMIN_PASSWORD_HASH || ""
+    );
+
+    const emailMatches = safeEqual(email, configuredEmail);
+
+    let passwordMatches = false;
+
+    const validBcryptHash = /^\$2[aby]\$\d{2}\$/.test(passwordHash);
+
+    if (validBcryptHash && password.length <= 1024) {
+      passwordMatches = await bcrypt.compare(password, passwordHash);
+    }
+
+    // Temporary diagnostics: never print passwords or secrets.
+    console.log("[ADMIN LOGIN DEBUG]", {
+      emailMatches,
+      validBcryptHash,
+      hashLength: passwordHash.length,
+      passwordMatches,
+    });
+
+    if (!emailMatches || !passwordMatches) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid admin credentials",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        role: "admin",
+        email: configuredEmail,
+      },
+      process.env.ADMIN_JWT_SECRET,
+      {
+        algorithm: "HS256",
+        expiresIn: "2h",
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin login successful",
+      token,
+      expiresIn: 7200,
+    });
   } catch (error) {
     console.error("Admin login error:", error.message);
-    return res.status(500).json({ message: "Unable to log in" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to log in",
+    });
   }
 });
+;
+
 
 router.get("/admin/orders", authenticateAdmin, async (req, res) => {
   try {
