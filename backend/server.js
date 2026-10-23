@@ -10,6 +10,8 @@ import paymentRoutes from "./payment.js";
 dotenv.config();
 
 const app = express();
+// Current Cloudflare Quick Tunnel connects from localhost.
+app.set("trust proxy", "loopback");
 const PORT = Number(process.env.PORT || 5000);
 
 // =====================================

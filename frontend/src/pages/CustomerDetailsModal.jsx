@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "../Style/CustomerDetailsModal.css";
+import PaymentStep from "../components/PaymentStep";
 
 const EMPTY_CUSTOMER = {
   fullName: "",
@@ -170,17 +171,7 @@ export default function CustomerDetailsModal({
                 </p>
                 <p>{customer.email}</p>
                 <p>+91 {customer.phone}</p>
-                <div className="bup-payment-notice">
-                  <strong>Payment is not connected yet.</strong>
-                  <span>
-                    When the backend is ready, customers will proceed from this
-                    step to verified payment. This demo does not accept money or
-                    activate subscriptions.
-                  </span>
-                </div>
-                <button type="button" className="bup-checkout-button" disabled>
-                  Pay {formatPrice(total)} · Coming soon
-                </button>
+                <PaymentStep customer={customer} plans={plans} total={total} />
                 <button
                   type="button"
                   className="bup-checkout-edit"

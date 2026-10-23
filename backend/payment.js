@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import { rateLimit } from "express-rate-limit";
 import { PaymentOrder, PaymentAlert } from "./models.js";
 import { suggestMatches, normalizeReference } from "./matching.js";
+import { quoteBundle, PUBLIC_CATALOG } from "./catalog.js";
 
 const router = express.Router();
 
@@ -40,6 +41,12 @@ function publicOrder(order) {
     orderId: order.orderId,
     planId: order.planId,
     planName: order.planName,
+    items: order.items || [],
+    subtotal: order.subtotal ?? null,
+    discount: order.discount || 0,
+    preCouponAmount: order.preCouponAmount ?? order.amount,
+    couponCode: order.couponCode || "",
+    couponDiscount: order.couponDiscount || 0,
     amount: order.amount,
     currency: order.currency,
     status: order.status,
@@ -95,12 +102,172 @@ router.get("/plans", (req, res) => {
   res.json({ success: true, plans: Object.entries(PLANS).map(([id, p]) => ({ id, ...p, currency: "INR" })) });
 });
 
+router.get("/catalog", (req, res) => res.json({ success: true, plans: PUBLIC_CATALOG, promotion: { netflixPrimeDiscount: 100 } }));
+
+
+function buildPricingQuote(input = {}) {
+  const { planId, planIds } = input;
+  const isBundle = Array.isArray(planIds);
+  const bundle = isBundle ? quoteBundle(planIds) : null;
+
+  if (
+    (isBundle && !bundle) ||
+    (!isBundle &&
+      (typeof planId !== "string" || !Object.hasOwn(PLANS, planId)))
+  ) {
+    return {
+      ok: false,
+      status: 400,
+      message: "Invalid plan or bundle items",
+    };
+  }
+
+  const plan = isBundle
+    ? { name: bundle.name, amount: bundle.amount }
+    : PLANS[planId];
+
+  // Subtotal is the catalogue price before the existing bundle discount.
+  const listSubtotal = isBundle
+    ? bundle.items.reduce((sum, item) => sum + Number(item.price), 0)
+    : Number(plan.amount);
+
+  // Preserve the existing bundle discount independently of TEST99.
+  const bundleDiscount = isBundle ? Number(bundle.discount || 0) : 0;
+
+  // The coupon applies to the server-calculated price after the bundle discount.
+  // All calculations use integer paise to avoid floating-point money errors.
+  const preCouponPaise = Math.round(Number(plan.amount) * 100);
+  const subtotalPaise = Math.round(listSubtotal * 100);
+  const bundleDiscountPaise = Math.round(bundleDiscount * 100);
+
+  if (
+    !Number.isSafeInteger(preCouponPaise) ||
+    preCouponPaise < 1 ||
+    !Number.isSafeInteger(subtotalPaise) ||
+    subtotalPaise < 1 ||
+    !Number.isSafeInteger(bundleDiscountPaise) ||
+    bundleDiscountPaise < 0
+  ) {
+    return {
+      ok: false,
+      status: 400,
+      message: "Invalid server-side pricing",
+    };
+  }
+
+  const couponCode = String(input.couponCode || "")
+    .trim()
+    .toUpperCase();
+
+  if (couponCode && couponCode !== "TEST99") {
+    return {
+      ok: false,
+      status: 400,
+      message: "Invalid coupon code",
+    };
+  }
+
+  if (couponCode === "TEST99" && process.env.NODE_ENV === "production") {
+    return {
+      ok: false,
+      status: 403,
+      message: "TEST99 is disabled in production",
+    };
+  }
+
+  const couponDiscountPaise =
+    couponCode === "TEST99"
+      ? Math.round((preCouponPaise * 99) / 100)
+      : 0;
+
+  const finalPaise = preCouponPaise - couponDiscountPaise;
+
+  if (!Number.isSafeInteger(finalPaise) || finalPaise < 1) {
+    return {
+      ok: false,
+      status: 400,
+      message: "Calculated payment amount is invalid",
+    };
+  }
+
+  return {
+    ok: true,
+    isBundle,
+    bundle,
+    plan,
+    subtotal: subtotalPaise / 100,
+    discount: bundleDiscountPaise / 100,
+    preCouponAmount: preCouponPaise / 100,
+    couponCode,
+    couponDiscount: couponDiscountPaise / 100,
+    amount: finalPaise / 100,
+  };
+}
+
+router.post("/coupons/validate", publicLimit, async (req, res) => {
+  try {
+    const input = req.body || {};
+
+    if (!String(input.couponCode || "").trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Enter a coupon code",
+      });
+    }
+
+    const pricing = buildPricingQuote(input);
+
+    if (!pricing.ok) {
+      return res.status(pricing.status).json({
+        success: false,
+        message: pricing.message,
+      });
+    }
+
+    return res.json({
+      success: true,
+      quote: {
+        subtotal: pricing.subtotal,
+        discount: pricing.discount,
+        preCouponAmount: pricing.preCouponAmount,
+        couponCode: pricing.couponCode,
+        couponDiscount: pricing.couponDiscount,
+        amount: pricing.amount,
+        currency: "INR",
+      },
+    });
+  } catch (error) {
+    console.error("Coupon validation error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to validate coupon",
+    });
+  }
+});
+
 router.post("/orders", publicLimit, async (req, res) => {
   try {
     const { customerName, customerEmail, customerMobile, planId } = req.body || {};
-    if (typeof planId !== "string" || !Object.hasOwn(PLANS, planId)) {
-      return res.status(400).json({ message: "Invalid plan" });
+    const pricing = buildPricingQuote(req.body || {});
+
+    if (!pricing.ok) {
+      return res.status(pricing.status).json({
+        success: false,
+        message: pricing.message,
+      });
     }
+
+    const {
+      isBundle,
+      bundle,
+      plan,
+      subtotal,
+      discount,
+      preCouponAmount,
+      couponCode,
+      couponDiscount,
+      amount,
+    } = pricing;
     const name = String(customerName || "").trim();
     const email = String(customerEmail || "").trim().toLowerCase();
     const mobile = String(customerMobile || "").replace(/[\s()-]/g, "").trim();
@@ -110,7 +277,6 @@ router.post("/orders", publicLimit, async (req, res) => {
       return res.status(400).json({ message: "Valid name, email and mobile (if provided) required" });
     }
 
-    const plan = PLANS[planId];
     const accessToken = crypto.randomBytes(32).toString("hex");
     const order = await PaymentOrder.create({
       orderId: crypto.randomUUID(),
@@ -118,9 +284,15 @@ router.post("/orders", publicLimit, async (req, res) => {
       customerName: name,
       customerEmail: email,
       customerMobile: mobile || undefined,
-      planId,
+      planId: isBundle ? "custom_bundle" : planId,
       planName: plan.name,
-      amount: plan.amount, // Server sets price, never trust frontend amount.
+      items: isBundle ? bundle.items : [],
+      subtotal,
+      discount,
+      preCouponAmount,
+      couponCode: couponCode || undefined,
+      couponDiscount,
+      amount, // Server-calculated final amount; never trust frontend amount.
       currency: "INR",
       status: "pending",
     });

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   LayoutDashboard,
   CreditCard,
@@ -93,8 +93,8 @@ export default function AdminSidebar({
           <div className="bu-sidebar-security">
             <ShieldCheck size={21} />
             <div>
-              <strong>Frontend preview</strong>
-              <p>Sample data only. No live access or payments.</p>
+              <strong>Live payment review</strong>
+              <p>Protected admin controls for live payment review.</p>
             </div>
           </div>
           <a className="bu-back-site" href="/">
@@ -105,3 +105,4 @@ export default function AdminSidebar({
     </>
   );
 }
+
