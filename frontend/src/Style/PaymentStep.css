@@ -1,0 +1,63 @@
+.bup-payment-flow { margin-top:18px; padding:18px; border:1px solid #dce5ec; border-radius:16px; background:#f7fafc; color:#1e3343; line-height:1.5; }
+.bup-payment-flow p { margin:9px 0; }
+.bup-payment-connection { font-size:.9rem; }
+.bup-payment-connection strong { color:#166a52; }
+.bup-payment-flow code { overflow-wrap:anywhere; font-size:.8rem; }
+.bup-payment-qr { display:block; width:min(240px,100%); margin:16px auto; border-radius:10px; background:white; }
+.bup-payment-upi { display:inline-block; padding:10px 16px; margin:5px 0; color:white; background:#166c57; border-radius:9px; font-weight:700; text-decoration:none; }
+.bup-payment-flow form { display:grid; gap:9px; margin-top:16px; }
+.bup-payment-flow form label { font-weight:600; }
+.bup-payment-flow form input { width:100%; padding:12px; border:1px solid #b9cbd5; border-radius:8px; font:inherit; }
+.bup-payment-flow form button { padding:12px; border:0; border-radius:8px; background:#274979; color:white; cursor:pointer; font:inherit; }
+.bup-payment-flow form button:disabled { opacity:.6; cursor:not-allowed; }
+.bup-payment-flow .bup-payment-error { color:#9b2525; font-weight:600; }
+.bup-payment-flow .bup-payment-ok { color:#166a52; font-weight:700; }
+.bup-payment-flow .bup-payment-caution { font-size:.84rem; }
+
+
+/* TEST99 coupon checkout */
+.bup-coupon-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.bup-coupon-form label {
+  flex-basis: 100%;
+  font-weight: 600;
+}
+
+.bup-coupon-form input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(127, 127, 127, 0.55);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.bup-coupon-form button {
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.55);
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.bup-coupon-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.bup-coupon-summary {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.4);
+  border-radius: 10px;
+}
+
+.bup-coupon-summary p {
+  margin: 0.4rem 0;
+}
