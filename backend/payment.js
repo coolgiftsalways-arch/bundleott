@@ -81,15 +81,50 @@ async function findCustomerOrder(req) {
   if (!order || !safeEqual(tokenHash(accessToken), order.accessTokenHash)) return null;
   return order;
 }
+
+
 function extractPaymentHints(text) {
-  const amountMatch = text.match(/(?:₹|INR|Rs\.?|Rupees)\s*([\d,]+(?:\.\d{1,2})?)/i);
-  const referenceMatch = text.match(/\b(?:UTR|UPI\s*(?:Ref|Reference)|RRN)\s*(?:No\.?\s*)?[:#-]?\s*([A-Z0-9]{10,22})\b/i);
-  const amount = amountMatch ? Number(amountMatch[1].replaceAll(",", "")) : NaN;
+  const body = String(text || "").replace(/\u00a0/g, " ");
+
+  // Match the Saraswat Bank format:
+  // "credited with INR 1.49 on ..."
+  const amountMatch =
+    body.match(
+      /\bcredited\s+with\s+(?:INR|Rs\.?|₹)\s*([\d,]+(?:\.\d{1,2})?)/i
+    ) ||
+    body.match(
+      /(?:₹|INR|Rs\.?|Rupees)\s*([\d,]+(?:\.\d{1,2})?)\s*(?:has\s+been\s+)?(?:credited|received|deposited)\b/i
+    );
+
+  // Match: "towards UPI/629682719302/NIKITA PRA/SV"
+  const upiMatch = body.match(
+    /\btowards\s+UPI\/([A-Z0-9-]{10,30})\//i
+  );
+
+  // Also support other common bank reference formats.
+  const referenceMatch =
+    body.match(
+      /\b(?:UTR|RRN|UPI\s*(?:REF(?:ERENCE)?|TXN(?:\s*ID)?|TRANSACTION(?:\s*ID)?)|TRANSACTION\s*(?:ID|REF(?:ERENCE)?))\s*(?:NO\.?\s*)?[:#=-]?\s*([A-Z0-9-]{10,30})\b/i
+    );
+
+  const amount = amountMatch
+    ? Number(amountMatch[1].replaceAll(",", ""))
+    : NaN;
+
+  const reference = upiMatch?.[1] || referenceMatch?.[1] || "";
+
   return {
-    amountHint: Number.isFinite(amount) && amount > 0 ? amount : undefined,
-    referenceHint: referenceMatch ? normalizeReference(referenceMatch[1]) : "",
+    amountHint:
+      Number.isFinite(amount) && amount > 0
+        ? amount
+        : undefined,
+    referenceHint: reference
+      ? normalizeReference(reference)
+      : "",
   };
 }
+
+
 function isCreditAlert(text) {
   if (/\b(otp|one[ -]?time password|verification code|passcode|cvv|debited|withdrawn|withdrawal)\b/i.test(text)) return false;
   return /\b(credited|received|deposited)\b/i.test(text);
@@ -389,23 +424,190 @@ router.post("/macrodroid", webhookLimit, authenticateWebhook, express.text({ typ
       ? tokenHash(`bank-alert:${source}:${hints.referenceHint}`)
       : crypto.randomUUID();
 
-    try {
-      await PaymentAlert.create({
-        eventId,
-        deviceCode: "saraswat-phone",
-        messageType: approvedSms ? "sms" : "notification",
-        source: source.slice(0, 200),
-        occurredAt: new Date(),
-        ...hints,
-        isTest: false,
-        status: "awaiting_verification",
-      });
-    } catch (error) {
-      if (error.code === 11000) return res.json({ success: true, status: "duplicate_ignored" });
-      throw error;
-    }
+    
+const occurredAt = new Date();
+let savedAlert;
 
-    console.log("Unverified bank credit hint stored:", eventId);
+try {
+  savedAlert = await PaymentAlert.create({
+    eventId,
+    deviceCode: "saraswat-phone",
+    messageType: approvedSms ? "sms" : "notification",
+    source: source.slice(0, 200),
+    occurredAt,
+    ...hints,
+    isTest: false,
+    status: "awaiting_verification",
+  });
+} catch (error) {
+  if (error.code === 11000) {
+    return res.json({
+      success: true,
+      status: "duplicate_ignored",
+    });
+  }
+  throw error;
+}
+
+
+try {
+  const windowStart = new Date(
+    occurredAt.getTime() - 15 * 60 * 1000
+  );
+
+  const recentOrders = await PaymentOrder.find({
+    status: "pending",
+    createdAt: {
+      $gte: windowStart,
+      $lte: occurredAt,
+    },
+  })
+    .select("orderId amount createdAt")
+    .lean();
+
+  const alertPaise = Math.round(
+    Number(hints.amountHint) * 100
+  );
+
+  // Exact amount matching only.
+  const candidates = recentOrders.filter(
+    (order) =>
+      Math.round(Number(order.amount) * 100) === alertPaise
+  );
+
+  const reference = normalizeReference(hints.referenceHint || "");
+
+  // Automatic approval requires every condition below:
+  // 1. Explicit opt-in in backend .env
+  // 2. An approved SMS sender (not a generic notification)
+  // 3. A transaction reference
+  // 4. Exactly one recent pending order for the exact amount
+  if (
+    process.env.AUTO_VERIFY_BANK_SMS === "true" &&
+    approvedSms &&
+    /^[A-Z0-9-]{10,30}$/.test(reference) &&
+    candidates.length === 1
+  ) {
+    const candidate = candidates[0];
+
+    // Do not reuse a bank reference already recorded as paid.
+    const referenceAlreadyUsed = await PaymentOrder.exists({
+      status: "paid",
+      $or: [
+        { bankReference: reference },
+        { verifiedReferenceKey: reference },
+      ],
+    });
+
+    if (!referenceAlreadyUsed) {
+      // Atomic status check prevents two requests from paying
+      // the same pending order at the same time.
+      const updatedOrder = await PaymentOrder.findOneAndUpdate(
+        {
+          orderId: candidate.orderId,
+          status: "pending",
+          amount: candidate.amount,
+        },
+        {
+          $set: {
+            status: "paid",
+            bankReference: reference,
+            verifiedReferenceKey: reference,
+            verificationNote:
+              "Automatically matched to an allowlisted bank SMS; not independently authenticated.",
+            verifiedBy: "auto:saraswat-sms",
+            verifiedAt: new Date(),
+            matchedAlertEventId: savedAlert.eventId,
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (updatedOrder) {
+        await PaymentAlert.updateOne(
+          {
+            eventId: savedAlert.eventId,
+            status: "awaiting_verification",
+          },
+          {
+            $set: {
+              status: "verified",
+              matchedOrderId: updatedOrder.orderId,
+              verifiedAt: new Date(),
+            },
+          }
+        );
+
+        console.log(
+          "AUTO-APPROVED from bank SMS:",
+          updatedOrder.orderId,
+          reference
+        );
+
+        // Return immediately so the frontend can see the paid status.
+        return res.json({
+          success: true,
+          status: "verified",
+          paymentSuccessful: true,
+          eventId: savedAlert.eventId,
+          orderId: updatedOrder.orderId,
+        });
+      }
+    } else {
+      console.warn(
+        "Auto-verification skipped: bank reference already used",
+        reference
+      );
+    }
+  }
+
+  // Otherwise, save only a suggested match for review.
+  if (candidates.length === 1) {
+    await PaymentAlert.updateOne(
+      {
+        eventId: savedAlert.eventId,
+        status: "awaiting_verification",
+      },
+      {
+        $set: {
+          matchedOrderId: candidates[0].orderId,
+        },
+      }
+    );
+
+    console.log(
+      "Alert linked for review:",
+      savedAlert.eventId,
+      candidates[0].orderId
+    );
+  } else {
+    console.log(
+      "Manual reconciliation required:",
+      savedAlert.eventId,
+      "Exact-amount candidates:",
+      candidates.length
+    );
+  }
+} catch (matchError) {
+  console.error(
+    "Alert matching error:",
+    matchError.message
+  );
+}
+
+
+
+console.log("Unverified bank credit hint stored:", eventId);
+
+return res.json({
+  success: true,
+  status: "awaiting_verification",
+  eventId,
+});
+
     return res.json({ success: true, status: "awaiting_verification", eventId });
   } catch (error) {
     console.error("MacroDroid error:", error.message);
@@ -609,7 +811,14 @@ router.post("/admin/orders/:orderId/verify", authenticateAdmin, async (req, res)
       if (alert.referenceHint && normalizeReference(alert.referenceHint) !== reference) {
         return res.status(409).json({ message: "Bank reference does not match the selected alert" });
       }
-      if (alert.matchedOrderId) return res.status(409).json({ message: "Alert already assigned" });
+      if (
+  alert.matchedOrderId &&
+  alert.matchedOrderId !== order.orderId
+) {
+  return res.status(409).json({
+    message: "Alert is assigned to a different order",
+  });
+}
     }
 
     // This is a database duplicate check, NOT actual bank verification.
