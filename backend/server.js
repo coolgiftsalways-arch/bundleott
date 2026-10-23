@@ -1,99 +1,120 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
 import connectDB from "./db.js";
-
-// ========================================
-// ENVIRONMENT CONFIGURATION
-// ========================================
+import paymentRoutes from "./payment.js";
 
 dotenv.config();
 
 const app = express();
-
 const PORT = Number(process.env.PORT || 5000);
 
-// ========================================
+// =====================================
+// CHECK ENVIRONMENT CONFIGURATION
+// =====================================
+
+const requiredVariables = [
+  "MONGO_URI",
+  "WEBHOOK_TOKEN",
+  "ADMIN_EMAIL",
+  "ADMIN_PASSWORD_HASH",
+  "ADMIN_JWT_SECRET",
+  "UPI_ID",
+  "UPI_NAME",
+];
+
+const missing = requiredVariables.filter(
+  (name) =>
+    !process.env[name] ||
+    process.env[name].startsWith("YOUR_") ||
+    process.env[name].startsWith("GENERATE_") ||
+    process.env[name].startsWith("PASTE_")
+);
+
+if (missing.length > 0) {
+  console.error(
+    "❌ Missing environment configuration:",
+    missing.join(", ")
+  );
+
+  process.exit(1);
+}
+
+if (
+  process.env.WEBHOOK_TOKEN.length < 32 ||
+  process.env.ADMIN_JWT_SECRET.length < 32 ||
+  !/^\$2[aby]\$/.test(process.env.ADMIN_PASSWORD_HASH)
+) {
+  console.error("❌ Invalid security configuration");
+  process.exit(1);
+}
+
+// =====================================
 // MIDDLEWARE
-// ========================================
+// =====================================
+
+app.disable("x-powered-by");
+
+app.use(helmet());
+
+const allowedOrigins = (
+  process.env.FRONTEND_URL || "http://localhost:5173"
+)
+  .split(",")
+  .map((origin) => origin.trim());
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:5175",
-      "http://localhost:5176",
-    ],
-  }),
+    origin: allowedOrigins,
+  })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "64kb" }));
 
-// ========================================
-// MAIN BACKEND ROUTE
-// ========================================
+// =====================================
+// HEALTH CHECK
+// =====================================
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    website: "bundleupott",
-    message: "bundleupott backend is running",
+app.get("/health", (req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+
+  res.status(connected ? 200 : 503).json({
+    success: connected,
+    server: "OTT + AI Backend",
+    database: mongoose.connection.name,
+    databaseConnected: connected,
   });
 });
 
-// ========================================
-// BACKEND HEALTH CHECK
-// ========================================
+// =====================================
+// PAYMENT REQUEST DEBUGGING
+// =====================================
 
-app.get("/api/health", (req, res) => {
-  const isConnected = mongoose.connection.readyState === 1;
+app.use("/api/payment", (req, res, next) => {
+  console.log("================================");
+  console.log("Payment API request received");
+  console.log("HTTP Method:", req.method);
+  console.log("Request URL:", req.originalUrl);
+  console.log("Content Type:", req.get("content-type"));
 
-  res.status(isConnected ? 200 : 503).json({
-    success: isConnected,
-
-    backend: "Running",
-
-    mongodb: isConnected ? "Connected" : "Disconnected",
-
-    database: isConnected ? mongoose.connection.name : null,
-
-    port: PORT,
-
-    timestamp: new Date().toISOString(),
+  res.on("finish", () => {
+    console.log("Response Status:", res.statusCode);
+    console.log("================================");
   });
+
+  next();
 });
 
-// ========================================
-// BACKEND INFORMATION
-// ========================================
+// PAYMENT ROUTES
+app.use("/api/payment", paymentRoutes);
 
-app.get("/api/status", (req, res) => {
-  res.json({
-    success: true,
 
-    platform: "bundleupott",
-
-    services: {
-      backend: "Running",
-
-      mongodb:
-        mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
-
-      customerForm: "Not connected yet",
-
-      payments: "Not connected yet",
-
-      adminDashboard: "Frontend only",
-    },
-  });
-});
-
-// ========================================
+// =====================================
 // 404 HANDLER
-// ========================================
+// =====================================
 
 app.use((req, res) => {
   res.status(404).json({
@@ -102,32 +123,42 @@ app.use((req, res) => {
   });
 });
 
-// ========================================
-// START BACKEND
-// ========================================
+// =====================================
+// ERROR HANDLER
+// =====================================
+
+app.use((err, req, res, next) => {
+  console.error("Server error:", err.message);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: "Request could not be processed",
+  });
+});
+
+// =====================================
+// START SERVER
+// =====================================
 
 async function startServer() {
-  try {
-    console.log("Starting bundleupott backend...");
+  await connectDB();
 
-    // Connect MongoDB first
-    await connectDB();
+  await Promise.all([
+    mongoose.model("PaymentOrder").init(),
+    mongoose.model("PaymentAlert").init(),
+  ]);
 
-    // Start Express after successful connection
-    app.listen(PORT, () => {
-      console.log("");
-      console.log("=================================");
-      console.log("bundleupott Backend Started");
-      console.log("=================================");
-      console.log(`Backend: http://localhost:${PORT}`);
-      console.log(`Health: http://localhost:${PORT}/api/health`);
-      console.log(`Status: http://localhost:${PORT}/api/status`);
-      console.log("=================================");
-    });
-  } catch (error) {
-    console.error("Backend Startup Failed:", error.message);
-    process.exit(1);
-  }
+  app.listen(PORT, () => {
+    console.log("================================");
+    console.log("🚀 OTT + AI Backend Started");
+    console.log(`📡 Port: ${PORT}`);
+    console.log(`🗄️ Database: ${mongoose.connection.name}`);
+    console.log(`🔗 http://localhost:${PORT}`);
+    console.log("================================");
+  });
 }
 
-startServer();
+startServer().catch((error) => {
+  console.error("Startup failed:", error.message);
+  process.exit(1);
+});
