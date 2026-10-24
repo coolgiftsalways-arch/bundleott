@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import connectDB from "./db.js";
 import paymentRoutes from "./payment.js";
@@ -113,6 +115,47 @@ app.use("/api/payment", (req, res, next) => {
 // PAYMENT ROUTES
 app.use("/api/payment", paymentRoutes);
 
+
+ // PAYMENT ROUTES
+app.use("/api/payment", paymentRoutes);
+
+// =====================================
+// SERVE FRONTEND ON THE SAME DOMAIN
+// =====================================
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const frontendDistPath = path.resolve(
+  __dirname,
+  "../frontend/dist"
+);
+
+app.use(express.static(frontendDistPath));
+
+app.get(/.*/, (req, res, next) => {
+  if (req.path.startsWith("/api/")) {
+    return next();
+  }
+
+  res.sendFile(
+    path.join(frontendDistPath, "index.html"),
+    (err) => {
+      if (err) next(err);
+    }
+  );
+});
+
+// =====================================
+// 404 HANDLER
+// =====================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
+  });
+});
 
 // =====================================
 // 404 HANDLER
