@@ -5,6 +5,7 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import connectDB from "./db.js";
@@ -15,7 +16,13 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 
-// Trust only the local reverse proxy, if applicable.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Frontend build is in the sibling frontend/dist directory.
+const frontendDistPath = path.resolve(__dirname, "../frontend/dist");
+const frontendIndexPath = path.join(frontendDistPath, "index.html");
+
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
 
@@ -42,10 +49,7 @@ const missing = requiredVariables.filter(
 );
 
 if (missing.length > 0) {
-  console.error(
-    "Missing environment configuration:",
-    missing.join(", ")
-  );
+  console.error("Missing environment configuration:", missing.join(", "));
   process.exit(1);
 }
 
@@ -65,7 +69,7 @@ if (
 app.use(helmet());
 
 const allowedOrigins = (
-  process.env.FRONTEND_URL || "http://localhost:5173"
+  process.env.FRONTEND_URL || "https://bundleupott.com"
 )
   .split(",")
   .map((origin) => origin.trim())
@@ -74,8 +78,7 @@ const allowedOrigins = (
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow requests without an Origin header, such as
-      // server-to-server requests and health checks.
+      // Allow requests without an Origin header, such as health checks.
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -107,15 +110,10 @@ app.get("/health", (req, res) => {
 // =====================================
 
 app.use("/api/payment", (req, res, next) => {
-  console.log("================================");
-  console.log("Payment API request received");
-  console.log("HTTP Method:", req.method);
-  console.log("Request URL:", req.originalUrl);
-  console.log("Content Type:", req.get("content-type"));
+  console.log("Payment API request:", req.method, req.originalUrl);
 
   res.on("finish", () => {
-    console.log("Response Status:", res.statusCode);
-    console.log("================================");
+    console.log("Payment API response status:", res.statusCode);
   });
 
   next();
@@ -128,34 +126,58 @@ app.use("/api/payment", (req, res, next) => {
 app.use("/api/payment", paymentRoutes);
 
 // =====================================
-// SERVE FRONTEND ON THE SAME DOMAIN
+// FRONTEND BUILD DIAGNOSTICS
 // =====================================
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+console.log("Frontend dist path:", frontendDistPath);
+console.log("Frontend dist exists:", fs.existsSync(frontendDistPath));
+console.log("Frontend index exists:", fs.existsSync(frontendIndexPath));
 
-const frontendDistPath = path.resolve(
-  __dirname,
-  "../frontend/dist"
+// =====================================
+// SERVE FRONTEND STATIC FILES
+// =====================================
+
+// Vite assets such as /assets/index-xxxx.css and .js.
+app.use(
+  express.static(frontendDistPath, {
+    index: false,
+    fallthrough: true,
+  })
 );
 
-// Serve built frontend assets.
-app.use(express.static(frontendDistPath));
+// =====================================
+// FRONTEND ROUTING FALLBACK
+// =====================================
 
-// React/Vite client-side routing fallback.
-// Keep this AFTER API routes and BEFORE the 404 handler.
 app.get(/.*/, (req, res, next) => {
-  // Never return index.html for an unknown API endpoint.
+  // Never return index.html for unknown API endpoints.
   if (req.path.startsWith("/api/")) {
     return next();
   }
 
-  res.sendFile(
-    path.join(frontendDistPath, "index.html"),
-    (err) => {
-      if (err) next(err);
-    }
-  );
+  // Avoid returning HTML for missing static assets.
+  if (
+    req.path.startsWith("/assets/") ||
+    path.extname(req.path)
+  ) {
+    return res.status(404).json({
+      success: false,
+      message: "Static file not found",
+    });
+  }
+
+  if (!fs.existsSync(frontendIndexPath)) {
+    console.error("Frontend index.html is missing:", frontendIndexPath);
+
+    return res.status(503).json({
+      success: false,
+      message: "Frontend build is unavailable",
+    });
+  }
+
+  res.sendFile(frontendIndexPath, (err) => {
+    if (err) next(err);
+  });
 });
 
 // =====================================
@@ -181,10 +203,13 @@ app.use((err, req, res, next) => {
   }
 
   const status =
-    err.status === 413 ? 413 :
-    err.message === "Origin not allowed by CORS" ? 403 :
-    err.status === 400 ? 400 :
-    500;
+    err.status === 413
+      ? 413
+      : err.message === "Origin not allowed by CORS"
+        ? 403
+        : err.status === 400
+          ? 400
+          : 500;
 
   res.status(status).json({
     success: false,
@@ -192,10 +217,10 @@ app.use((err, req, res, next) => {
       status === 403
         ? "Request origin not allowed"
         : status === 413
-        ? "Request payload too large"
-        : status === 400
-        ? "Invalid request"
-        : "Request could not be processed",
+          ? "Request payload too large"
+          : status === 400
+            ? "Invalid request"
+            : "Request could not be processed",
   });
 });
 
@@ -206,13 +231,13 @@ app.use((err, req, res, next) => {
 async function startServer() {
   await connectDB();
 
-  // Ensure payment models and their indexes are initialized.
+  // Initialize payment models and their indexes.
   await Promise.all([
     mongoose.model("PaymentOrder").init(),
     mongoose.model("PaymentAlert").init(),
   ]);
 
-  app.listen(PORT, () => {
+  app.listen(PORT, "0.0.0.0", () => {
     console.log("================================");
     console.log("OTT + AI Backend Started");
     console.log(`Port: ${PORT}`);
