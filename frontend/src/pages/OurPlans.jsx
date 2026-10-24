@@ -1,1303 +1,909 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SUBSCRIPTION_CATALOGUE } from "../data/subscriptionCatalogue";
+
 import "../Style/OurPlans.css";
+import CustomerDetailsModal from "../pages/CustomerDetailsModal";
 
 gsap.registerPlugin(ScrollTrigger);
+
+/* ==================================================
+   BUNDLEUPOTT SUBSCRIPTION CATALOG
+
+   IMPORTANT:
+   Prices are DEMO values.
+   Replace with your actual authorized selling prices.
+================================================== */
+
+const OTT_PLANS = [
+  {
+    id: "netflix",
+    name: "Netflix",
+    price: 199,
+    category: "ott",
+    genre: "Movies & Series",
+    domain: "netflix.com",
+    featured: true,
+  },
+  {
+    id: "prime",
+    name: "Amazon Prime Video",
+    price: 299,
+    category: "ott",
+    genre: "Movies & Originals",
+    domain: "primevideo.com",
+    featured: true,
+  },
+  {
+    id: "jiohotstar",
+    name: "JioHotstar",
+    price: 149,
+    category: "ott",
+    genre: "Movies & Sports",
+    domain: "jiohotstar.com",
+    indian: true,
+  },
+  {
+    id: "sonyliv",
+    name: "SonyLIV",
+    price: 299,
+    category: "ott",
+    genre: "Shows & Sports",
+    domain: "sonyliv.com",
+    indian: true,
+  },
+  {
+    id: "zee5",
+    name: "ZEE5",
+    price: 149,
+    category: "ott",
+    genre: "Indian Entertainment",
+    domain: "zee5.com",
+    indian: true,
+  },
+  {
+    id: "sunnxt",
+    name: "Sun NXT",
+    price: 99,
+    category: "ott",
+    genre: "South Indian",
+    domain: "sunnxt.com",
+    indian: true,
+  },
+  {
+    id: "aha",
+    name: "aha",
+    price: 149,
+    category: "ott",
+    genre: "Telugu & Tamil",
+    domain: "aha.video",
+    indian: true,
+  },
+  {
+    id: "hoichoi",
+    name: "Hoichoi",
+    price: 99,
+    category: "ott",
+    genre: "Bengali",
+    domain: "hoichoi.tv",
+    indian: true,
+  },
+  {
+    id: "shemaroome",
+    name: "ShemarooMe",
+    price: 99,
+    category: "ott",
+    genre: "Indian Movies",
+    domain: "shemaroome.com",
+    indian: true,
+  },
+  {
+    id: "lionsgate",
+    name: "Lionsgate Play",
+    price: 149,
+    category: "ott",
+    genre: "Hollywood",
+    domain: "lionsgateplay.com",
+  },
+  {
+    id: "discovery",
+    name: "discovery+",
+    price: 99,
+    category: "ott",
+    genre: "Documentaries",
+    domain: "discoveryplus.in",
+  },
+  {
+    id: "fancode",
+    name: "FanCode",
+    price: 149,
+    category: "ott",
+    genre: "Live Sports",
+    domain: "fancode.com",
+    indian: true,
+  },
+  {
+    id: "chaupal",
+    name: "Chaupal",
+    price: 99,
+    category: "ott",
+    genre: "Punjabi & Regional",
+    domain: "chaupal.tv",
+    indian: true,
+  },
+  {
+    id: "etvwin",
+    name: "ETV Win",
+    price: 99,
+    category: "ott",
+    genre: "Telugu",
+    domain: "etvwin.com",
+    indian: true,
+  },
+  {
+    id: "planetmarathi",
+    name: "Planet Marathi",
+    price: 99,
+    category: "ott",
+    genre: "Marathi",
+    domain: "planetmarathi.com",
+    indian: true,
+  },
+  {
+    id: "manoramamax",
+    name: "ManoramaMAX",
+    price: 99,
+    category: "ott",
+    genre: "Malayalam",
+    domain: "manoramamax.com",
+    indian: true,
+  },
+  {
+    id: "erosnow",
+    name: "Eros Now",
+    price: 99,
+    category: "ott",
+    genre: "Indian Cinema",
+    domain: "erosnow.com",
+  },
+  {
+    id: "youtube",
+    name: "YouTube Premium",
+    price: 149,
+    category: "ott",
+    genre: "Videos & Music",
+    domain: "youtube.com",
+  },
+];
+
+/* ==================================================
+   AI PLANS
+================================================== */
+
+const AI_PLANS = [
+  {
+    id: "chatgpt",
+    name: "ChatGPT",
+    price: 199,
+    category: "ai",
+    genre: "AI Assistant",
+    domain: "chatgpt.com",
+    featured: true,
+  },
+  {
+    id: "gemini",
+    name: "Google Gemini",
+    price: 199,
+    category: "ai",
+    genre: "AI Assistant",
+    domain: "gemini.google.com",
+    featured: true,
+  },
+  {
+    id: "claude",
+    name: "Claude",
+    price: 199,
+    category: "ai",
+    genre: "Writing & Coding",
+    domain: "claude.ai",
+  },
+  {
+    id: "perplexity",
+    name: "Perplexity",
+    price: 199,
+    category: "ai",
+    genre: "AI Search",
+    domain: "perplexity.ai",
+  },
+  {
+    id: "copilot",
+    name: "Microsoft Copilot",
+    price: 199,
+    category: "ai",
+    genre: "Productivity",
+    domain: "copilot.microsoft.com",
+  },
+  {
+    id: "grok",
+    name: "Grok",
+    price: 199,
+    category: "ai",
+    genre: "AI Assistant",
+    domain: "grok.com",
+  },
+  {
+    id: "midjourney",
+    name: "Midjourney",
+    price: 199,
+    category: "ai",
+    genre: "AI Images",
+    domain: "midjourney.com",
+  },
+  {
+    id: "canva",
+    name: "Canva AI",
+    price: 199,
+    category: "ai",
+    genre: "AI Design",
+    domain: "canva.com",
+  },
+  {
+    id: "notion",
+    name: "Notion AI",
+    price: 199,
+    category: "ai",
+    genre: "AI Workspace",
+    domain: "notion.so",
+  },
+  {
+    id: "firefly",
+    name: "Adobe Firefly",
+    price: 199,
+    category: "ai",
+    genre: "AI Creativity",
+    domain: "adobe.com",
+  },
+  {
+    id: "elevenlabs",
+    name: "ElevenLabs",
+    price: 199,
+    category: "ai",
+    genre: "AI Voice",
+    domain: "elevenlabs.io",
+  },
+  {
+    id: "runway",
+    name: "Runway",
+    price: 199,
+    category: "ai",
+    genre: "AI Video",
+    domain: "runwayml.com",
+  },
+];
+
+const ALL_PLANS = [...OTT_PLANS, ...AI_PLANS];
 
 const INR = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
   maximumFractionDigits: 0,
 });
-const BY_ID = new Map(
-  SUBSCRIPTION_CATALOGUE.map((plan) => [String(plan.id), plan]),
-);
-const CATEGORIES = [
-  ...new Set(SUBSCRIPTION_CATALOGUE.map((plan) => plan.category)),
-];
-const TABS = [
-  { id: "all", label: "All" },
-  { id: "ott", label: "OTT" },
-  { id: "ai", label: "AI" },
-  { id: "creator", label: "Creators & Design" },
-  { id: "other", label: "Other Services" },
-];
-const PAGE_SIZE = 24;
 
-// Currency conversion is a labelled reference estimate, NOT a selling price.
-// 1 USD = ₹94.9601 as of 23 October 2026. Review before launch.
-const USD_INR_REFERENCE = 94.9601;
-const CLOUD_OFFER = {
-  id: "bundleupott-cloud-250gb",
-  name: "250 GB Cloud Storage",
-  storageGB: 250,
-  price: 149,
-  originalPrice: 499,
-  billing: "Monthly",
-};
+/* ==================================================
+   ICONS
+================================================== */
 
-function groupOf(plan) {
-  if (plan.category === "OTT, films & TV") return "ott";
-  if (plan.category.startsWith("AI ")) return "ai";
-  if (
-    [
-      "YouTube & creator tools",
-      "Photo, video & design software",
-      "Stock assets, templates & licensing",
-    ].includes(plan.category)
-  )
-    return "creator";
-  return "other";
-}
-const COUNTS = SUBSCRIPTION_CATALOGUE.reduce(
-  (acc, plan) => {
-    acc.all++;
-    acc[groupOf(plan)]++;
-    return acc;
-  },
-  { all: 0, ott: 0, ai: 0, creator: 0, other: 0 },
-);
-
-// Convert reference prices for display. Do not treat price estimates or annual
-// equivalents as verified payable monthly rates.
-function getPriceInfo(plan) {
-  const raw = String(plan.price || "");
-  const billing = String(plan.billing || "");
-  const exact = raw.match(/^₹([\d,]+(?:\.\d+)?)\/month$/i);
-  if (exact && billing.toLowerCase() === "monthly") {
-    const amount = Number(exact[1].replaceAll(",", ""));
-    return {
-      amount,
-      display: `${INR.format(amount)}/month`,
-      estimated: false,
-      note: "India price reference",
-    };
-  }
-  // An INR monthly reference is preferred over global USD prices.
-  const inrMonthly = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/\s*month/i);
-  if (inrMonthly) {
-    const amount = Number(inrMonthly[1].replaceAll(",", ""));
-    return {
-      amount,
-      display: `≈${INR.format(amount)}/month`,
-      estimated: true,
-      note: "India reference; verify current checkout",
-    };
-  }
-  // For annual/quarterly local plans show monthly EQUIVALENT, not monthly billing.
-  const inrYear = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/\s*year/i);
-  if (inrYear) {
-    const year = Number(inrYear[1].replaceAll(",", ""));
-    return {
-      amount: year / 12,
-      display: `≈${INR.format(Math.round(year / 12))}/mo equivalent`,
-      estimated: true,
-      note: `${INR.format(year)} billed yearly`,
-    };
-  }
-  // Parse the first cited US$ per month (may be an annual-billing equivalent).
-  const usdMonthly = raw.match(
-    /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/\s*month/i,
-  );
-  if (usdMonthly) {
-    const usd = Number(usdMonthly[1].replaceAll(",", ""));
-    const amount = usd * USD_INR_REFERENCE;
-    const annualEquivalent =
-      /annual|year|equivalent|billed/i.test(billing) &&
-      !/^monthly$/i.test(billing);
-    return {
-      amount,
-      display: `≈${INR.format(Math.round(amount))}/${annualEquivalent ? "mo equivalent" : "month"}`,
-      estimated: true,
-      note: annualEquivalent
-        ? "Converted USD reference; annual/other billing may apply"
-        : "Converted USD reference; taxes and FX may differ",
-    };
-  }
-  const usdYear = raw.match(/(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/\s*year/i);
-  if (usdYear) {
-    const annualUsd = Number(usdYear[1].replaceAll(",", ""));
-    const amount = (annualUsd * USD_INR_REFERENCE) / 12;
-    return {
-      amount,
-      display: `≈${INR.format(Math.round(amount))}/mo equivalent`,
-      estimated: true,
-      note: "Converted from annual USD reference; billed yearly",
-    };
-  }
-  return {
-    amount: null,
-    display: "₹— · price on request",
-    estimated: true,
-    note: "Current INR price must be confirmed with provider",
-  };
-}
-function domainOf(plan) {
-  const brand = plan.brand.toLowerCase();
-  const domains = [
-    ["chatgpt", "chatgpt.com"],
-    ["gemini", "gemini.google.com"],
-    ["claude", "claude.ai"],
-    ["perplexity", "perplexity.ai"],
-    ["netflix", "netflix.com"],
-    ["jiohotstar", "jiohotstar.com"],
-    ["amazon prime", "primevideo.com"],
-    ["sonyliv", "sonyliv.com"],
-    ["zee5", "zee5.com"],
-    ["spotify", "spotify.com"],
-    ["youtube", "youtube.com"],
-    ["canva", "canva.com"],
-    ["adobe", "adobe.com"],
-    ["midjourney", "midjourney.com"],
-    ["runway", "runwayml.com"],
-    ["apple", "apple.com"],
-  ];
-  return domains.find(([key]) => brand.includes(key))?.[1] || "";
-}
-
-function Icon({ name = "spark", size = 20 }) {
-  const paths = {
-    arrow: (
-      <>
-        <path d="M5 12h14" />
-        <path d="m13 6 6 6-6 6" />
-      </>
-    ),
-    close: (
-      <>
-        <path d="M6 6l12 12" />
-        <path d="M18 6 6 18" />
-      </>
-    ),
-    check: <path d="m5 12 4 4L19 6" />,
-    search: (
-      <>
-        <circle cx="11" cy="11" r="7" />
-        <path d="m20 20-4-4" />
-      </>
-    ),
-    spark: (
-      <path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5Z" />
-    ),
-    layer: (
-      <>
-        <path d="m12 2 9 5-9 5-9-5 9-5Z" />
-        <path d="m3 12 9 5 9-5M3 17l9 5 9-5" />
-      </>
-    ),
-    eye: (
-      <>
-        <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" />
-        <circle cx="12" cy="12" r="3" />
-      </>
-    ),
-    info: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 11v5M12 8h.01" />
-      </>
-    ),
-    device: (
-      <>
-        <rect x="3" y="4" width="18" height="13" rx="2" />
-        <path d="M8 21h8m-4-4v4" />
-      </>
-    ),
-    bolt: <path d="m13 2-9 11h7l-1 9 10-12h-7l0-8Z" />,
-    link: (
-      <>
-        <path d="M7 17 17 7M8 7h9v9" />
-      </>
-    ),
-    cloud: (
-      <>
-        <path d="M20 17.5a4 4 0 0 0-1.2-7.8 7 7 0 0 0-13.4 1.8A3.9 3.9 0 0 0 6 19h13a4 4 0 0 0 1-1.5Z" />
-      </>
-    ),
-  };
+function ArrowIcon() {
   return (
     <svg
-      width={size}
-      height={size}
+      width="18"
+      height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-hidden="true"
     >
-      {paths[name]}
+      <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
 }
 
-function Logo({ plan, large = false }) {
-  const [error, setError] = useState(false);
-  const domain = domainOf(plan);
+function SearchIcon() {
   return (
-    <span
-      className={`bu-logo bu-logo-${groupOf(plan)} ${large ? "bu-logo-large" : ""}`}
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
     >
-      {domain && !error ? (
-        <img
-          src={`https://www.google.com/s2/favicons?domain=${domain}&sz=128`}
-          alt=""
-          onError={() => setError(true)}
-          loading="lazy"
-        />
-      ) : (
-        <b>{plan.brand.slice(0, 2).toUpperCase()}</b>
-      )}
-    </span>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </svg>
   );
 }
 
-// Each of the 170 catalogue entries supplies its own feature, usage, device,
-// and eligibility text. This builds detail cards WITHOUT inventing benefits.
-function benefitsFor(plan) {
-  const featureItems = String(plan.features || "")
-    .split(/\s*;\s*/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-  const entries = featureItems.map((text, index) => ({
-    title: index === 0 ? "What this tier includes" : "More included benefits",
-    text,
-    icon: "spark",
-  }));
-  if (plan.limits)
-    entries.push({
-      title: "Usage and limitations",
-      text: plan.limits,
-      icon: "bolt",
-    });
-  if (plan.devices)
-    entries.push({
-      title: "Devices and account access",
-      text: plan.devices,
-      icon: "device",
-    });
-  if (plan.useCase)
-    entries.push({ title: "Ideal for", text: plan.useCase, icon: "check" });
-  if (plan.note)
-    entries.push({
-      title: "Important plan notes",
-      text: plan.note,
-      icon: "info",
-    });
-  return entries;
+function CheckIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    >
+      <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
 }
 
-function SubscriptionCard({ plan, selected, onOpen, onToggle }) {
+/* ==================================================
+   PLATFORM LOGO
+================================================== */
+
+function PlatformLogo({ plan }) {
+  const [failed, setFailed] = useState(false);
+
   return (
-    <article className={`bu-plan-card ${selected ? "bu-card-selected" : ""}`}>
-      <button
-        type="button"
-        className="bu-card-content"
-        onClick={() => onOpen(plan)}
-        aria-label={`View everything included in ${plan.brand} ${plan.tier}`}
-      >
-        <div className="bu-card-top">
-          <Logo plan={plan} />
-          <span className="bu-card-group">{groupOf(plan).toUpperCase()}</span>
+    <div className={`sp-logo sp-logo-${plan.category}`}>
+      {!failed ? (
+        <img
+          src={`https://www.google.com/s2/favicons?domain=${plan.domain}&sz=128`}
+          alt={`${plan.name} icon`}
+          loading="lazy"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <span>{plan.name.charAt(0)}</span>
+      )}
+    </div>
+  );
+}
+
+/* ==================================================
+   SUBSCRIPTION CARD
+================================================== */
+
+function PlanCard({ plan, selected, onToggle }) {
+  return (
+    <article className={`sp-plan-card ${selected ? "sp-card-selected" : ""}`}>
+      {plan.featured && <span className="sp-popular-badge">POPULAR</span>}
+
+      {plan.indian && <span className="sp-indian-badge">🇮🇳</span>}
+
+      <div className="sp-card-top">
+        <PlatformLogo plan={plan} />
+
+        <h3>{plan.name}</h3>
+
+        <p>{plan.genre}</p>
+      </div>
+
+      <div className="sp-card-bottom">
+        <div className="sp-card-price">
+          <strong>{INR.format(plan.price)}</strong>
+          <span>/month</span>
         </div>
-        <h3>{plan.brand}</h3>
-        <span className="bu-tier-name">{plan.tier}</span>
-        <strong className="bu-card-price">{getPriceInfo(plan).display}</strong>
-        <small className="bu-card-billing">
-          {getPriceInfo(plan).note} · {plan.billing}
-        </small>
-        <p className="bu-card-summary">{plan.features}</p>
-        <span className="bu-see-benefits">
-          <Icon name="eye" size={15} /> See what you'll get{" "}
-          <Icon name="arrow" size={14} />
-        </span>
-      </button>
-      <button
-        type="button"
-        className={`bu-add-btn ${selected ? "bu-add-selected" : ""}`}
-        onClick={() => onToggle(plan.id)}
-      >
-        <Icon name={selected ? "check" : "layer"} size={16} />{" "}
-        {selected ? "Added · Remove" : "+ Add to bundle"}
-      </button>
+
+        <button
+          type="button"
+          className={`sp-add-btn ${selected ? "sp-added" : ""}`}
+          onClick={() => onToggle(plan.id)}
+          aria-pressed={selected}
+        >
+          {selected ? (
+            <>
+              <CheckIcon />
+              Added
+            </>
+          ) : (
+            <>
+              Add to Bundle
+              <span>+</span>
+            </>
+          )}
+        </button>
+      </div>
     </article>
   );
 }
 
-function CloudStorageOffer({ onAdd, onDismiss }) {
-  return (
-    <section
-      className="bu-cloud-offer"
-      aria-label="Optional 250 GB cloud storage offer"
-    >
-      <div className="bu-cloud-offer-tags">
-        <span className="bu-cloud-limited">LIMITED-TIME OFFER</span>
-        <span className="bu-cloud-days">Special ₹149 rate</span>
-      </div>
-      <div className="bu-cloud-offer-heading">
-        <span className="bu-cloud-art">
-          <Icon name="cloud" size={43} />
-        </span>
-        <div>
-          <h4>250 GB Cloud Storage</h4>
-          <p>Optional add-on to your custom bundle</p>
-        </div>
-      </div>
-      <div className="bu-cloud-price-row">
-        <strong>
-          {INR.format(CLOUD_OFFER.price)}
-          <small>/month</small>
-        </strong>
-        <del>{INR.format(CLOUD_OFFER.originalPrice)}/month</del>
-      </div>
-      <p className="bu-cloud-save">
-        Save {INR.format(CLOUD_OFFER.originalPrice - CLOUD_OFFER.price)} on the
-        stated regular price
-      </p>
-      <ul className="bu-cloud-benefits">
-        <li>
-          <Icon name="check" size={16} />
-          250 GB storage allowance
-        </li>
-        <li>
-          <Icon name="check" size={16} />
-          Space for photos, documents and videos
-        </li>
-        <li>
-          <Icon name="check" size={16} />
-          Access and backup features depend on provider
-        </li>
-      </ul>
-      <div className="bu-cloud-actions">
-        <button type="button" className="bu-cloud-cancel" onClick={onDismiss}>
-          Cancel
-        </button>
-        <button type="button" className="bu-cloud-add" onClick={onAdd}>
-          + Add for ₹149
-        </button>
-      </div>
-      <small>
-        Offer planned for limited days. Confirm provider, dates and terms before
-        selling.
-      </small>
-    </section>
-  );
-}
-
-function useModalLock(onClose) {
-  useEffect(() => {
-    const oldOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.lenis?.stop?.();
-    const onKey = (event) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = oldOverflow;
-      window.lenis?.start?.();
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-}
-
-function DetailsModal({ plan, selected, onClose, onToggle }) {
-  const [tab, setTab] = useState("benefits");
-  const closeRef = useRef(null);
-  useModalLock(onClose);
-  useEffect(() => closeRef.current?.focus(), []);
-  const benefits = benefitsFor(plan);
-  const tabs = [
-    ["benefits", "What you will get"],
-    ["about", "About"],
-    ["steps", "How it works"],
-    ["faq", "FAQ"],
-  ];
-  return createPortal(
-    <div
-      className="bu-details-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        className="bu-details-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="bu-details-title"
-      >
-        <button
-          type="button"
-          ref={closeRef}
-          className="bu-details-close"
-          aria-label="Close subscription details"
-          onClick={onClose}
-        >
-          <Icon name="close" />
-        </button>
-        <aside className="bu-details-product">
-          <span className="bu-mini-pill">
-            {groupOf(plan).toUpperCase()} SUBSCRIPTION
-          </span>
-          <Logo plan={plan} large />
-          <h2 id="bu-details-title">{plan.brand}</h2>
-          <span className="bu-detail-tier">{plan.tier}</span>
-          <strong className="bu-details-price">
-            {getPriceInfo(plan).display}
-          </strong>
-          <p className="bu-details-price-note">
-            {getPriceInfo(plan).note}
-            <br />
-            {plan.billing} · {plan.priceBasis}
-          </p>
-          <p className="bu-details-intro">{plan.useCase || plan.features}</p>
-          <button
-            type="button"
-            className={`bu-primary-btn bu-detail-side-btn ${selected ? "bu-already-selected" : ""}`}
-            onClick={() => onToggle(plan.id)}
-          >
-            <Icon name={selected ? "check" : "layer"} />{" "}
-            {selected ? "Remove from bundle" : "Add to bundle"}
-          </button>
-        </aside>
-        <section className="bu-details-right">
-          <div className="bu-details-topline">
-            <div>
-              <span className="bu-eyebrow">PLAN DETAILS</span>
-              <h2>
-                {plan.brand} <span>{plan.tier}</span>
-              </h2>
-              <p>{plan.category}</p>
-            </div>
-          </div>
-          <div
-            className="bu-detail-tabs"
-            role="tablist"
-            aria-label="Plan information"
-          >
-            {tabs.map(([id, label]) => (
-              <button
-                key={id}
-                id={`bu-tab-${id}`}
-                type="button"
-                role="tab"
-                aria-selected={tab === id}
-                className={tab === id ? "bu-detail-tab-active" : ""}
-                onClick={() => setTab(id)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div
-            className="bu-detail-panel"
-            role="tabpanel"
-            aria-labelledby={`bu-tab-${tab}`}
-          >
-            {tab === "benefits" && (
-              <>
-                <h3>What you'll get with this plan</h3>
-                <p className="bu-panel-caption">
-                  Benefits and conditions recorded for this specific tier in
-                  your catalogue.
-                </p>
-                <div className="bu-benefit-grid">
-                  {benefits.map((entry, index) => (
-                    <div className="bu-benefit" key={`${index}-${entry.title}`}>
-                      <span className="bu-benefit-icon">
-                        <Icon name={entry.icon} size={22} />
-                      </span>
-                      <div>
-                        <strong>{entry.title}</strong>
-                        <p>{entry.text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-            {tab === "about" && (
-              <div className="bu-about-details">
-                <h3>About this subscription</h3>
-                <dl>
-                  <div>
-                    <dt>Provider</dt>
-                    <dd>{plan.brand}</dd>
-                  </div>
-                  <div>
-                    <dt>Plan / tier</dt>
-                    <dd>{plan.tier}</dd>
-                  </div>
-                  <div>
-                    <dt>Category</dt>
-                    <dd>{plan.category}</dd>
-                  </div>
-                  <div>
-                    <dt>Billing</dt>
-                    <dd>{plan.billing}</dd>
-                  </div>
-                  <div>
-                    <dt>INR display estimate</dt>
-                    <dd>{getPriceInfo(plan).display}</dd>
-                  </div>
-                  <div>
-                    <dt>Price source type</dt>
-                    <dd>{plan.priceBasis}</dd>
-                  </div>
-                </dl>
-                <p>{plan.features}</p>
-                {plan.note && <p>{plan.note}</p>}
-              </div>
-            )}
-            {tab === "steps" && (
-              <div className="bu-steps">
-                <h3>How your custom bundle works</h3>
-                <div>
-                  <b>01</b>
-                  <p>
-                    <strong>Select your tier</strong>Choose this plan for your
-                    bundle. Choosing another tier from the same service replaces
-                    it.
-                  </p>
-                </div>
-                <div>
-                  <b>02</b>
-                  <p>
-                    <strong>Enter your details</strong>Provide your name, email
-                    and phone number. No customer login is required.
-                  </p>
-                </div>
-                <div>
-                  <b>03</b>
-                  <p>
-                    <strong>Review availability and price</strong>Current
-                    provider pricing, eligibility and activation must be
-                    confirmed before a real payment.
-                  </p>
-                </div>
-                <div>
-                  <b>04</b>
-                  <p>
-                    <strong>Activation after verification</strong>Once the
-                    payment system is integrated, only verified payments can
-                    move to fulfillment.
-                  </p>
-                </div>
-              </div>
-            )}
-            {tab === "faq" && (
-              <div className="bu-faq">
-                <h3>Frequently asked questions</h3>
-                <details open>
-                  <summary>Are these guaranteed bundleupott prices?</summary>
-                  <p>
-                    No. They are catalogue reference prices. Final eligible
-                    pricing must be confirmed before checkout.
-                  </p>
-                </details>
-                <details>
-                  <summary>Can I change a plan later?</summary>
-                  <p>
-                    Before continuing, add or remove subscriptions freely.
-                    Selecting a different tier of the same service replaces your
-                    earlier selection.
-                  </p>
-                </details>
-                <details>
-                  <summary>
-                    Does this include everything in the provider's paid plan?
-                  </summary>
-                  <p>
-                    Only the listed tier benefits may apply. Limits, region,
-                    devices and eligibility depend on the provider's current
-                    terms. Check the source for the latest details.
-                  </p>
-                </details>
-                <details>
-                  <summary>Do I need to log in?</summary>
-                  <p>
-                    No bundleupott customer account is needed for the demo form.
-                    Individual services may have their own account requirements.
-                  </p>
-                </details>
-              </div>
-            )}
-          </div>
-          <div className="bu-detail-bottom">
-            {plan.source && (
-              <a
-                className="bu-provider-link"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={plan.source}
-              >
-                Check provider details <Icon name="link" size={15} />
-              </a>
-            )}
-            <button
-              type="button"
-              className="bu-primary-btn bu-modal-add"
-              onClick={() => {
-                onToggle(plan.id);
-                onClose();
-              }}
-            >
-              <Icon name={selected ? "check" : "layer"} />{" "}
-              {selected
-                ? "Remove from my bundle"
-                : `Add ${plan.brand} ${plan.tier} to bundle`}
-            </button>
-            <small>
-              Reference information only. Provider availability, pricing and
-              terms may change.
-            </small>
-          </div>
-        </section>
-      </div>
-    </div>,
-    document.body,
-  );
-}
-
-function CustomerForm({
-  selected,
-  amount,
-  hasUnknownPrices,
-  cloudAdded,
-  onClose,
-  onSave,
-}) {
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    consent: false,
-  });
-  const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
-  useModalLock(onClose);
-  const submit = (e) => {
-    e.preventDefault();
-    if (form.fullName.trim().length < 2)
-      return setError("Enter your full name.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
-      return setError("Enter a valid email address.");
-    if (!/^[6-9]\d{9}$/.test(form.phone))
-      return setError("Enter a valid 10-digit Indian mobile number.");
-    if (!form.consent)
-      return setError("Please agree to be contacted about your bundle.");
-    onSave({
-      fullName: form.fullName.trim(),
-      email: form.email.trim(),
-      phone: form.phone,
-    });
-    setDone(true);
-  };
-  return createPortal(
-    <div
-      className="bu-details-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        className="bu-customer-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="bu-customer-title"
-      >
-        <button
-          type="button"
-          className="bu-details-close"
-          aria-label="Close form"
-          onClick={onClose}
-        >
-          <Icon name="close" />
-        </button>
-        {done ? (
-          <div className="bu-form-done">
-            <Icon name="check" size={42} />
-            <h2 id="bu-customer-title">Details saved</h2>
-            <p>
-              Saved in this browser session only. No payment or real order has
-              been created.
-            </p>
-            <button className="bu-primary-btn" onClick={onClose}>
-              Done
-            </button>
-          </div>
-        ) : (
-          <>
-            <span className="bu-eyebrow">NO LOGIN REQUIRED</span>
-            <h2 id="bu-customer-title">Your details, then checkout</h2>
-            <p className="bu-form-intro">
-              {selected.length} selected subscription(s)
-              {cloudAdded ? " + 250 GB Cloud Storage" : ""} ·{" "}
-              {amount === null
-                ? "Price needs confirmation"
-                : `${INR.format(Math.round(amount))} estimated monthly equivalent`}
-              {hasUnknownPrices ? " · excludes unconfirmed items" : ""}
-            </p>
-            <form onSubmit={submit} noValidate>
-              <label>
-                Full name
-                <input
-                  autoFocus
-                  autoComplete="name"
-                  value={form.fullName}
-                  onChange={(e) =>
-                    setForm({ ...form, fullName: e.target.value })
-                  }
-                  placeholder="Enter full name"
-                />
-              </label>
-              <label>
-                Email address
-                <input
-                  type="email"
-                  autoComplete="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="you@example.com"
-                />
-              </label>
-              <label>
-                Mobile number (+91)
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength={10}
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      phone: e.target.value.replace(/\D/g, "").slice(0, 10),
-                    })
-                  }
-                  placeholder="10-digit number"
-                />
-              </label>
-              <label className="bu-checkbox">
-                <input
-                  type="checkbox"
-                  checked={form.consent}
-                  onChange={(e) =>
-                    setForm({ ...form, consent: e.target.checked })
-                  }
-                />
-                I agree to be contacted about my selected subscriptions.
-              </label>
-              {error && (
-                <p className="bu-form-error" role="alert">
-                  {error}
-                </p>
-              )}
-              <button type="submit" className="bu-primary-btn bu-submit">
-                Save Details & Continue <Icon name="arrow" />
-              </button>
-            </form>
-            <small>
-              Frontend preview only. Payment integration is not active.
-            </small>
-          </>
-        )}
-      </div>
-    </div>,
-    document.body,
-  );
-}
+/* ==================================================
+   MAIN OUR PLANS PAGE
+================================================== */
 
 export default function OurPlans() {
-  const rootRef = useRef(null);
+  const pageRef = useRef(null);
+
   const [searchParams] = useSearchParams();
-  const [group, setGroup] = useState("all");
-  const [category, setCategory] = useState("all");
-  const [query, setQuery] = useState("");
-  const [limit, setLimit] = useState(PAGE_SIZE);
-  const [activePlan, setActivePlan] = useState(null);
-  const [formOpen, setFormOpen] = useState(false);
-  const [cloudAdded, setCloudAdded] = useState(false);
-  const [cloudDismissed, setCloudDismissed] = useState(false);
+
+  const [activeTab, setActiveTab] = useState("all");
+  const [search, setSearch] = useState("");
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
   const [selectedIds, setSelectedIds] = useState(() => {
-    const oldIds = {
-      netflix: "39",
-      prime: "44",
-      chatgpt: "1",
-      gemini: "4",
-      jiohotstar: "48",
-    };
-    return [
-      ...new Set(
-        (searchParams.get("items") || "")
-          .split(",")
-          .map((id) => (BY_ID.has(id) ? id : oldIds[id]))
-          .filter((id) => BY_ID.has(id)),
-      ),
-    ];
+    const ids = searchParams.get("items");
+
+    if (!ids) return [];
+
+    const validIds = new Set(ALL_PLANS.map((plan) => plan.id));
+
+    return [...new Set(ids.split(",").filter((id) => validIds.has(id)))];
   });
 
+  /* ==================================================
+     GSAP
+  ================================================== */
+
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (reduceMotion) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        ".bu-hero-copy > *",
-        { autoAlpha: 0, y: 22 },
+        ".sp-hero-content > *",
         {
-          autoAlpha: 1,
+          opacity: 0,
+          y: 35,
+        },
+        {
+          opacity: 1,
           y: 0,
-          stagger: 0.1,
-          duration: 0.65,
+          duration: 0.8,
+          stagger: 0.12,
           ease: "power3.out",
         },
       );
-    }, rootRef);
+
+      gsap.utils.toArray(".sp-reveal").forEach((element) => {
+        gsap.fromTo(
+          element,
+          {
+            opacity: 0,
+            y: 35,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: element,
+              start: "top 92%",
+              once: true,
+            },
+          },
+        );
+      });
+    }, pageRef);
+
     return () => ctx.revert();
   }, []);
-  useEffect(() => {
-    setLimit(PAGE_SIZE);
-  }, [group, category, query]);
-  useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      window.lenis?.resize?.();
-      ScrollTrigger.refresh();
-    });
-    return () => cancelAnimationFrame(id);
-  }, [limit, selectedIds.length, group]);
 
-  const selected = useMemo(
-    () => selectedIds.map((id) => BY_ID.get(id)).filter(Boolean),
-    [selectedIds],
+  /* ==================================================
+     SELECT / REMOVE PLANS
+  ================================================== */
+
+  const togglePlan = (id) => {
+    setSelectedIds((previous) =>
+      previous.includes(id)
+        ? previous.filter((item) => item !== id)
+        : [...previous, id],
+    );
+  };
+
+  const clearBundle = () => {
+    setSelectedIds([]);
+  };
+
+  /* ==================================================
+     FILTER
+  ================================================== */
+
+  const filteredPlans = useMemo(() => {
+    let plans = ALL_PLANS;
+
+    if (activeTab === "ott") {
+      plans = OTT_PLANS;
+    }
+
+    if (activeTab === "ai") {
+      plans = AI_PLANS;
+    }
+
+    if (activeTab === "indian") {
+      plans = OTT_PLANS.filter((plan) => plan.indian);
+    }
+
+    const searchText = search.trim().toLowerCase();
+
+    if (searchText) {
+      plans = plans.filter((plan) =>
+        `${plan.name} ${plan.genre}`.toLowerCase().includes(searchText),
+      );
+    }
+
+    return plans;
+  }, [activeTab, search]);
+
+  /* ==================================================
+     BUNDLE CALCULATION
+  ================================================== */
+
+  const selectedPlans = ALL_PLANS.filter((plan) =>
+    selectedIds.includes(plan.id),
   );
-  const priceInfo = selected.map(getPriceInfo);
-  const knownBaseAmount = priceInfo.reduce(
-    (total, item) => total + (item.amount ?? 0),
+
+  const originalTotal = selectedPlans.reduce(
+    (total, plan) => total + plan.price,
     0,
   );
-  const unknownCount = priceInfo.filter((item) => item.amount === null).length;
-  // A monthly equivalent is shown only as a research estimate, never a charge.
-  const amount =
-    selected.length && (knownBaseAmount > 0 || cloudAdded)
-      ? knownBaseAmount + (cloudAdded ? CLOUD_OFFER.price : 0)
-      : null;
-  const isEstimated =
-    priceInfo.some((item) => item.estimated) || unknownCount > 0;
-  const removeAll = () => {
-    setSelectedIds([]);
-    setCloudAdded(false);
-    setCloudDismissed(false);
+
+  // Example promotion:
+  // Netflix + Prime Video = ₹398/month
+
+  const hasNetflix = selectedIds.includes("netflix");
+  const hasPrime = selectedIds.includes("prime");
+
+  const discount = hasNetflix && hasPrime ? 100 : 0;
+
+  const finalTotal = Math.max(0, originalTotal - discount);
+
+  const selectedOTT = selectedPlans.filter(
+    (plan) => plan.category === "ott",
+  ).length;
+
+  const selectedAI = selectedPlans.filter(
+    (plan) => plan.category === "ai",
+  ).length;
+
+  /* ==================================================
+     CUSTOMER DETAILS BEFORE PAYMENT (FRONTEND ONLY)
+     No login required, no payment processed here.
+  ================================================== */
+  const saveCustomerDetails = (customer) => {
+    const draft = {
+      customer,
+      planIds: selectedPlans.map((plan) => plan.id),
+      items: selectedPlans.map((plan) => ({
+        id: plan.id,
+        name: plan.name,
+        category: plan.category,
+        previewPrice: plan.price,
+      })),
+      previewAmount: finalTotal,
+      previewDiscount: discount,
+      currency: "INR",
+      paymentStatus: "not_started",
+      createdAt: new Date().toISOString(),
+    };
+
+    // This is only temporary browser storage, NOT a real order in the database.
+    sessionStorage.setItem("bundleupott_checkout_draft", JSON.stringify(draft));
   };
-  const ottSelected = selected.filter((plan) => groupOf(plan) === "ott").length;
-  const aiSelected = selected.filter((plan) => groupOf(plan) === "ai").length;
-  const results = useMemo(
-    () =>
-      SUBSCRIPTION_CATALOGUE.filter((plan) => {
-        if (group !== "all" && groupOf(plan) !== group) return false;
-        if (category !== "all" && plan.category !== category) return false;
-        const term = query.trim().toLowerCase();
-        return (
-          !term ||
-          [
-            plan.brand,
-            plan.tier,
-            plan.category,
-            plan.useCase,
-            plan.features,
-          ].some((v) =>
-            String(v || "")
-              .toLowerCase()
-              .includes(term),
-          )
-        );
-      }),
-    [group, category, query],
-  );
-
-  function togglePlan(id) {
-    const key = String(id);
-    setSelectedIds((prev) => {
-      if (prev.includes(key)) return prev.filter((item) => item !== key);
-      const incoming = BY_ID.get(key);
-      if (!incoming) return prev;
-      return [
-        ...prev.filter((item) => {
-          const other = BY_ID.get(item);
-          return (
-            !other ||
-            other.brand !== incoming.brand ||
-            other.category !== incoming.category
-          );
-        }),
-        key,
-      ];
-    });
-  }
-  function saveCustomer(customer) {
-    sessionStorage.setItem(
-      "bundleupott_checkout_draft",
-      JSON.stringify({
-        customer,
-        bundleType: "custom",
-        planIds: selected.map((plan) => plan.id),
-        items: selected.map(
-          ({ id, brand, tier, category: cat, billing, price }) => ({
-            id,
-            brand,
-            tier,
-            category: cat,
-            billing,
-            referencePrice: price,
-          }),
-        ),
-        extras: cloudAdded
-          ? [{ ...CLOUD_OFFER, priceType: "promo_quote_unverified" }]
-          : [],
-        previewMonthlyEquivalentINR: amount,
-        containsUnconfirmedPrices: unknownCount > 0,
-        currency: "INR",
-        paymentStatus: "not_started",
-        createdAt: new Date().toISOString(),
-      }),
-    );
-  }
-  // Never show the upsell before a base subscription has been chosen.
-  // When the last base subscription is removed, reset the add-on as well.
-  useEffect(() => {
-    if (!selectedIds.length) {
-      setCloudAdded(false);
-      setCloudDismissed(false);
-    }
-  }, [selectedIds.length]);
-
-  function scrollToPlans() {
-    const el = document.getElementById("bu-catalogue");
-    if (window.lenis?.scrollTo)
-      window.lenis.scrollTo(el, { offset: -85, duration: 0.8 });
-    else el?.scrollIntoView({ behavior: "smooth" });
-  }
 
   return (
-    <main ref={rootRef} className="bu-plans-page">
-      <section className="bu-hero">
-        <div className="bu-shell bu-hero-grid">
-          <div className="bu-hero-copy">
-            <span className="bu-pill">
-              <Icon name="spark" size={16} /> YOUR CHOICE. YOUR BUNDLE.
-            </span>
-            <h1>
-              All your subscriptions. <span>Your own bundle.</span>
-            </h1>
-            <p>
-              Explore OTT, AI, creative tools, music, games and more. Open any
-              plan to see exactly what the listed tier includes, then build a
-              bundle your way.
-            </p>
-            <button className="bu-primary-btn" onClick={scrollToPlans}>
-              Explore subscriptions <Icon name="arrow" />
-            </button>
-            <small>
-              Catalogue reference · Prices and availability require provider
-              confirmation.
-            </small>
-          </div>
-          <div className="bu-hero-art" aria-hidden="true">
-            <div className="bu-hero-ring ring-one" />
-            <div className="bu-hero-ring ring-two" />
-            <div className="bu-hero-center">
-              <Icon name="layer" size={52} />
-              <strong>bundleupott</strong>
-              <span>CUSTOM BUNDLES</span>
-            </div>
-            <span className="bu-floating bu-floating-one">OTT + AI</span>
-            <span className="bu-floating bu-floating-two">✦ Your way</span>
-          </div>
-        </div>
-        <div className="bu-shell bu-metrics">
-          <span>
-            <strong>{COUNTS.all}</strong> plan / tier entries
-          </span>
-          <span>
-            <strong>{CATEGORIES.length}</strong> categories
-          </span>
-          <span>
-            <strong>{COUNTS.ott}</strong> OTT tiers
-          </span>
-          <span>
-            <strong>{COUNTS.ai}</strong> AI tiers
-          </span>
-        </div>
+    <main className="streamai-plans" ref={pageRef}>
+      {/* ==================================================
+          HERO
+      ================================================== */}
+
+      <section className="sp-hero">
+        <div className="sp-hero-glow sp-glow-one" />
+        <div className="sp-hero-glow sp-glow-two" />
+
+        <svg
+          className="sp-background-svg"
+          viewBox="0 0 1400 500"
+          preserveAspectRatio="xMidYMid slice"
+          aria-hidden="true"
+        >
+          <circle cx="1180" cy="200" r="230" fill="none" stroke="#b6dfff" />
+
+          <circle cx="1180" cy="200" r="310" fill="none" stroke="#c0eae2" />
+
+          <path
+            d="M0 420 C350 100 650 600 1400 150"
+            stroke="#a6cfff"
+            strokeWidth="2"
+            strokeDasharray="12 16"
+            fill="none"
+          />
+        </svg>
       </section>
 
-      <section className="bu-catalogue" id="bu-catalogue">
-        <div className="bu-shell">
-          <div className="bu-section-heading">
-            <span className="bu-eyebrow">COMPLETE SUBSCRIPTION CATALOGUE</span>
+      {/* ==================================================
+          FEATURED OFFER
+      ================================================== */}
+
+      {/* ==================================================
+          PLAN CATALOG
+      ================================================== */}
+
+      <section className="sp-catalog-section" id="plans-catalog">
+        <div className="sp-container">
+          <div className="sp-section-heading sp-reveal">
+            <span className="sp-section-label">EXPLORE OUR PLANS</span>
+
             <h2>
-              Find your favourites. <span>Build your bundle.</span>
+              Choose What <span>You Love.</span>
             </h2>
-            <p>
-              Click any subscription card to view its benefits, features, usage
-              limits, device information and more. Switch tiers any time.
-            </p>
-            <div className="bu-refund-note">
-              <Icon name="check" size={18} />
-              <span>
-                <strong>Refund assurance:</strong> If a verified payment cannot
-                be fulfilled because a provider cannot activate the selected
-                subscription, the affected amount will be refunded under the
-                published refund policy. Payments are not enabled in this demo.
-              </span>
-            </div>
+
+            <p>Select any combination of OTT and AI services.</p>
           </div>
-          <div className="bu-toolbar">
-            <div
-              className="bu-tabs"
-              role="group"
-              aria-label="Subscription categories"
-            >
-              {TABS.map(({ id, label }) => (
+
+          <div className="sp-toolbar">
+            <div className="sp-tabs">
+              {[
+                ["all", "All Plans"],
+                ["ott", "OTT Plans"],
+                ["ai", "AI Plans"],
+                ["indian", "Indian OTT"],
+              ].map(([id, label]) => (
                 <button
                   type="button"
                   key={id}
-                  className={group === id ? "is-active" : ""}
-                  aria-pressed={group === id}
-                  onClick={() => {
-                    setGroup(id);
-                    setCategory("all");
-                  }}
+                  className={activeTab === id ? "sp-tab-active" : ""}
+                  onClick={() => setActiveTab(id)}
                 >
-                  <span>{label}</span>
-                  <b>{COUNTS[id]}</b>
+                  {label}
                 </button>
               ))}
             </div>
-            <div className="bu-filter-controls">
-              <label className="bu-search">
-                <Icon name="search" />
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search ChatGPT, Netflix, Canva..."
-                />
-              </label>
-              <label className="bu-category-picker">
-                Category
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="all">All categories</option>
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+
+            <label className="sp-search">
+              <SearchIcon />
+
+              <input
+                type="search"
+                placeholder="Search subscriptions..."
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </label>
           </div>
-          <div className="bu-layout">
-            <div className="bu-list">
-              <div className="bu-result-line">
-                <strong>{results.length} matching plans</strong>
-                <span>Tap any card to see full benefits</span>
+
+          {/* MAIN CONTENT */}
+
+          <div className="sp-content-layout">
+            {/* LEFT: PLANS */}
+
+            <div className="sp-catalog-main">
+              <div className="sp-results-header">
+                <div>
+                  <h3>
+                    {activeTab === "all"
+                      ? "All Subscriptions"
+                      : activeTab === "ott"
+                        ? "OTT Subscriptions"
+                        : activeTab === "ai"
+                          ? "AI Subscriptions"
+                          : "Indian OTT Platforms"}
+                  </h3>
+
+                  <p>
+                    {filteredPlans.length} services available in this demo
+                    catalog
+                  </p>
+                </div>
+
+                <span className="sp-results-count">
+                  {filteredPlans.length} RESULTS
+                </span>
               </div>
-              <div className="bu-card-grid">
-                {results.slice(0, limit).map((plan) => (
-                  <SubscriptionCard
+
+              <div className="sp-plans-grid">
+                {filteredPlans.map((plan) => (
+                  <PlanCard
                     key={plan.id}
                     plan={plan}
-                    selected={selectedIds.includes(String(plan.id))}
-                    onOpen={setActivePlan}
+                    selected={selectedIds.includes(plan.id)}
                     onToggle={togglePlan}
                   />
                 ))}
               </div>
-              {!results.length && (
-                <div className="bu-empty">
-                  <h3>No matching subscriptions</h3>
-                  <p>Try another term or select All categories.</p>
+
+              {filteredPlans.length === 0 && (
+                <div className="sp-empty-results">
+                  <h3>No subscriptions found</h3>
+
+                  <p>Try searching for a different platform.</p>
+
                   <button
+                    type="button"
                     onClick={() => {
-                      setGroup("all");
-                      setCategory("all");
-                      setQuery("");
+                      setSearch("");
+                      setActiveTab("all");
                     }}
                   >
-                    Clear filters
+                    Clear Filters
                   </button>
                 </div>
               )}
-              {results.length > limit && (
-                <button
-                  className="bu-more"
-                  onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                >
-                  Show more plans · {results.length - limit} remaining{" "}
-                  <Icon name="arrow" size={16} />
-                </button>
-              )}
-              <p className="bu-disclaimer">
-                These are research references, not confirmed bundleupott
-                reseller inventory. Features, plan terms, India availability and
-                prices must be verified with providers.
+
+              <p className="sp-price-disclaimer">
+                All listed prices are illustrative. Displaying a service does
+                not mean its subscription is currently available for purchase
+                through bundleupott.
               </p>
             </div>
-            <aside className="bu-summary">
-              <span className="bu-eyebrow">YOUR BUNDLE</span>
-              <h3>Your Custom Bundle</h3>
-              <p>
-                Choose any services. Switch a provider's tier without adding a
-                duplicate.
-              </p>
-              <div className="bu-summary-numbers">
-                <span>
-                  <b>{ottSelected}</b>OTT
-                </span>
-                <span>
-                  <b>{aiSelected}</b>AI
-                </span>
-                <span>
-                  <b>{selected.length + (cloudAdded ? 1 : 0)}</b>Total
-                </span>
+
+            {/* RIGHT: BUNDLE SUMMARY */}
+
+            <aside className="sp-summary">
+              <div className="sp-summary-header">
+                <span className="sp-summary-tag">YOUR BUNDLE</span>
+
+                <h3>
+                  Build Your
+                  <span> Perfect Plan</span>
+                </h3>
+
+                <p>Your selected subscriptions appear here.</p>
               </div>
-              <div className="bu-selected-list">
-                {selected.length ? (
-                  selected.map((plan) => (
-                    <div key={plan.id} className="bu-selected-row">
-                      <Logo plan={plan} />
+
+              {/* COUNTERS */}
+
+              <div className="sp-summary-stats">
+                <div>
+                  <strong>{selectedOTT}</strong>
+                  <span>OTT</span>
+                </div>
+
+                <div>
+                  <strong>{selectedAI}</strong>
+                  <span>AI</span>
+                </div>
+
+                <div>
+                  <strong>{selectedPlans.length}</strong>
+                  <span>Total</span>
+                </div>
+              </div>
+
+              {/* SELECTED PLANS */}
+
+              <div className="sp-selected-plans">
+                {selectedPlans.length === 0 ? (
+                  <div className="sp-empty-bundle">
+                    <span>✦</span>
+
+                    <h4>Your bundle is empty</h4>
+
+                    <p>
+                      Select subscriptions to create your personalized bundle.
+                    </p>
+                  </div>
+                ) : (
+                  selectedPlans.map((plan) => (
+                    <div className="sp-selected-item" key={plan.id}>
+                      <PlatformLogo plan={plan} />
+
                       <div>
-                        <strong>{plan.brand}</strong>
-                        <small>
-                          {plan.tier} · {getPriceInfo(plan).display}
-                        </small>
+                        <strong>{plan.name}</strong>
+                        <span>{INR.format(plan.price)}/month</span>
                       </div>
+
                       <button
                         type="button"
-                        aria-label={`Remove ${plan.brand}`}
                         onClick={() => togglePlan(plan.id)}
+                        aria-label={`Remove ${plan.name}`}
                       >
-                        <Icon name="close" size={17} />
+                        ×
                       </button>
                     </div>
                   ))
-                ) : (
-                  <div className="bu-no-selection">
-                    <Icon name="layer" size={29} />
-                    <strong>No plans added yet</strong>
-                    <span>Select any subscription to start building.</span>
+                )}
+              </div>
+
+              {/* PRICE BREAKDOWN */}
+
+              <div className="sp-price-breakdown">
+                <div>
+                  <span>Regular Total</span>
+                  <strong>{INR.format(originalTotal)}</strong>
+                </div>
+
+                {discount > 0 && (
+                  <div className="sp-discount-row">
+                    <span>Combo Discount</span>
+                    <strong>−{INR.format(discount)}</strong>
                   </div>
                 )}
               </div>
-              {selected.length > 0 && cloudAdded && (
-                <div className="bu-cloud-selected">
-                  <span className="bu-cloud-selected-icon">
-                    <Icon name="cloud" size={25} />
-                  </span>
-                  <div>
-                    <strong>250 GB Cloud Storage</strong>
-                    <small>Offer add-on · ₹149/month</small>
-                  </div>
-                  <button
-                    type="button"
-                    aria-label="Remove cloud storage"
-                    onClick={() => setCloudAdded(false)}
-                  >
-                    <Icon name="close" size={17} />
-                  </button>
+
+              <div className="sp-final-total">
+                <span>Total Per Month</span>
+
+                <div>
+                  <strong>{INR.format(finalTotal)}</strong>
+
+                  <small>/month</small>
+                </div>
+              </div>
+
+              {discount > 0 && (
+                <div className="sp-saving-banner">
+                  🎉 You save {INR.format(discount)}
+                  every month!
                 </div>
               )}
-              {selected.length > 0 && !cloudAdded && !cloudDismissed && (
-                <CloudStorageOffer
-                  onAdd={() => setCloudAdded(true)}
-                  onDismiss={() => setCloudDismissed(true)}
-                />
-              )}
-              {selected.length > 0 && cloudDismissed && !cloudAdded && (
+
+              <button
+                type="button"
+                className="sp-checkout-btn"
+                disabled={selectedPlans.length === 0}
+                onClick={() => setCheckoutOpen(true)}
+              >
+                Continue to Checkout
+                <ArrowIcon />
+              </button>
+
+              {selectedPlans.length > 0 && (
                 <button
                   type="button"
-                  className="bu-cloud-reopen"
-                  onClick={() => setCloudDismissed(false)}
+                  className="sp-clear-btn"
+                  onClick={clearBundle}
                 >
-                  <Icon name="cloud" size={17} /> View 250 GB cloud offer (₹149)
+                  Clear Bundle
                 </button>
               )}
-              <div className="bu-total">
-                <span>Reference monthly equivalent (₹)</span>
-                <strong>
-                  {amount === null
-                    ? selected.length
-                      ? "Quote required"
-                      : "—"
-                    : `${isEstimated ? "≈" : ""}${INR.format(Math.round(amount))}`}
-                </strong>
-                <small>
-                  {unknownCount > 0
-                    ? `${unknownCount} plan(s) need a price quote and are excluded from this estimate.`
-                    : isEstimated
-                      ? "Approximate INR / monthly equivalent only. USD conversions, annual billing and provider taxes may change actual prices."
-                      : "Reference INR monthly prices. Final eligible pricing must be verified."}
-                </small>
-              </div>
-              <button
-                className="bu-primary-btn bu-continue"
-                disabled={!selected.length}
-                onClick={() => setFormOpen(true)}
-              >
-                Continue to Details <Icon name="arrow" />
-              </button>
-              <button
-                className="bu-clear"
-                disabled={!selected.length}
-                onClick={removeAll}
-              >
-                Clear bundle
-              </button>
-              <p className="bu-summary-foot">
-                No login required · No payment taken yet
+
+              <p className="sp-summary-note">
+                Payment and activation require separate backend verification.
               </p>
             </aside>
           </div>
         </div>
       </section>
-      <section className="bu-outro">
-        <div className="bu-shell bu-outro-inner">
-          <div>
-            <span className="bu-eyebrow">YOUR BUNDLE, YOUR WAY</span>
+
+      {/* ==================================================
+          INDIA-BUILT AI INFORMATION
+      ================================================== */}
+
+      <section className="sp-india-ai-section">
+        <div className="sp-container">
+          <div className="sp-india-ai-card sp-reveal">
+            <span>🇮🇳 INDIA-BUILT AI</span>
+
             <h2>
-              Every subscription is <span>your choice.</span>
+              Exploring India's
+              <br />
+              AI Innovation.
             </h2>
+
             <p>
-              Explore the details, compare tiers and create your combination.
+              We're also following Indian AI developments, including Sarvam AI's
+              Indus assistant. Availability and commercial subscription access
+              depend on each provider.
             </p>
+
+            <span className="sp-india-ai-status">
+              Informational Only — Not Included in Checkout
+            </span>
           </div>
-          <button className="bu-primary-btn" onClick={scrollToPlans}>
-            Browse all subscriptions <Icon name="arrow" />
-          </button>
         </div>
       </section>
-      {activePlan && (
-        <DetailsModal
-          key={activePlan.id}
-          plan={activePlan}
-          selected={selectedIds.includes(String(activePlan.id))}
-          onToggle={togglePlan}
-          onClose={() => setActivePlan(null)}
-        />
-      )}
-      {formOpen && (
-        <CustomerForm
-          selected={selected}
-          amount={amount}
-          hasUnknownPrices={unknownCount > 0}
-          cloudAdded={cloudAdded}
-          onSave={saveCustomer}
-          onClose={() => setFormOpen(false)}
+
+      {/* Customer information is collected BEFORE any future payment step. */}
+      {checkoutOpen && (
+        <CustomerDetailsModal
+          plans={selectedPlans}
+          total={finalTotal}
+          discount={discount}
+          formatPrice={(value) => INR.format(value)}
+          onSave={saveCustomerDetails}
+          onClose={() => setCheckoutOpen(false)}
         />
       )}
     </main>

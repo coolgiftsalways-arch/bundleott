@@ -451,146 +451,141 @@ try {
 
 
 try {
-  const windowStart = new Date(
-    occurredAt.getTime() - 15 * 60 * 1000
-  );
+  
+const windowStart = new Date(
+  occurredAt.getTime() - 15 * 60 * 1000
+);
 
-  const recentOrders = await PaymentOrder.find({
-    status: "pending",
-    createdAt: {
-      $gte: windowStart,
-      $lte: occurredAt,
-    },
-  })
-    .select("orderId amount createdAt")
-    .lean();
+const recentOrders = await PaymentOrder.find({
+  status: "pending",
+  createdAt: {
+    $gte: windowStart,
+    $lte: occurredAt,
+  },
+})
+  .select("orderId amount createdAt customerClaimedReference")
+  .lean();
 
-  const alertPaise = Math.round(
-    Number(hints.amountHint) * 100
-  );
+const alertPaise = Math.round(Number(hints.amountHint) * 100);
+const reference = normalizeReference(hints.referenceHint || "");
 
-  // Exact amount matching only.
-  const candidates = recentOrders.filter(
+// Start with exact-amount candidates.
+let candidates = recentOrders.filter(
+  (order) =>
+    Math.round(Number(order.amount) * 100) === alertPaise
+);
+
+// If an order has a customer-submitted reference, use it only
+// as a matching hint, not as proof of payment.
+if (reference) {
+  const referenceCandidates = candidates.filter(
     (order) =>
-      Math.round(Number(order.amount) * 100) === alertPaise
+      normalizeReference(order.customerClaimedReference || "") === reference
   );
 
-  const reference = normalizeReference(hints.referenceHint || "");
-
-  // Automatic approval requires every condition below:
-  // 1. Explicit opt-in in backend .env
-  // 2. An approved SMS sender (not a generic notification)
-  // 3. A transaction reference
-  // 4. Exactly one recent pending order for the exact amount
-  if (
-    process.env.AUTO_VERIFY_BANK_SMS === "true" &&
-    approvedSms &&
-    /^[A-Z0-9-]{10,30}$/.test(reference) &&
-    candidates.length === 1
-  ) {
-    const candidate = candidates[0];
-
-    // Do not reuse a bank reference already recorded as paid.
-    const referenceAlreadyUsed = await PaymentOrder.exists({
-      status: "paid",
-      $or: [
-        { bankReference: reference },
-        { verifiedReferenceKey: reference },
-      ],
-    });
-
-    if (!referenceAlreadyUsed) {
-      // Atomic status check prevents two requests from paying
-      // the same pending order at the same time.
-      const updatedOrder = await PaymentOrder.findOneAndUpdate(
-        {
-          orderId: candidate.orderId,
-          status: "pending",
-          amount: candidate.amount,
-        },
-        {
-          $set: {
-            status: "paid",
-            bankReference: reference,
-            verifiedReferenceKey: reference,
-            verificationNote:
-              "Automatically matched to an allowlisted bank SMS; not independently authenticated.",
-            verifiedBy: "auto:saraswat-sms",
-            verifiedAt: new Date(),
-            matchedAlertEventId: savedAlert.eventId,
-          },
-        },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-
-      if (updatedOrder) {
-        await PaymentAlert.updateOne(
-          {
-            eventId: savedAlert.eventId,
-            status: "awaiting_verification",
-          },
-          {
-            $set: {
-              status: "verified",
-              matchedOrderId: updatedOrder.orderId,
-              verifiedAt: new Date(),
-            },
-          }
-        );
-
-        console.log(
-          "AUTO-APPROVED from bank SMS:",
-          updatedOrder.orderId,
-          reference
-        );
-
-        // Return immediately so the frontend can see the paid status.
-        return res.json({
-          success: true,
-          status: "verified",
-          paymentSuccessful: true,
-          eventId: savedAlert.eventId,
-          orderId: updatedOrder.orderId,
-        });
-      }
-    } else {
-      console.warn(
-        "Auto-verification skipped: bank reference already used",
-        reference
-      );
-    }
+  if (referenceCandidates.length === 1) {
+    candidates = referenceCandidates;
   }
+}
 
-  // Otherwise, save only a suggested match for review.
-  if (candidates.length === 1) {
-    await PaymentAlert.updateOne(
+// Auto-verify only when exactly one order remains.
+// Keep bank verification safeguards enabled.
+if (
+  process.env.AUTO_VERIFY_BANK_SMS === "true" &&
+  approvedSms &&
+  /^[A-Z0-9-]{10,30}$/.test(reference) &&
+  candidates.length === 1
+) {
+  const candidate = candidates[0];
+
+  const referenceAlreadyUsed = await PaymentOrder.exists({
+    status: "paid",
+    $or: [
+      { bankReference: reference },
+      { verifiedReferenceKey: reference },
+    ],
+  });
+
+  if (!referenceAlreadyUsed) {
+    const updatedOrder = await PaymentOrder.findOneAndUpdate(
       {
-        eventId: savedAlert.eventId,
-        status: "awaiting_verification",
+        orderId: candidate.orderId,
+        status: "pending",
+        amount: candidate.amount,
       },
       {
         $set: {
-          matchedOrderId: candidates[0].orderId,
+          status: "paid",
+          bankReference: reference,
+          verifiedReferenceKey: reference,
+          verificationNote:
+            "Automatically matched to an allowlisted bank SMS; not independently authenticated.",
+          verifiedBy: "auto:saraswat-sms",
+          verifiedAt: new Date(),
+          matchedAlertEventId: savedAlert.eventId,
         },
-      }
+      },
+      { new: true, runValidators: true }
     );
 
-    console.log(
-      "Alert linked for review:",
-      savedAlert.eventId,
-      candidates[0].orderId
-    );
-  } else {
-    console.log(
-      "Manual reconciliation required:",
-      savedAlert.eventId,
-      "Exact-amount candidates:",
-      candidates.length
-    );
+    if (updatedOrder) {
+      await PaymentAlert.updateOne(
+        {
+          eventId: savedAlert.eventId,
+          status: "awaiting_verification",
+        },
+        {
+          $set: {
+            status: "verified",
+            matchedOrderId: updatedOrder.orderId,
+            verifiedAt: new Date(),
+          },
+        }
+      );
+
+      console.log(
+        "AUTO-APPROVED from bank SMS:",
+        updatedOrder.orderId,
+        reference
+      );
+
+      return res.json({
+        success: true,
+        status: "verified",
+        paymentSuccessful: true,
+        eventId: savedAlert.eventId,
+        orderId: updatedOrder.orderId,
+      });
+    }
   }
+}
+
+// Never select an arbitrary order when multiple candidates remain.
+if (candidates.length === 1) {
+  await PaymentAlert.updateOne(
+    {
+      eventId: savedAlert.eventId,
+      status: "awaiting_verification",
+    },
+    {
+      $set: { matchedOrderId: candidates[0].orderId },
+    }
+  );
+
+  console.log(
+    "Alert linked for review:",
+    savedAlert.eventId,
+    candidates[0].orderId
+  );
+} else {
+  console.log(
+    "Manual reconciliation required:",
+    savedAlert.eventId,
+    "Exact-amount candidates:",
+    candidates.length
+  );
+}
+
 } catch (matchError) {
   console.error(
     "Alert matching error:",
@@ -660,74 +655,18 @@ router.post("/notification", webhookLimit, authenticateWebhook, async (req, res)
 // =============================
 router.post("/admin/login", loginLimit, async (req, res) => {
   try {
-    const email = String(req.body?.email || "")
-      .trim()
-      .toLowerCase();
-
+    const email = String(req.body?.email || "").trim().toLowerCase();
     const password = String(req.body?.password || "");
-
-    const configuredEmail = String(process.env.ADMIN_EMAIL || "")
-      .trim()
-      .toLowerCase();
-
-    const passwordHash = String(
-      process.env.ADMIN_PASSWORD_HASH || ""
-    );
-
-    const emailMatches = safeEqual(email, configuredEmail);
-
-    let passwordMatches = false;
-
-    const validBcryptHash = /^\$2[aby]\$\d{2}\$/.test(passwordHash);
-
-    if (validBcryptHash && password.length <= 1024) {
-      passwordMatches = await bcrypt.compare(password, passwordHash);
-    }
-
-    // Temporary diagnostics: never print passwords or secrets.
-    console.log("[ADMIN LOGIN DEBUG]", {
-      emailMatches,
-      validBcryptHash,
-      hashLength: passwordHash.length,
-      passwordMatches,
-    });
-
-    if (!emailMatches || !passwordMatches) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid admin credentials",
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        role: "admin",
-        email: configuredEmail,
-      },
-      process.env.ADMIN_JWT_SECRET,
-      {
-        algorithm: "HS256",
-        expiresIn: "2h",
-      }
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Admin login successful",
-      token,
-      expiresIn: 7200,
-    });
+    const validEmail = safeEqual(email, String(process.env.ADMIN_EMAIL || "").toLowerCase());
+    const validPassword = password.length <= 1024 && await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
+    if (!validEmail || !validPassword) return res.status(401).json({ message: "Invalid admin credentials" });
+    const token = jwt.sign({ role: "admin", email }, process.env.ADMIN_JWT_SECRET, { algorithm: "HS256", expiresIn: "2h" });
+    return res.json({ success: true, token, expiresIn: 7200 });
   } catch (error) {
     console.error("Admin login error:", error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: "Unable to log in",
-    });
+    return res.status(500).json({ message: "Unable to log in" });
   }
 });
-;
-
 
 router.get("/admin/orders", authenticateAdmin, async (req, res) => {
   try {

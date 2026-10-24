@@ -375,11 +375,13 @@ export default function PaymentStep({ customer, plans, total }) {
 
           {orderStatus === 'pending' && amountMatches && (
             <>
-              <p>
-                <strong>Connection testing:</strong> The order has been
-                created. Payment is optional; do not pay until catalogue
-                pricing and service fulfilment are approved.
-              </p>
+             <p className="bup-payment-ok" role="status">
+  <strong>Order placed successfully!</strong>
+  <br />
+  Thank you for your order. We have received your order
+  details. Your payment will be checked, and we will contact
+  you by email if there is any issue with the transaction.
+</p>
 
               {orderData.qrCode && (
                 <img
