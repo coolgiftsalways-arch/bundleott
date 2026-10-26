@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 import connectDB from "./db.js";
 import paymentRoutes from "./payment.js";
 
-dotenv.config();
+dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), '.env') });
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
