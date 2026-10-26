@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SUBSCRIPTION_CATALOGUE } from "../data/subscriptionCatalogue";
 import "../Style/OurPlans.css";
+import PaymentStep from "../components/PaymentStep";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,12 +14,15 @@ const INR = new Intl.NumberFormat("en-IN", {
   currency: "INR",
   maximumFractionDigits: 0,
 });
+
 const BY_ID = new Map(
   SUBSCRIPTION_CATALOGUE.map((plan) => [String(plan.id), plan]),
 );
+
 const CATEGORIES = [
   ...new Set(SUBSCRIPTION_CATALOGUE.map((plan) => plan.category)),
 ];
+
 const TABS = [
   { id: "all", label: "All" },
   { id: "ott", label: "OTT" },
@@ -26,11 +30,10 @@ const TABS = [
   { id: "creator", label: "Creators & Design" },
   { id: "other", label: "Other Services" },
 ];
-const PAGE_SIZE = 24;
 
-// Currency conversion is a labelled reference estimate, NOT a selling price.
-// 1 USD = ₹94.9601 as of 23 October 2026. Review before launch.
+const PAGE_SIZE = 24;
 const USD_INR_REFERENCE = 94.9601;
+
 const CLOUD_OFFER = {
   id: "bundleupott-cloud-250gb",
   name: "250 GB Cloud Storage",
@@ -40,19 +43,64 @@ const CLOUD_OFFER = {
   billing: "Monthly",
 };
 
+// IDs must match the backend catalogue in backend/catalog.js.
+const PAYMENT_PLAN_IDS = {
+  netflix: "netflix",
+  "amazon prime": "prime",
+  prime: "prime",
+  jiohotstar: "jiohotstar",
+  sonyliv: "sonyliv",
+  zee5: "zee5",
+  "sun nxt": "sunnxt",
+  sunnxt: "sunnxt",
+  aha: "aha",
+  hoichoi: "hoichoi",
+  shemaroome: "shemaroome",
+  "lionsgate play": "lionsgate",
+  lionsgate: "lionsgate",
+  "discovery+": "discovery",
+  discovery: "discovery",
+  fancode: "fancode",
+  chaupal: "chaupal",
+  "etv win": "etvwin",
+  etvwin: "etvwin",
+  "planet marathi": "planetmarathi",
+  planetmarathi: "planetmarathi",
+  manoramamax: "manoramamax",
+  "eros now": "erosnow",
+  erosnow: "erosnow",
+  youtube: "youtube",
+  chatgpt: "chatgpt",
+  gemini: "gemini",
+  claude: "claude",
+  perplexity: "perplexity",
+  copilot: "copilot",
+  grok: "grok",
+  midjourney: "midjourney",
+  canva: "canva",
+  notion: "notion",
+  firefly: "firefly",
+  elevenlabs: "elevenlabs",
+  runway: "runway",
+};
+
 function groupOf(plan) {
   if (plan.category === "OTT, films & TV") return "ott";
   if (plan.category.startsWith("AI ")) return "ai";
+
   if (
     [
       "YouTube & creator tools",
       "Photo, video & design software",
       "Stock assets, templates & licensing",
     ].includes(plan.category)
-  )
+  ) {
     return "creator";
+  }
+
   return "other";
 }
+
 const COUNTS = SUBSCRIPTION_CATALOGUE.reduce(
   (acc, plan) => {
     acc.all++;
@@ -62,14 +110,15 @@ const COUNTS = SUBSCRIPTION_CATALOGUE.reduce(
   { all: 0, ott: 0, ai: 0, creator: 0, other: 0 },
 );
 
-// Convert reference prices for display. Do not treat price estimates or annual
-// equivalents as verified payable monthly rates.
 function getPriceInfo(plan) {
   const raw = String(plan.price || "");
   const billing = String(plan.billing || "");
+
   const exact = raw.match(/^₹([\d,]+(?:\.\d+)?)\/month$/i);
+
   if (exact && billing.toLowerCase() === "monthly") {
     const amount = Number(exact[1].replaceAll(",", ""));
+
     return {
       amount,
       display: `${INR.format(amount)}/month`,
@@ -77,10 +126,12 @@ function getPriceInfo(plan) {
       note: "India price reference",
     };
   }
-  // An INR monthly reference is preferred over global USD prices.
-  const inrMonthly = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/\s*month/i);
+
+  const inrMonthly = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/*\s*month/i);
+
   if (inrMonthly) {
     const amount = Number(inrMonthly[1].replaceAll(",", ""));
+
     return {
       amount,
       display: `≈${INR.format(amount)}/month`,
@@ -88,10 +139,12 @@ function getPriceInfo(plan) {
       note: "India reference; verify current checkout",
     };
   }
-  // For annual/quarterly local plans show monthly EQUIVALENT, not monthly billing.
-  const inrYear = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/\s*year/i);
+
+  const inrYear = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/*\s*year/i);
+
   if (inrYear) {
     const year = Number(inrYear[1].replaceAll(",", ""));
+
     return {
       amount: year / 12,
       display: `≈${INR.format(Math.round(year / 12))}/mo equivalent`,
@@ -99,16 +152,19 @@ function getPriceInfo(plan) {
       note: `${INR.format(year)} billed yearly`,
     };
   }
-  // Parse the first cited US$ per month (may be an annual-billing equivalent).
+
   const usdMonthly = raw.match(
-    /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/\s*month/i,
+    /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/*\s*month/i,
   );
+
   if (usdMonthly) {
     const usd = Number(usdMonthly[1].replaceAll(",", ""));
     const amount = usd * USD_INR_REFERENCE;
+
     const annualEquivalent =
       /annual|year|equivalent|billed/i.test(billing) &&
       !/^monthly$/i.test(billing);
+
     return {
       amount,
       display: `≈${INR.format(Math.round(amount))}/${annualEquivalent ? "mo equivalent" : "month"}`,
@@ -118,10 +174,15 @@ function getPriceInfo(plan) {
         : "Converted USD reference; taxes and FX may differ",
     };
   }
-  const usdYear = raw.match(/(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/\s*year/i);
+
+  const usdYear = raw.match(
+    /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/*\s*year/i,
+  );
+
   if (usdYear) {
     const annualUsd = Number(usdYear[1].replaceAll(",", ""));
     const amount = (annualUsd * USD_INR_REFERENCE) / 12;
+
     return {
       amount,
       display: `≈${INR.format(Math.round(amount))}/mo equivalent`,
@@ -129,6 +190,7 @@ function getPriceInfo(plan) {
       note: "Converted from annual USD reference; billed yearly",
     };
   }
+
   return {
     amount: null,
     display: "₹— · price on request",
@@ -136,8 +198,10 @@ function getPriceInfo(plan) {
     note: "Current INR price must be confirmed with provider",
   };
 }
+
 function domainOf(plan) {
   const brand = plan.brand.toLowerCase();
+
   const domains = [
     ["chatgpt", "chatgpt.com"],
     ["gemini", "gemini.google.com"],
@@ -156,6 +220,7 @@ function domainOf(plan) {
     ["runway", "runwayml.com"],
     ["apple", "apple.com"],
   ];
+
   return domains.find(([key]) => brand.includes(key))?.[1] || "";
 }
 
@@ -208,17 +273,12 @@ function Icon({ name = "spark", size = 20 }) {
       </>
     ),
     bolt: <path d="m13 2-9 11h7l-1 9 10-12h-7l0-8Z" />,
-    link: (
-      <>
-        <path d="M7 17 17 7M8 7h9v9" />
-      </>
-    ),
+    link: <path d="M7 17 17 7M8 7h9v9" />,
     cloud: (
-      <>
-        <path d="M20 17.5a4 4 0 0 0-1.2-7.8 7 7 0 0 0-13.4 1.8A3.9 3.9 0 0 0 6 19h13a4 4 0 0 0 1-1.5Z" />
-      </>
+      <path d="M20 17.5a4 4 0 0 0-1.2-7.8 7 7 0 0 0-13.4 1.8A3.9 3.9 0 0 0 6 19h13a4 4 0 0 0 1-1.5Z" />
     ),
   };
+
   return (
     <svg
       width={size}
@@ -231,7 +291,7 @@ function Icon({ name = "spark", size = 20 }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      {paths[name]}
+      {paths[name] || paths.spark}
     </svg>
   );
 }
@@ -239,6 +299,7 @@ function Icon({ name = "spark", size = 20 }) {
 function Logo({ plan, large = false }) {
   const [error, setError] = useState(false);
   const domain = domainOf(plan);
+
   return (
     <span
       className={`bu-logo bu-logo-${groupOf(plan)} ${large ? "bu-logo-large" : ""}`}
@@ -257,42 +318,56 @@ function Logo({ plan, large = false }) {
   );
 }
 
-// Each of the 170 catalogue entries supplies its own feature, usage, device,
-// and eligibility text. This builds detail cards WITHOUT inventing benefits.
 function benefitsFor(plan) {
   const featureItems = String(plan.features || "")
     .split(/\s*;\s*/)
     .map((item) => item.trim())
     .filter(Boolean);
+
   const entries = featureItems.map((text, index) => ({
     title: index === 0 ? "What this tier includes" : "More included benefits",
     text,
     icon: "spark",
   }));
-  if (plan.limits)
+
+  if (plan.limits) {
     entries.push({
       title: "Usage and limitations",
       text: plan.limits,
       icon: "bolt",
     });
-  if (plan.devices)
+  }
+
+  if (plan.devices) {
     entries.push({
       title: "Devices and account access",
       text: plan.devices,
       icon: "device",
     });
-  if (plan.useCase)
-    entries.push({ title: "Ideal for", text: plan.useCase, icon: "check" });
-  if (plan.note)
+  }
+
+  if (plan.useCase) {
+    entries.push({
+      title: "Ideal for",
+      text: plan.useCase,
+      icon: "check",
+    });
+  }
+
+  if (plan.note) {
     entries.push({
       title: "Important plan notes",
       text: plan.note,
       icon: "info",
     });
+  }
+
   return entries;
 }
 
 function SubscriptionCard({ plan, selected, onOpen, onToggle }) {
+  const price = getPriceInfo(plan);
+
   return (
     <article className={`bu-plan-card ${selected ? "bu-card-selected" : ""}`}>
       <button
@@ -305,18 +380,23 @@ function SubscriptionCard({ plan, selected, onOpen, onToggle }) {
           <Logo plan={plan} />
           <span className="bu-card-group">{groupOf(plan).toUpperCase()}</span>
         </div>
+
         <h3>{plan.brand}</h3>
         <span className="bu-tier-name">{plan.tier}</span>
-        <strong className="bu-card-price">{getPriceInfo(plan).display}</strong>
+        <strong className="bu-card-price">{price.display}</strong>
+
         <small className="bu-card-billing">
-          {getPriceInfo(plan).note} · {plan.billing}
+          {price.note} · {plan.billing}
         </small>
+
         <p className="bu-card-summary">{plan.features}</p>
+
         <span className="bu-see-benefits">
           <Icon name="eye" size={15} /> See what you'll get{" "}
           <Icon name="arrow" size={14} />
         </span>
       </button>
+
       <button
         type="button"
         className={`bu-add-btn ${selected ? "bu-add-selected" : ""}`}
@@ -328,7 +408,6 @@ function SubscriptionCard({ plan, selected, onOpen, onToggle }) {
     </article>
   );
 }
-
 function CloudStorageOffer({ onAdd, onDismiss }) {
   return (
     <section
@@ -339,6 +418,7 @@ function CloudStorageOffer({ onAdd, onDismiss }) {
         <span className="bu-cloud-limited">LIMITED-TIME OFFER</span>
         <span className="bu-cloud-days">Special ₹149 rate</span>
       </div>
+
       <div className="bu-cloud-offer-heading">
         <span className="bu-cloud-art">
           <Icon name="cloud" size={43} />
@@ -348,6 +428,7 @@ function CloudStorageOffer({ onAdd, onDismiss }) {
           <p>Optional add-on to your custom bundle</p>
         </div>
       </div>
+
       <div className="bu-cloud-price-row">
         <strong>
           {INR.format(CLOUD_OFFER.price)}
@@ -355,10 +436,13 @@ function CloudStorageOffer({ onAdd, onDismiss }) {
         </strong>
         <del>{INR.format(CLOUD_OFFER.originalPrice)}/month</del>
       </div>
+
       <p className="bu-cloud-save">
-        Save {INR.format(CLOUD_OFFER.originalPrice - CLOUD_OFFER.price)} on the
+        Save{" "}
+        {INR.format(CLOUD_OFFER.originalPrice - CLOUD_OFFER.price)} on the
         stated regular price
       </p>
+
       <ul className="bu-cloud-benefits">
         <li>
           <Icon name="check" size={16} />
@@ -373,14 +457,24 @@ function CloudStorageOffer({ onAdd, onDismiss }) {
           Access and backup features depend on provider
         </li>
       </ul>
+
       <div className="bu-cloud-actions">
-        <button type="button" className="bu-cloud-cancel" onClick={onDismiss}>
+        <button
+          type="button"
+          className="bu-cloud-cancel"
+          onClick={onDismiss}
+        >
           Cancel
         </button>
-        <button type="button" className="bu-cloud-add" onClick={onAdd}>
+        <button
+          type="button"
+          className="bu-cloud-add"
+          onClick={onAdd}
+        >
           + Add for ₹149
         </button>
       </div>
+
       <small>
         Offer planned for limited days. Confirm provider, dates and terms before
         selling.
@@ -394,10 +488,13 @@ function useModalLock(onClose) {
     const oldOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.lenis?.stop?.();
+
     const onKey = (event) => {
       if (event.key === "Escape") onClose();
     };
+
     window.addEventListener("keydown", onKey);
+
     return () => {
       document.body.style.overflow = oldOverflow;
       window.lenis?.start?.();
@@ -409,15 +506,19 @@ function useModalLock(onClose) {
 function DetailsModal({ plan, selected, onClose, onToggle }) {
   const [tab, setTab] = useState("benefits");
   const closeRef = useRef(null);
+
   useModalLock(onClose);
   useEffect(() => closeRef.current?.focus(), []);
+
   const benefits = benefitsFor(plan);
+
   const tabs = [
     ["benefits", "What you will get"],
     ["about", "About"],
     ["steps", "How it works"],
     ["faq", "FAQ"],
   ];
+
   return createPortal(
     <div
       className="bu-details-backdrop"
@@ -440,227 +541,146 @@ function DetailsModal({ plan, selected, onClose, onToggle }) {
         >
           <Icon name="close" />
         </button>
+
         <aside className="bu-details-product">
           <span className="bu-mini-pill">
             {groupOf(plan).toUpperCase()} SUBSCRIPTION
           </span>
+
           <Logo plan={plan} large />
+
           <h2 id="bu-details-title">{plan.brand}</h2>
           <span className="bu-detail-tier">{plan.tier}</span>
+
           <strong className="bu-details-price">
             {getPriceInfo(plan).display}
           </strong>
+
           <p className="bu-details-price-note">
             {getPriceInfo(plan).note}
             <br />
             {plan.billing} · {plan.priceBasis}
           </p>
-          <p className="bu-details-intro">{plan.useCase || plan.features}</p>
+
+          <p className="bu-details-intro">
+            {plan.useCase || plan.features}
+          </p>
+
           <button
             type="button"
-            className={`bu-primary-btn bu-detail-side-btn ${selected ? "bu-already-selected" : ""}`}
-            onClick={() => onToggle(plan.id)}
+            className={`bu-primary-btn ${selected ? "is-selected" : ""}`}
+            onClick={() => onToggle(plan)}
           >
-            <Icon name={selected ? "check" : "layer"} />{" "}
             {selected ? "Remove from bundle" : "Add to bundle"}
           </button>
         </aside>
-        <section className="bu-details-right">
-          <div className="bu-details-topline">
-            <div>
-              <span className="bu-eyebrow">PLAN DETAILS</span>
-              <h2>
-                {plan.brand} <span>{plan.tier}</span>
-              </h2>
-              <p>{plan.category}</p>
-            </div>
-          </div>
-          <div
-            className="bu-detail-tabs"
-            role="tablist"
-            aria-label="Plan information"
-          >
+
+        <div className="bu-details-content">
+          <div className="bu-details-tabs" role="tablist">
             {tabs.map(([id, label]) => (
               <button
                 key={id}
-                id={`bu-tab-${id}`}
                 type="button"
                 role="tab"
                 aria-selected={tab === id}
-                className={tab === id ? "bu-detail-tab-active" : ""}
+                className={tab === id ? "active" : ""}
                 onClick={() => setTab(id)}
               >
                 {label}
               </button>
             ))}
           </div>
-          <div
-            className="bu-detail-panel"
-            role="tabpanel"
-            aria-labelledby={`bu-tab-${tab}`}
-          >
+
+          <div className="bu-details-tab-panel">
             {tab === "benefits" && (
-              <>
-                <h3>What you'll get with this plan</h3>
-                <p className="bu-panel-caption">
-                  Benefits and conditions recorded for this specific tier in
-                  your catalogue.
-                </p>
-                <div className="bu-benefit-grid">
-                  {benefits.map((entry, index) => (
-                    <div className="bu-benefit" key={`${index}-${entry.title}`}>
-                      <span className="bu-benefit-icon">
-                        <Icon name={entry.icon} size={22} />
-                      </span>
-                      <div>
-                        <strong>{entry.title}</strong>
-                        <p>{entry.text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
+              <div>
+                <h3>Included benefits</h3>
+                <ul className="bu-detail-benefits">
+                  {(Array.isArray(benefits) ? benefits : []).map(
+                    (benefit, index) => (
+                      <li key={`${String(benefit)}-${index}`}>
+                        <Icon name="check" size={17} />
+                        {typeof benefit === "string"
+                          ? benefit
+                          : benefit.label || benefit.title || ""}
+                      </li>
+                    )
+                  )}
+                </ul>
+
+                {plan.features && (
+                  <p className="bu-details-description">
+                    {plan.features}
+                  </p>
+                )}
+              </div>
             )}
+
             {tab === "about" && (
-              <div className="bu-about-details">
-                <h3>About this subscription</h3>
-                <dl>
-                  <div>
-                    <dt>Provider</dt>
-                    <dd>{plan.brand}</dd>
-                  </div>
-                  <div>
-                    <dt>Plan / tier</dt>
-                    <dd>{plan.tier}</dd>
-                  </div>
-                  <div>
-                    <dt>Category</dt>
-                    <dd>{plan.category}</dd>
-                  </div>
-                  <div>
-                    <dt>Billing</dt>
-                    <dd>{plan.billing}</dd>
-                  </div>
-                  <div>
-                    <dt>INR display estimate</dt>
-                    <dd>{getPriceInfo(plan).display}</dd>
-                  </div>
-                  <div>
-                    <dt>Price source type</dt>
-                    <dd>{plan.priceBasis}</dd>
-                  </div>
-                </dl>
-                <p>{plan.features}</p>
-                {plan.note && <p>{plan.note}</p>}
+              <div>
+                <h3>About {plan.brand}</h3>
+                <p>
+                  {plan.description ||
+                    plan.useCase ||
+                    plan.features ||
+                    `Explore the available ${plan.brand} subscription details.`}
+                </p>
+                <p>
+                  Plan features, device limits, availability, and subscription
+                  terms depend on the selected plan and provider.
+                </p>
               </div>
             )}
+
             {tab === "steps" && (
-              <div className="bu-steps">
-                <h3>How your custom bundle works</h3>
-                <div>
-                  <b>01</b>
-                  <p>
-                    <strong>Select your tier</strong>Choose this plan for your
-                    bundle. Choosing another tier from the same service replaces
-                    it.
-                  </p>
-                </div>
-                <div>
-                  <b>02</b>
-                  <p>
-                    <strong>Enter your details</strong>Provide your name, email
-                    and phone number. No customer login is required.
-                  </p>
-                </div>
-                <div>
-                  <b>03</b>
-                  <p>
-                    <strong>Review availability and price</strong>Current
-                    provider pricing, eligibility and activation must be
-                    confirmed before a real payment.
-                  </p>
-                </div>
-                <div>
-                  <b>04</b>
-                  <p>
-                    <strong>Activation after verification</strong>Once the
-                    payment system is integrated, only verified payments can
-                    move to fulfillment.
-                  </p>
-                </div>
+              <div>
+                <h3>How it works</h3>
+                <ol className="bu-detail-steps">
+                  <li>Select the subscription you want.</li>
+                  <li>Review your bundle and provide your contact details.</li>
+                  <li>Continue to checkout to request a payment QR code.</li>
+                  <li>
+                    Complete payment and wait for confirmation before assuming
+                    the order is active.
+                  </li>
+                </ol>
               </div>
             )}
+
             {tab === "faq" && (
-              <div className="bu-faq">
+              <div>
                 <h3>Frequently asked questions</h3>
-                <details open>
-                  <summary>Are these guaranteed bundleupott prices?</summary>
+
+                <details>
+                  <summary>Can I choose multiple subscriptions?</summary>
                   <p>
-                    No. They are catalogue reference prices. Final eligible
-                    pricing must be confirmed before checkout.
+                    Yes. Select the subscriptions you want in your bundle.
+                    The final payable amount must be confirmed by the server.
                   </p>
                 </details>
+
                 <details>
-                  <summary>Can I change a plan later?</summary>
+                  <summary>When will my subscription be activated?</summary>
                   <p>
-                    Before continuing, add or remove subscriptions freely.
-                    Selecting a different tier of the same service replaces your
-                    earlier selection.
+                    Activation depends on successful payment verification and
+                    fulfillment of the order.
                   </p>
                 </details>
+
                 <details>
-                  <summary>
-                    Does this include everything in the provider's paid plan?
-                  </summary>
+                  <summary>Is the displayed price final?</summary>
                   <p>
-                    Only the listed tier benefits may apply. Limits, region,
-                    devices and eligibility depend on the provider's current
-                    terms. Check the source for the latest details.
-                  </p>
-                </details>
-                <details>
-                  <summary>Do I need to log in?</summary>
-                  <p>
-                    No bundleupott customer account is needed for the demo form.
-                    Individual services may have their own account requirements.
+                    Displayed prices are estimates until the checkout server
+                    confirms the payable amount.
                   </p>
                 </details>
               </div>
             )}
           </div>
-          <div className="bu-detail-bottom">
-            {plan.source && (
-              <a
-                className="bu-provider-link"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={plan.source}
-              >
-                Check provider details <Icon name="link" size={15} />
-              </a>
-            )}
-            <button
-              type="button"
-              className="bu-primary-btn bu-modal-add"
-              onClick={() => {
-                onToggle(plan.id);
-                onClose();
-              }}
-            >
-              <Icon name={selected ? "check" : "layer"} />{" "}
-              {selected
-                ? "Remove from my bundle"
-                : `Add ${plan.brand} ${plan.tier} to bundle`}
-            </button>
-            <small>
-              Reference information only. Provider availability, pricing and
-              terms may change.
-            </small>
-          </div>
-        </section>
+        </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -671,6 +691,7 @@ function CustomerForm({
   cloudAdded,
   onClose,
   onSave,
+  checkoutError,
 }) {
   const [form, setForm] = useState({
     fullName: "",
@@ -678,26 +699,52 @@ function CustomerForm({
     phone: "",
     consent: false,
   });
+
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+
   useModalLock(onClose);
+
   const submit = (e) => {
     e.preventDefault();
-    if (form.fullName.trim().length < 2)
-      return setError("Enter your full name.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
-      return setError("Enter a valid email address.");
-    if (!/^[6-9]\d{9}$/.test(form.phone))
-      return setError("Enter a valid 10-digit Indian mobile number.");
-    if (!form.consent)
-      return setError("Please agree to be contacted about your bundle.");
-    onSave({
+    setError("");
+
+    if (form.fullName.trim().length < 2) {
+      setError("Enter your full name.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setError("Enter a valid email address.");
+      return;
+    }
+
+    if (!/^[6-9]\d{9}$/.test(form.phone)) {
+      setError("Enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+
+    if (!form.consent) {
+      setError("Please agree to be contacted about your bundle.");
+      return;
+    }
+
+    const saved = onSave({
       fullName: form.fullName.trim(),
       email: form.email.trim(),
       phone: form.phone,
     });
-    setDone(true);
+
+    if (saved !== true) {
+      setError(
+        "Checkout could not start. Please review your selected plans and try again."
+      );
+      return;
+    }
+
+    setDone(false);
   };
+
   return createPortal(
     <div
       className="bu-details-backdrop"
@@ -719,6 +766,7 @@ function CustomerForm({
         >
           <Icon name="close" />
         </button>
+
         {done ? (
           <div className="bu-form-done">
             <Icon name="check" size={42} />
@@ -727,14 +775,20 @@ function CustomerForm({
               Saved in this browser session only. No payment or real order has
               been created.
             </p>
-            <button className="bu-primary-btn" onClick={onClose}>
+            <button
+              className="bu-primary-btn"
+              onClick={onClose}
+              type="button"
+            >
               Done
             </button>
           </div>
         ) : (
           <>
             <span className="bu-eyebrow">NO LOGIN REQUIRED</span>
+
             <h2 id="bu-customer-title">Your details, then checkout</h2>
+
             <p className="bu-form-intro">
               {selected.length} selected subscription(s)
               {cloudAdded ? " + 250 GB Cloud Storage" : ""} ·{" "}
@@ -743,6 +797,7 @@ function CustomerForm({
                 : `${INR.format(Math.round(amount))} estimated monthly equivalent`}
               {hasUnknownPrices ? " · excludes unconfirmed items" : ""}
             </p>
+
             <form onSubmit={submit} noValidate>
               <label>
                 Full name
@@ -756,16 +811,20 @@ function CustomerForm({
                   placeholder="Enter full name"
                 />
               </label>
+
               <label>
                 Email address
                 <input
                   type="email"
                   autoComplete="email"
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, email: e.target.value })
+                  }
                   placeholder="you@example.com"
                 />
               </label>
+
               <label>
                 Mobile number (+91)
                 <input
@@ -782,6 +841,7 @@ function CustomerForm({
                   placeholder="10-digit number"
                 />
               </label>
+
               <label className="bu-checkbox">
                 <input
                   type="checkbox"
@@ -792,29 +852,36 @@ function CustomerForm({
                 />
                 I agree to be contacted about my selected subscriptions.
               </label>
-              {error && (
-                <p className="bu-form-error" role="alert">
-                  {error}
-                </p>
-              )}
-              <button type="submit" className="bu-primary-btn bu-submit">
+
+              {(checkoutError || error) && (
+  <p className="bu-form-error" role="alert">
+    {checkoutError || error}
+  </p>
+)}
+
+              <button
+                type="submit"
+                className="bu-primary-btn bu-submit"
+              >
                 Save Details & Continue <Icon name="arrow" />
               </button>
             </form>
+
             <small>
-              Frontend preview only. Payment integration is not active.
+              Your details will be used to create a checkout order. The server
+              confirms the payable amount.
             </small>
           </>
         )}
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
-
 export default function OurPlans() {
   const rootRef = useRef(null);
   const [searchParams] = useSearchParams();
+
   const [group, setGroup] = useState("all");
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
@@ -822,7 +889,11 @@ export default function OurPlans() {
   const [activePlan, setActivePlan] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [cloudAdded, setCloudAdded] = useState(false);
+  const [checkoutCustomer, setCheckoutCustomer] = useState(null);
+  const [checkoutPlans, setCheckoutPlans] = useState([]);
+  const [checkoutError, setCheckoutError] = useState("");
   const [cloudDismissed, setCloudDismissed] = useState(false);
+
   const [selectedIds, setSelectedIds] = useState(() => {
     const oldIds = {
       netflix: "39",
@@ -831,18 +902,22 @@ export default function OurPlans() {
       gemini: "4",
       jiohotstar: "48",
     };
+
     return [
       ...new Set(
         (searchParams.get("items") || "")
           .split(",")
           .map((id) => (BY_ID.has(id) ? id : oldIds[id]))
-          .filter((id) => BY_ID.has(id)),
+          .filter((id) => BY_ID.has(id))
       ),
     ];
   });
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".bu-hero-copy > *",
@@ -853,52 +928,72 @@ export default function OurPlans() {
           stagger: 0.1,
           duration: 0.65,
           ease: "power3.out",
-        },
+        }
       );
     }, rootRef);
+
     return () => ctx.revert();
   }, []);
+
   useEffect(() => {
     setLimit(PAGE_SIZE);
   }, [group, category, query]);
+
   useEffect(() => {
     const id = requestAnimationFrame(() => {
       window.lenis?.resize?.();
       ScrollTrigger.refresh();
     });
+
     return () => cancelAnimationFrame(id);
   }, [limit, selectedIds.length, group]);
 
   const selected = useMemo(
     () => selectedIds.map((id) => BY_ID.get(id)).filter(Boolean),
-    [selectedIds],
+    [selectedIds]
   );
+
   const priceInfo = selected.map(getPriceInfo);
+
   const knownBaseAmount = priceInfo.reduce(
     (total, item) => total + (item.amount ?? 0),
-    0,
+    0
   );
-  const unknownCount = priceInfo.filter((item) => item.amount === null).length;
-  // A monthly equivalent is shown only as a research estimate, never a charge.
+
+  const unknownCount = priceInfo.filter(
+    (item) => item.amount === null
+  ).length;
+
   const amount =
     selected.length && (knownBaseAmount > 0 || cloudAdded)
       ? knownBaseAmount + (cloudAdded ? CLOUD_OFFER.price : 0)
       : null;
+
   const isEstimated =
     priceInfo.some((item) => item.estimated) || unknownCount > 0;
+
   const removeAll = () => {
     setSelectedIds([]);
     setCloudAdded(false);
     setCloudDismissed(false);
   };
-  const ottSelected = selected.filter((plan) => groupOf(plan) === "ott").length;
-  const aiSelected = selected.filter((plan) => groupOf(plan) === "ai").length;
+
+  const ottSelected = selected.filter(
+    (plan) => groupOf(plan) === "ott"
+  ).length;
+
+  const aiSelected = selected.filter(
+    (plan) => groupOf(plan) === "ai"
+  ).length;
+
   const results = useMemo(
     () =>
       SUBSCRIPTION_CATALOGUE.filter((plan) => {
         if (group !== "all" && groupOf(plan) !== group) return false;
         if (category !== "all" && plan.category !== category) return false;
+
         const term = query.trim().toLowerCase();
+
         return (
           !term ||
           [
@@ -907,25 +1002,29 @@ export default function OurPlans() {
             plan.category,
             plan.useCase,
             plan.features,
-          ].some((v) =>
-            String(v || "")
-              .toLowerCase()
-              .includes(term),
+          ].some((value) =>
+            String(value || "").toLowerCase().includes(term)
           )
         );
       }),
-    [group, category, query],
+    [group, category, query]
   );
 
   function togglePlan(id) {
     const key = String(id);
+
     setSelectedIds((prev) => {
-      if (prev.includes(key)) return prev.filter((item) => item !== key);
+      if (prev.includes(key)) {
+        return prev.filter((item) => item !== key);
+      }
+
       const incoming = BY_ID.get(key);
       if (!incoming) return prev;
+
       return [
         ...prev.filter((item) => {
           const other = BY_ID.get(item);
+
           return (
             !other ||
             other.brand !== incoming.brand ||
@@ -936,36 +1035,66 @@ export default function OurPlans() {
       ];
     });
   }
+
   function saveCustomer(customer) {
+    setCheckoutError("");
+
+    if (!selected.length) {
+      setCheckoutError(
+        "Please select at least one subscription before checkout."
+      );
+      return false;
+    }
+
+    if (cloudAdded) {
+  setCheckoutError(
+    "Cloud storage is not supported by checkout yet. Please remove it from your bundle."
+  );
+  return false;
+}
+
+    const mappedPlans = selected.map((plan) => {
+      const brand = String(plan.brand || "").trim().toLowerCase();
+
+      const match = Object.entries(PAYMENT_PLAN_IDS).find(([key]) =>
+        brand.includes(key)
+      );
+
+      return match
+        ? { id: match[1], name: `${plan.brand} ${plan.tier}` }
+        : null;
+    });
+
+    if (mappedPlans.some((plan) => !plan)) {
+      setCheckoutError(
+        "One or more selected services are not configured for payment yet. Please remove unsupported services and try again."
+      );
+      return false;
+    }
+
+    const uniquePlans = [
+      ...new Map(
+        mappedPlans.map((plan) => [plan.id, plan])
+      ).values(),
+    ];
+
     sessionStorage.setItem(
       "bundleupott_checkout_draft",
       JSON.stringify({
         customer,
-        bundleType: "custom",
-        planIds: selected.map((plan) => plan.id),
-        items: selected.map(
-          ({ id, brand, tier, category: cat, billing, price }) => ({
-            id,
-            brand,
-            tier,
-            category: cat,
-            billing,
-            referencePrice: price,
-          }),
-        ),
-        extras: cloudAdded
-          ? [{ ...CLOUD_OFFER, priceType: "promo_quote_unverified" }]
-          : [],
-        previewMonthlyEquivalentINR: amount,
-        containsUnconfirmedPrices: unknownCount > 0,
-        currency: "INR",
-        paymentStatus: "not_started",
+        planIds: uniquePlans.map((plan) => plan.id),
+        paymentStatus: "checkout_started",
         createdAt: new Date().toISOString(),
-      }),
+      })
     );
+
+    setCheckoutPlans(uniquePlans);
+    setCheckoutCustomer(customer);
+    setFormOpen(false);
+
+    return true;
   }
-  // Never show the upsell before a base subscription has been chosen.
-  // When the last base subscription is removed, reset the add-on as well.
+
   useEffect(() => {
     if (!selectedIds.length) {
       setCloudAdded(false);
@@ -974,10 +1103,66 @@ export default function OurPlans() {
   }, [selectedIds.length]);
 
   function scrollToPlans() {
-    const el = document.getElementById("bu-catalogue");
-    if (window.lenis?.scrollTo)
-      window.lenis.scrollTo(el, { offset: -85, duration: 0.8 });
-    else el?.scrollIntoView({ behavior: "smooth" });
+    const element = document.getElementById("bu-catalogue");
+
+    if (window.lenis?.scrollTo) {
+      window.lenis.scrollTo(element, {
+        offset: -85,
+        duration: 0.8,
+      });
+    } else {
+      element?.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+  // Checkout view: customer details are passed to PaymentStep.
+  if (checkoutCustomer) {
+    return (
+      <main ref={rootRef} className="bu-plans-page">
+        <section className="bu-catalogue">
+          <div className="bu-shell">
+            <div className="bu-section-heading">
+              <span className="bu-eyebrow">SECURE CHECKOUT</span>
+              <h1>Complete your checkout</h1>
+
+              <p>
+                Customer: {checkoutCustomer.fullName} ·{" "}
+                {checkoutCustomer.email}
+              </p>
+
+              <p>
+                The amount returned by the server is authoritative. Catalogue
+                prices shown on the previous page are reference estimates only.
+              </p>
+
+              {checkoutError && (
+                <p className="bu-form-error" role="alert">
+                  {checkoutError}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="bu-primary-btn"
+              onClick={() => {
+                setCheckoutCustomer(null);
+                setCheckoutPlans([]);
+                setCheckoutError("");
+              }}
+            >
+              Back to plans
+            </button>
+
+            <PaymentStep
+              customer={checkoutCustomer}
+              plans={checkoutPlans}
+              total={null}
+            />
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
@@ -988,34 +1173,42 @@ export default function OurPlans() {
             <span className="bu-pill">
               <Icon name="spark" size={16} /> YOUR CHOICE. YOUR BUNDLE.
             </span>
+
             <h1>
               All your subscriptions. <span>Your own bundle.</span>
             </h1>
+
             <p>
               Explore OTT, AI, creative tools, music, games and more. Open any
               plan to see exactly what the listed tier includes, then build a
               bundle your way.
             </p>
+
             <button className="bu-primary-btn" onClick={scrollToPlans}>
               Explore subscriptions <Icon name="arrow" />
             </button>
+
             <small>
               Catalogue reference · Prices and availability require provider
               confirmation.
             </small>
           </div>
+
           <div className="bu-hero-art" aria-hidden="true">
             <div className="bu-hero-ring ring-one" />
             <div className="bu-hero-ring ring-two" />
+
             <div className="bu-hero-center">
               <Icon name="layer" size={52} />
               <strong>bundleupott</strong>
               <span>CUSTOM BUNDLES</span>
             </div>
+
             <span className="bu-floating bu-floating-one">OTT + AI</span>
             <span className="bu-floating bu-floating-two">✦ Your way</span>
           </div>
         </div>
+
         <div className="bu-shell bu-metrics">
           <span>
             <strong>{COUNTS.all}</strong> plan / tier entries
@@ -1035,14 +1228,19 @@ export default function OurPlans() {
       <section className="bu-catalogue" id="bu-catalogue">
         <div className="bu-shell">
           <div className="bu-section-heading">
-            <span className="bu-eyebrow">COMPLETE SUBSCRIPTION CATALOGUE</span>
+            <span className="bu-eyebrow">
+              COMPLETE SUBSCRIPTION CATALOGUE
+            </span>
+
             <h2>
               Find your favourites. <span>Build your bundle.</span>
             </h2>
+
             <p>
               Click any subscription card to view its benefits, features, usage
               limits, device information and more. Switch tiers any time.
             </p>
+
             <div className="bu-refund-note">
               <Icon name="check" size={18} />
               <span>
@@ -1053,6 +1251,7 @@ export default function OurPlans() {
               </span>
             </div>
           </div>
+
           <div className="bu-toolbar">
             <div
               className="bu-tabs"
@@ -1075,6 +1274,7 @@ export default function OurPlans() {
                 </button>
               ))}
             </div>
+
             <div className="bu-filter-controls">
               <label className="bu-search">
                 <Icon name="search" />
@@ -1085,6 +1285,7 @@ export default function OurPlans() {
                   placeholder="Search ChatGPT, Netflix, Canva..."
                 />
               </label>
+
               <label className="bu-category-picker">
                 Category
                 <select
@@ -1101,12 +1302,14 @@ export default function OurPlans() {
               </label>
             </div>
           </div>
+
           <div className="bu-layout">
             <div className="bu-list">
               <div className="bu-result-line">
                 <strong>{results.length} matching plans</strong>
                 <span>Tap any card to see full benefits</span>
               </div>
+
               <div className="bu-card-grid">
                 {results.slice(0, limit).map((plan) => (
                   <SubscriptionCard
@@ -1118,10 +1321,12 @@ export default function OurPlans() {
                   />
                 ))}
               </div>
+
               {!results.length && (
                 <div className="bu-empty">
                   <h3>No matching subscriptions</h3>
                   <p>Try another term or select All categories.</p>
+
                   <button
                     onClick={() => {
                       setGroup("all");
@@ -1133,6 +1338,7 @@ export default function OurPlans() {
                   </button>
                 </div>
               )}
+
               {results.length > limit && (
                 <button
                   className="bu-more"
@@ -1142,19 +1348,23 @@ export default function OurPlans() {
                   <Icon name="arrow" size={16} />
                 </button>
               )}
+
               <p className="bu-disclaimer">
                 These are research references, not confirmed bundleupott
                 reseller inventory. Features, plan terms, India availability and
                 prices must be verified with providers.
               </p>
             </div>
+
             <aside className="bu-summary">
               <span className="bu-eyebrow">YOUR BUNDLE</span>
               <h3>Your Custom Bundle</h3>
+
               <p>
                 Choose any services. Switch a provider's tier without adding a
                 duplicate.
               </p>
+
               <div className="bu-summary-numbers">
                 <span>
                   <b>{ottSelected}</b>OTT
@@ -1166,17 +1376,20 @@ export default function OurPlans() {
                   <b>{selected.length + (cloudAdded ? 1 : 0)}</b>Total
                 </span>
               </div>
+
               <div className="bu-selected-list">
                 {selected.length ? (
                   selected.map((plan) => (
                     <div key={plan.id} className="bu-selected-row">
                       <Logo plan={plan} />
+
                       <div>
                         <strong>{plan.brand}</strong>
                         <small>
                           {plan.tier} · {getPriceInfo(plan).display}
                         </small>
                       </div>
+
                       <button
                         type="button"
                         aria-label={`Remove ${plan.brand}`}
@@ -1194,15 +1407,18 @@ export default function OurPlans() {
                   </div>
                 )}
               </div>
+
               {selected.length > 0 && cloudAdded && (
                 <div className="bu-cloud-selected">
                   <span className="bu-cloud-selected-icon">
                     <Icon name="cloud" size={25} />
                   </span>
+
                   <div>
                     <strong>250 GB Cloud Storage</strong>
                     <small>Offer add-on · ₹149/month</small>
                   </div>
+
                   <button
                     type="button"
                     aria-label="Remove cloud storage"
@@ -1212,12 +1428,14 @@ export default function OurPlans() {
                   </button>
                 </div>
               )}
+
               {selected.length > 0 && !cloudAdded && !cloudDismissed && (
                 <CloudStorageOffer
                   onAdd={() => setCloudAdded(true)}
                   onDismiss={() => setCloudDismissed(true)}
                 />
               )}
+
               {selected.length > 0 && cloudDismissed && !cloudAdded && (
                 <button
                   type="button"
@@ -1227,8 +1445,10 @@ export default function OurPlans() {
                   <Icon name="cloud" size={17} /> View 250 GB cloud offer (₹149)
                 </button>
               )}
+
               <div className="bu-total">
                 <span>Reference monthly equivalent (₹)</span>
+
                 <strong>
                   {amount === null
                     ? selected.length
@@ -1236,6 +1456,7 @@ export default function OurPlans() {
                       : "—"
                     : `${isEstimated ? "≈" : ""}${INR.format(Math.round(amount))}`}
                 </strong>
+
                 <small>
                   {unknownCount > 0
                     ? `${unknownCount} plan(s) need a price quote and are excluded from this estimate.`
@@ -1244,6 +1465,7 @@ export default function OurPlans() {
                       : "Reference INR monthly prices. Final eligible pricing must be verified."}
                 </small>
               </div>
+
               <button
                 className="bu-primary-btn bu-continue"
                 disabled={!selected.length}
@@ -1251,6 +1473,7 @@ export default function OurPlans() {
               >
                 Continue to Details <Icon name="arrow" />
               </button>
+
               <button
                 className="bu-clear"
                 disabled={!selected.length}
@@ -1258,6 +1481,7 @@ export default function OurPlans() {
               >
                 Clear bundle
               </button>
+
               <p className="bu-summary-foot">
                 No login required · No payment taken yet
               </p>
@@ -1265,6 +1489,7 @@ export default function OurPlans() {
           </div>
         </div>
       </section>
+
       <section className="bu-outro">
         <div className="bu-shell bu-outro-inner">
           <div>
@@ -1276,11 +1501,13 @@ export default function OurPlans() {
               Explore the details, compare tiers and create your combination.
             </p>
           </div>
+
           <button className="bu-primary-btn" onClick={scrollToPlans}>
             Browse all subscriptions <Icon name="arrow" />
           </button>
         </div>
       </section>
+
       {activePlan && (
         <DetailsModal
           key={activePlan.id}
@@ -1290,6 +1517,7 @@ export default function OurPlans() {
           onClose={() => setActivePlan(null)}
         />
       )}
+
       {formOpen && (
         <CustomerForm
           selected={selected}
@@ -1297,6 +1525,7 @@ export default function OurPlans() {
           hasUnknownPrices={unknownCount > 0}
           cloudAdded={cloudAdded}
           onSave={saveCustomer}
+          checkoutError={checkoutError}
           onClose={() => setFormOpen(false)}
         />
       )}

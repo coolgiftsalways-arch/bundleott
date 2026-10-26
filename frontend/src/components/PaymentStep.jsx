@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
 import '../Style/PaymentStep.css';
 
 const CURRENCY = new Intl.NumberFormat('en-IN', {
@@ -44,6 +45,7 @@ export default function PaymentStep({ customer, plans, total }) {
   const [couponMessage, setCouponMessage] = useState('');
   const [couponError, setCouponError] = useState(false);
   const [couponBusy, setCouponBusy] = useState(false);
+  const autoCreateAttempted = useRef(false);
 
   const planIds = plans.map((p) => p.id);
   const planKey = planIds.join('|');
@@ -149,6 +151,23 @@ export default function PaymentStep({ customer, plans, total }) {
   const token = orderData?.accessToken;
 
   useEffect(() => {
+  if (
+    connection !== 'connected' ||
+    !customer?.fullName ||
+    !customer?.email ||
+    !plans?.length ||
+    orderData ||
+    busy ||
+    autoCreateAttempted.current
+  ) {
+    return;
+  }
+
+  autoCreateAttempted.current = true;
+  createOrder();
+}, [connection, planKey, customer?.email]);
+
+  useEffect(() => {
     if (!id || !token || orderStatus !== 'pending') return;
 
     let cancelled = false;
@@ -207,14 +226,20 @@ export default function PaymentStep({ customer, plans, total }) {
     }
   }
 
-  const expectedAmount = couponQuote
-    ? Number(couponQuote.amount)
-    : Number(total);
+  const hasExpectedAmount =
+  total !== null &&
+  total !== undefined &&
+  Number.isFinite(Number(total));
 
-  const amountMatches = orderData
-    ? Math.round(Number(orderData.order.amount) * 100) ===
+const expectedAmount = couponQuote
+  ? Number(couponQuote.amount)
+  : Number(total);
+
+const amountMatches = orderData
+  ? !hasExpectedAmount ||
+    Math.round(Number(orderData.order.amount) * 100) ===
       Math.round(expectedAmount * 100)
-    : true;
+  : true;
 
   return (
     <section className="bup-payment-flow" aria-live="polite">

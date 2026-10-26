@@ -1,27 +1,31 @@
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import mongoose from "mongoose";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 
 import connectDB from "./db.js";
 import paymentRoutes from "./payment.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
-// Current Cloudflare Quick Tunnel connects from localhost.
-app.set("trust proxy", "loopback");
 const PORT = Number(process.env.PORT || 5000);
 
-// =====================================
-// CHECK ENVIRONMENT CONFIGURATION
-// =====================================
+const frontendDistPath = path.resolve(__dirname, "../frontend/dist");
+const frontendIndexPath = path.join(frontendDistPath, "index.html");
 
+app.set("trust proxy", "loopback");
+app.disable("x-powered-by");
+
+// Environment configuration
 const requiredVariables = [
   "MONGO_URI",
   "WEBHOOK_TOKEN",
@@ -32,20 +36,18 @@ const requiredVariables = [
   "UPI_NAME",
 ];
 
-const missing = requiredVariables.filter(
-  (name) =>
-    !process.env[name] ||
-    process.env[name].startsWith("YOUR_") ||
-    process.env[name].startsWith("GENERATE_") ||
-    process.env[name].startsWith("PASTE_")
-);
+const missing = requiredVariables.filter((name) => {
+  const value = process.env[name];
+  return (
+    !value ||
+    value.startsWith("YOUR_") ||
+    value.startsWith("GENERATE_") ||
+    value.startsWith("PASTE_")
+  );
+});
 
 if (missing.length > 0) {
-  console.error(
-    "❌ Missing environment configuration:",
-    missing.join(", ")
-  );
-
+  console.error("Missing environment configuration:", missing.join(", "));
   process.exit(1);
 }
 
@@ -54,74 +56,96 @@ if (
   process.env.ADMIN_JWT_SECRET.length < 32 ||
   !/^\$2[aby]\$/.test(process.env.ADMIN_PASSWORD_HASH)
 ) {
-  console.error("❌ Invalid security configuration");
+  console.error("Invalid security configuration");
   process.exit(1);
 }
 
-// =====================================
-// MIDDLEWARE
-// =====================================
-
-app.disable("x-powered-by");
-
+// Security and middleware
 app.use(helmet());
 
 const allowedOrigins = (
-  process.env.FRONTEND_URL || "http://localhost:5173"
+  process.env.FRONTEND_URL || "https://bundleupott.com"
 )
   .split(",")
-  .map((origin) => origin.trim());
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Origin not allowed by CORS"));
+    },
   })
 );
 
 app.use(express.json({ limit: "64kb" }));
 
-// =====================================
-// HEALTH CHECK
-// =====================================
-
+// Health check
 app.get("/health", (req, res) => {
   const connected = mongoose.connection.readyState === 1;
 
   res.status(connected ? 200 : 503).json({
     success: connected,
     server: "OTT + AI Backend",
-    database: mongoose.connection.name,
+    database: mongoose.connection.name || null,
     databaseConnected: connected,
   });
 });
 
-// =====================================
-// PAYMENT REQUEST DEBUGGING
-// =====================================
-
+// Existing payment routes — preserved
 app.use("/api/payment", (req, res, next) => {
-  console.log("================================");
-  console.log("Payment API request received");
-  console.log("HTTP Method:", req.method);
-  console.log("Request URL:", req.originalUrl);
-  console.log("Content Type:", req.get("content-type"));
+  console.log("Payment API request:", req.method, req.originalUrl);
 
   res.on("finish", () => {
-    console.log("Response Status:", res.statusCode);
-    console.log("================================");
+    console.log("Payment API response status:", res.statusCode);
   });
 
   next();
 });
 
-// PAYMENT ROUTES
 app.use("/api/payment", paymentRoutes);
 
+// Serve Vite's built frontend
+console.log("Frontend dist path:", frontendDistPath);
+console.log("Frontend dist exists:", fs.existsSync(frontendDistPath));
+console.log("Frontend index exists:", fs.existsSync(frontendIndexPath));
 
-// =====================================
-// 404 HANDLER
-// =====================================
+app.use(
+  express.static(frontendDistPath, {
+    index: false,
+    fallthrough: true,
+  })
+);
 
+// React frontend routes, including /our-plans
+app.get(/.*/, (req, res, next) => {
+  if (req.path.startsWith("/api/")) {
+    return next();
+  }
+
+  if (req.path.startsWith("/assets/") || path.extname(req.path)) {
+    return res.status(404).json({
+      success: false,
+      message: "Static file not found",
+    });
+  }
+
+  if (!fs.existsSync(frontendIndexPath)) {
+    return res.status(503).json({
+      success: false,
+      message: "Frontend build is unavailable",
+    });
+  }
+
+  res.sendFile(frontendIndexPath, (err) => {
+    if (err) next(err);
+  });
+});
+
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -129,23 +153,37 @@ app.use((req, res) => {
   });
 });
 
-// =====================================
-// ERROR HANDLER
-// =====================================
-
+// Error handler
 app.use((err, req, res, next) => {
   console.error("Server error:", err.message);
 
-  res.status(err.status || 500).json({
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  const status =
+    err.status === 413
+      ? 413
+      : err.message === "Origin not allowed by CORS"
+        ? 403
+        : err.status === 400
+          ? 400
+          : 500;
+
+  res.status(status).json({
     success: false,
-    message: "Request could not be processed",
+    message:
+      status === 403
+        ? "Request origin not allowed"
+        : status === 413
+          ? "Request payload too large"
+          : status === 400
+            ? "Invalid request"
+            : "Request could not be processed",
   });
 });
 
-// =====================================
-// START SERVER
-// =====================================
-
+// Start server
 async function startServer() {
   await connectDB();
 
@@ -154,12 +192,11 @@ async function startServer() {
     mongoose.model("PaymentAlert").init(),
   ]);
 
-  app.listen(PORT, () => {
+  app.listen(PORT, "0.0.0.0", () => {
     console.log("================================");
-    console.log("🚀 OTT + AI Backend Started");
-    console.log(`📡 Port: ${PORT}`);
-    console.log(`🗄️ Database: ${mongoose.connection.name}`);
-    console.log(`🔗 http://localhost:${PORT}`);
+    console.log("OTT + AI Backend Started");
+    console.log(`Port: ${PORT}`);
+    console.log(`Database: ${mongoose.connection.name}`);
     console.log("================================");
   });
 }
