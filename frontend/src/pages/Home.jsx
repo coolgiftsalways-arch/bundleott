@@ -569,7 +569,7 @@ export default function Home() {
           <div className="hm-hero-visual">
             <div className="hm-hero-image">
   <img
-    src={PHOTOS.productivity}
+    src={PHOTOS.couple}
     alt="People working together on a laptop"
     fetchPriority="high"
     onLoad={() => console.log("Hero image loaded")}
