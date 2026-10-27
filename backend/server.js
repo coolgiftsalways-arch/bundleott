@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -25,7 +24,7 @@ const frontendIndexPath = path.join(frontendDistPath, "index.html");
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
 
-// Environment configuration
+// Validate required environment variables
 const requiredVariables = [
   "MONGO_URI",
   "WEBHOOK_TOKEN",
@@ -38,6 +37,7 @@ const requiredVariables = [
 
 const missing = requiredVariables.filter((name) => {
   const value = process.env[name];
+
   return (
     !value ||
     value.startsWith("YOUR_") ||
@@ -60,9 +60,10 @@ if (
   process.exit(1);
 }
 
-// Security and middleware
+// Security headers
 app.use(helmet());
 
+// CORS configuration
 const allowedOrigins = [
   "https://bundleupott.com",
   "https://www.bundleupott.com",
@@ -87,7 +88,21 @@ app.use(
   })
 );
 
-// Existing payment routes — preserved
+app.use(express.json({ limit: "64kb" }));
+
+// Health check
+app.get("/health", (req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+
+  res.status(connected ? 200 : 503).json({
+    success: connected,
+    server: "OTT + AI Backend",
+    database: mongoose.connection.name || null,
+    databaseConnected: connected,
+  });
+});
+
+// Payment routes
 app.use("/api/payment", (req, res, next) => {
   console.log("Payment API request:", req.method, req.originalUrl);
 
@@ -100,14 +115,23 @@ app.use("/api/payment", (req, res, next) => {
 
 app.use("/api/payment", paymentRoutes);
 
-// Serve Vite's built frontend
+// Frontend build diagnostics
+console.log("Runtime directory:", __dirname);
 console.log("Frontend dist path:", frontendDistPath);
 console.log("Frontend dist exists:", fs.existsSync(frontendDistPath));
 console.log("Frontend index exists:", fs.existsSync(frontendIndexPath));
+
+if (fs.existsSync(frontendDistPath)) {
+  console.log("Frontend dist contents:", fs.readdirSync(frontendDistPath));
+}
+
+// Log frontend asset requests
 app.use("/assets", (req, res, next) => {
   console.log("Asset request:", req.originalUrl);
   next();
 });
+
+// Serve the Vite production build
 app.use(
   express.static(frontendDistPath, {
     index: false,
@@ -115,7 +139,7 @@ app.use(
   })
 );
 
-// React frontend routes, including /our-plans
+// React routes
 app.get(/.*/, (req, res, next) => {
   if (req.path.startsWith("/api/")) {
     return next();
