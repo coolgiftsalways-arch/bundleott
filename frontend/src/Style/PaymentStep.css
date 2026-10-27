@@ -243,3 +243,56 @@
     animation: none;
   }
 }
+/* BundleUpOTT branded payment QR */
+
+.bup-static-qr-section {
+  width: 100%;
+  text-align: center;
+  margin: 24px auto;
+}
+
+.bup-static-qr-image-wrap {
+  position: relative;
+  width: min(100%, 430px);
+  margin: 0 auto 18px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.bup-static-qr-base {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Hide AARAMBHEXPO in the image and replace it visually */
+.bup-static-qr-title-overlay {
+  position: absolute;
+  top: 10%;
+  left: 6%;
+  width: 88%;
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  color: #123875;
+  font-size: clamp(18px, 5vw, 32px);
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.bup-static-qr-notice {
+  max-width: 430px;
+  margin: 16px auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: inherit;
+}
+
+.bup-static-qr-section .bup-payment-upi {
+  display: inline-block;
+  margin: 10px auto;
+}

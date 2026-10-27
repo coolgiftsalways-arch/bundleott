@@ -255,7 +255,10 @@ export default function PaymentStep({ customer, plans, total }) {
         data.order.status || 'pending'
       );
       setQrExpired(false);
-      setQrExpiresAt(data.qrCode ? Date.now() + 3 * 60 * 1000 : null);
+      // The displayed QR is static, so it does not expire after 3 minutes.
+setQrExpiresAt(null);
+setTimeLeft(0);
+setQrExpired(false);
       setTimeLeft(180);
       setReferenceSent(false);
       setUtr('');
@@ -836,29 +839,36 @@ export default function PaymentStep({ customer, plans, total }) {
                   </p>
                 )}
 
-                {/* QR */}
+                {/* BundleUpOTT branded Razorpay QR */}
+<div className="bup-static-qr-section">
+  <div className="bup-static-qr-image-wrap">
+    <img
+      className="bup-static-qr-base"
+      src="/razorpay-original-qr.jpeg"
+      alt="Razorpay payment QR code"
+    />
 
-                {orderData.qrCode && !qrExpired && (
-                  <img
-                    className="bup-payment-qr"
-                    src={orderData.qrCode}
-                    alt="UPI payment QR code for the displayed amount"
-                  />
-                )}
+    {/* Cover the old heading and show BundleUpOTT */}
+    <div className="bup-static-qr-title-overlay">
+      BundleUpOTT
+    </div>
+  </div>
 
-                {/* UPI LINK */}
+  <p className="bup-static-qr-notice">
+    Scan the QR code to open the Razorpay payment page.
+    Enter the correct order amount when prompted.
+    Your order remains pending until payment is verified.
+  </p>
 
-                {orderData.upiUrl && !qrExpired && (
-                  <a
-                    className="bup-payment-upi"
-                    href={
-                      orderData.upiUrl
-                    }
-                  >
-                    Open UPI app
-                  </a>
-                )}
-
+  <a
+    className="bup-payment-upi"
+    href="https://razorpay.me/@aarambhexponov78"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Open Razorpay payment page
+  </a>
+</div>
                 
 {qrExpired && orderStatus !== 'paid' && (
   <div className="bup-processing-card" role="status" aria-live="polite">
