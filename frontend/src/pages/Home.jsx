@@ -9,21 +9,15 @@ import "../Style/Home.css";
 gsap.registerPlugin(ScrollTrigger);
 
 /* =====================================================
-   REAL INDIAN PHOTOGRAPHY
-   Source: Pexels
+   LOCAL INDIAN PEOPLE IMAGES
+   These image files are stored directly in frontend/public.
 ===================================================== */
 
 const PHOTOS = {
-  hero: "https://images.pexels.com/photos/4307970/pexels-photo-4307970.jpeg?auto=compress&cs=tinysrgb&w=1600",
-
-  entertainment:
-    "https://images.pexels.com/photos/4307898/pexels-photo-4307898.jpeg?auto=compress&cs=tinysrgb&w=1400",
-
-  productivity:
-    "https://images.pexels.com/photos/4308093/pexels-photo-4308093.jpeg?auto=compress&cs=tinysrgb&w=1400",
-
-  couple:
-    "https://images.pexels.com/photos/4307859/pexels-photo-4307859.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  hero: "/indian-friends.png",
+  entertainment: "/indian-family.png",
+  productivity: "/indian-technology.png",
+  couple: "/indian-couple.png",
 };
 
 /* =====================================================
@@ -172,7 +166,6 @@ function FeatureIcon({ type, size = 24 }) {
         <rect x="14" y="14" width="7" height="7" rx="1.5" />
       </>
     ),
-
     wallet: (
       <>
         <rect x="2" y="6" width="20" height="14" rx="3" />
@@ -180,39 +173,33 @@ function FeatureIcon({ type, size = 24 }) {
         <circle cx="17" cy="15" r="1" />
       </>
     ),
-
     shield: (
       <>
         <path d="M12 2 3 6v6c0 5 4 8 9 10 5-2 9-5 9-10V6z" />
         <path d="m8 12 3 3 5-6" />
       </>
     ),
-
     settings: (
       <>
         <circle cx="12" cy="12" r="3" />
         <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" />
       </>
     ),
-
     sparkle: (
       <path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z" />
     ),
-
     layers: (
       <>
         <path d="m12 2 9 5-9 5-9-5 9-5z" />
         <path d="m3 12 9 5 9-5M3 17l9 5 9-5" />
       </>
     ),
-
     clock: (
       <>
         <circle cx="12" cy="12" r="9" />
         <path d="M12 7v5l3 2" />
       </>
     ),
-
     check: <path d="m5 12 4 4L19 6" />,
   };
 
@@ -330,13 +317,11 @@ function AnimatedSVG() {
         />
 
         <circle cx="150" cy="120" r="7" fill="#ffd9b8" />
-
         <circle cx="1300" cy="150" r="10" fill="#c0f0df" />
       </svg>
 
       <span className="hm-bg-circle hm-circle-one" />
       <span className="hm-bg-circle hm-circle-two" />
-
       <span className="hm-bg-dots hm-dots-one" />
       <span className="hm-bg-dots hm-dots-two" />
     </div>
@@ -351,9 +336,7 @@ function PlatformCard({ brand }) {
   return (
     <Link to="/our-plans" className="hm-platform-card hm-reveal">
       <BrandLogo brand={brand} />
-
       <h3>{brand.name}</h3>
-
       <span className="hm-card-arrow">
         <ArrowUpRight size={15} />
       </span>
@@ -371,14 +354,11 @@ function FeatureCard({ icon, title, text }) {
       <div className="hm-feature-icon">
         <FeatureIcon type={icon} size={25} />
       </div>
-
       <h3>{title}</h3>
-
       <p>{text}</p>
     </div>
   );
 }
-
 /* =====================================================
    HOME PAGE
 ===================================================== */
@@ -405,66 +385,30 @@ export default function Home() {
       timeline
         .fromTo(
           ".hm-hero-badge",
-          {
-            opacity: 0,
-            y: 25,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-          },
+          { opacity: 0, y: 25 },
+          { opacity: 1, y: 0, duration: 0.7 },
         )
-
         .fromTo(
           ".hm-hero-title",
-          {
-            opacity: 0,
-            y: 55,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.9,
-          },
+          { opacity: 0, y: 55 },
+          { opacity: 1, y: 0, duration: 0.9 },
           "-=0.35",
         )
-
         .fromTo(
           ".hm-hero-description",
-          {
-            opacity: 0,
-            y: 25,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-          },
+          { opacity: 0, y: 25 },
+          { opacity: 1, y: 0, duration: 0.7 },
           "-=0.5",
         )
-
         .fromTo(
           ".hm-hero-buttons",
-          {
-            opacity: 0,
-            y: 25,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-          },
+          { opacity: 0, y: 25 },
+          { opacity: 1, y: 0, duration: 0.7 },
           "-=0.4",
         )
-
         .fromTo(
           ".hm-hero-image",
-          {
-            opacity: 0,
-            x: 55,
-            scale: 1.05,
-          },
+          { opacity: 0, x: 55, scale: 1.05 },
           {
             opacity: 1,
             x: 0,
@@ -473,14 +417,9 @@ export default function Home() {
           },
           "-=0.8",
         )
-
         .fromTo(
           ".hm-floating-logo",
-          {
-            opacity: 0,
-            y: 25,
-            scale: 0.8,
-          },
+          { opacity: 0, y: 25, scale: 0.8 },
           {
             opacity: 1,
             y: 0,
@@ -508,16 +447,12 @@ export default function Home() {
       gsap.utils.toArray(".hm-reveal").forEach((element) => {
         gsap.fromTo(
           element,
-          {
-            opacity: 0,
-            y: 35,
-          },
+          { opacity: 0, y: 35 },
           {
             opacity: 1,
             y: 0,
             duration: 0.85,
             ease: "power3.out",
-
             scrollTrigger: {
               trigger: element,
               start: "top 92%",
@@ -532,16 +467,12 @@ export default function Home() {
       gsap.utils.toArray(".hm-image-reveal").forEach((element) => {
         gsap.fromTo(
           element,
-          {
-            opacity: 0,
-            scale: 1.05,
-          },
+          { opacity: 0, scale: 1.05 },
           {
             opacity: 1,
             scale: 1,
             duration: 1.1,
             ease: "power3.out",
-
             scrollTrigger: {
               trigger: element,
               start: "top 85%",
@@ -557,23 +488,21 @@ export default function Home() {
 
   return (
     <main className="streamai-home" ref={homeRef}>
-      {/* ==========================================
-          HERO SECTION
-      ========================================== */}
+      {/* HERO SECTION */}
 
       <section className="hm-hero">
         <AnimatedSVG />
 
         <div className="hm-container hm-hero-inner">
-          {/* LEFT CONTENT */}
-
           <div className="hm-hero-content">
-            <span className="hm-hero-badge">✨ OTT + AI All in One Place</span>
+            <span className="hm-hero-badge">
+              ✨ OTT + AI All in One Place
+            </span>
 
             <h1 className="hm-hero-title">
               Your Favorite
               <br />
-              OTT & AI
+              OTT &amp; AI
               <br />
               Subscriptions
               <br />
@@ -582,8 +511,8 @@ export default function Home() {
 
             <p className="hm-hero-description">
               Watch, Learn, Create and Explore — all in one platform with one
-              simple payment. Discover a smarter way to enjoy entertainment and
-              AI.
+              simple payment. Discover a smarter way to enjoy entertainment
+              and AI.
             </p>
 
             <div className="hm-hero-buttons">
@@ -605,7 +534,6 @@ export default function Home() {
                 <div className="hm-benefit-icon">
                   <FeatureIcon type="grid" />
                 </div>
-
                 <strong>Multiple</strong>
                 <span>Subscriptions</span>
               </div>
@@ -614,7 +542,6 @@ export default function Home() {
                 <div className="hm-benefit-icon">
                   <FeatureIcon type="wallet" />
                 </div>
-
                 <strong>One</strong>
                 <span>Payment</span>
               </div>
@@ -623,7 +550,6 @@ export default function Home() {
                 <div className="hm-benefit-icon">
                   <FeatureIcon type="shield" />
                 </div>
-
                 <strong>Smart</strong>
                 <span>Savings</span>
               </div>
@@ -632,23 +558,26 @@ export default function Home() {
                 <div className="hm-benefit-icon">
                   <FeatureIcon type="settings" />
                 </div>
-
                 <strong>Easy</strong>
                 <span>Management</span>
               </div>
             </div>
           </div>
 
-          {/* RIGHT HERO VISUAL */}
+          {/* HERO IMAGE */}
 
           <div className="hm-hero-visual">
             <div className="hm-hero-image">
-              <img
-                src={PHOTOS.hero}
-                alt="Indian woman using a laptop at home"
-                fetchPriority="high"
-              />
-            </div>
+  <img
+    src={PHOTOS.productivity}
+    alt="People working together on a laptop"
+    fetchPriority="high"
+    onLoad={() => console.log("Hero image loaded")}
+    onError={(event) => {
+      console.error("Hero image failed:", event.currentTarget.src);
+    }}
+  />
+</div>
 
             {/* FLOATING OTT & AI LOGOS */}
 
@@ -681,15 +610,12 @@ export default function Home() {
             </div>
 
             <span className="hm-floating-star hm-star-one">✦</span>
-
             <span className="hm-floating-star hm-star-two">✧</span>
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          PLATFORM STRIP
-      ========================================== */}
+      {/* PLATFORM STRIP */}
 
       <section className="hm-platform-strip">
         <div className="hm-container">
@@ -715,20 +641,17 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* ==========================================
-          OTT PLATFORMS
-      ========================================== */}
+            {/* OTT PLATFORMS */}
 
       <section className="hm-section hm-ott-section">
         <div className="hm-container">
           <div className="hm-section-heading hm-reveal">
             <div>
               <span className="hm-eyebrow">POPULAR PLATFORMS</span>
-
               <h2>Popular OTT Platforms</h2>
-
-              <p>Watch your favorite movies, shows and live entertainment.</p>
+              <p>
+                Watch your favorite movies, shows and live entertainment.
+              </p>
             </div>
 
             <Link to="/our-plans" className="hm-view-all">
@@ -745,19 +668,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ==========================================
-          AI TOOLS
-      ========================================== */}
+      {/* AI TOOLS */}
 
       <section className="hm-section hm-ai-section">
         <div className="hm-container">
           <div className="hm-section-heading hm-reveal">
             <div>
               <span className="hm-eyebrow">POWERFUL AI TOOLS</span>
-
               <h2>Discover Powerful AI Tools</h2>
-
-              <p>Work smarter, create faster and explore new possibilities.</p>
+              <p>
+                Work smarter, create faster and explore new possibilities.
+              </p>
             </div>
 
             <Link to="/our-plans" className="hm-view-all">
@@ -774,9 +695,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ==========================================
-          ENTERTAINMENT + PRODUCTIVITY BANNER
-      ========================================== */}
+      {/* ENTERTAINMENT + PRODUCTIVITY BANNER */}
 
       <section className="hm-banner-section">
         <div className="hm-container">
@@ -808,8 +727,11 @@ export default function Home() {
             <div className="hm-banner-image hm-image-reveal">
               <img
                 src={PHOTOS.entertainment}
-                alt="Real Indian couple enjoying television at home"
+                alt="Friends enjoying time together"
                 loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.visibility = "hidden";
+                }}
               />
             </div>
 
@@ -852,13 +774,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ==========================================
-          FEATURED BUNDLE
-      ========================================== */}
-
-      {/* ==========================================
-          WHY CHOOSE BUNDLEUPOTT
-      ========================================== */}
+      {/* WHY CHOOSE BUNDLEUPOTT */}
 
       <section className="hm-section hm-why-section">
         <div className="hm-container">
@@ -901,10 +817,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* ==========================================
-          HOW IT WORKS
-      ========================================== */}
+            {/* HOW IT WORKS */}
 
       <section className="hm-how-section" id="how-it-works">
         <div className="hm-container">
@@ -962,9 +875,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ==========================================
-          LIFESTYLE SECTION
-      ========================================== */}
+      {/* LIFESTYLE SECTION */}
 
       <section className="hm-lifestyle-section">
         <div className="hm-container">
@@ -972,8 +883,11 @@ export default function Home() {
             <div className="hm-lifestyle-image hm-image-reveal">
               <img
                 src={PHOTOS.productivity}
-                alt="Real Indian people collaborating on a laptop"
+                alt="People collaborating on a laptop"
                 loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.visibility = "hidden";
+                }}
               />
             </div>
 
@@ -1002,9 +916,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ==========================================
-          FINAL CTA
-      ========================================== */}
+      {/* FINAL CTA */}
 
       <section className="hm-final-section">
         <div className="hm-container">
@@ -1032,8 +944,11 @@ export default function Home() {
             <div className="hm-final-image">
               <img
                 src={PHOTOS.couple}
-                alt="Real Indian couple enjoying time together with a laptop"
+                alt="Couple enjoying time together"
                 loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.visibility = "hidden";
+                }}
               />
             </div>
           </div>
@@ -1042,3 +957,5 @@ export default function Home() {
     </main>
   );
 }
+
+
