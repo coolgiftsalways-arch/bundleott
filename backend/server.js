@@ -63,12 +63,15 @@ if (
 // Security and middleware
 app.use(helmet());
 
-const allowedOrigins = (
-  process.env.FRONTEND_URL || "https://bundleupott.com"
-)
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = [
+  "https://bundleupott.com",
+  "https://www.bundleupott.com",
+  "http://localhost:5173",
+  ...(process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
 
 app.use(
   cors({
@@ -76,24 +79,13 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
+      console.error("Blocked CORS origin:", origin);
       return callback(new Error("Origin not allowed by CORS"));
     },
+    credentials: true,
   })
 );
-
-app.use(express.json({ limit: "64kb" }));
-
-// Health check
-app.get("/health", (req, res) => {
-  const connected = mongoose.connection.readyState === 1;
-
-  res.status(connected ? 200 : 503).json({
-    success: connected,
-    server: "OTT + AI Backend",
-    database: mongoose.connection.name || null,
-    databaseConnected: connected,
-  });
-});
 
 // Existing payment routes — preserved
 app.use("/api/payment", (req, res, next) => {
@@ -112,7 +104,10 @@ app.use("/api/payment", paymentRoutes);
 console.log("Frontend dist path:", frontendDistPath);
 console.log("Frontend dist exists:", fs.existsSync(frontendDistPath));
 console.log("Frontend index exists:", fs.existsSync(frontendIndexPath));
-
+app.use("/assets", (req, res, next) => {
+  console.log("Asset request:", req.originalUrl);
+  next();
+});
 app.use(
   express.static(frontendDistPath, {
     index: false,
