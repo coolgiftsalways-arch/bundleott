@@ -27,9 +27,23 @@ const paymentOrderSchema = new mongoose.Schema(
     bankReference: { type: String, trim: true, uppercase: true },
     verifiedReferenceKey: { type: String, trim: true, uppercase: true },
     matchedAlertEventId: { type: String },
-    verificationNote: { type: String, maxlength: 500 },
+        verificationNote: { type: String, maxlength: 500 },
     verifiedBy: { type: String },
     verifiedAt: { type: Date },
+
+    // Customer email notification tracking
+    paymentEmailStatus: {
+      type: String,
+      enum: ["not_sent", "sending", "sent", "failed"],
+      default: "not_sent",
+    },
+    paymentEmailType: {
+      type: String,
+      enum: ["pending", "success", "failure"],
+    },
+    paymentEmailSentAt: { type: Date },
+    paymentEmailMessageId: { type: String },
+    paymentEmailError: { type: String, maxlength: 500 },
   },
   { timestamps: true, collection: "paymentorders" }
 );

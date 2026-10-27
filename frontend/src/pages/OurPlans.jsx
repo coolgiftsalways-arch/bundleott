@@ -1047,10 +1047,8 @@ export default function OurPlans() {
     }
 
     if (cloudAdded) {
-  setCheckoutError(
-    "Cloud storage is not supported by checkout yet. Please remove it from your bundle."
-  );
-  return false;
+  setCloudAdded(false);
+  setCheckoutError("");
 }
 
     const mappedPlans = selected.map((plan) => {

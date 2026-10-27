@@ -61,3 +61,185 @@
 .bup-coupon-summary p {
   margin: 0.4rem 0;
 }
+
+/* Payment processing confirmation card */
+.bup-processing-card {
+  position: relative;
+  overflow: hidden;
+  margin: 28px 0;
+  padding: 34px;
+  border: 1px solid #ccebdd;
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(45, 212, 156, 0.13),
+      transparent 38%
+    ),
+    linear-gradient(145deg, #ffffff 0%, #f2fbf7 100%);
+  color: #16352d;
+  box-shadow: 0 14px 40px rgba(19, 94, 69, 0.08);
+  animation: bup-processing-enter 0.45s ease-out both;
+}
+
+.bup-processing-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 22px;
+  border: 1px solid #b9ead4;
+  border-radius: 20px;
+  background: #ddf8eb;
+  color: #07865b;
+}
+
+.bup-processing-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.bup-processing-eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #07865b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.bup-processing-card h2 {
+  margin: 0 0 12px;
+  color: #173b30;
+  font-size: clamp(23px, 3vw, 31px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.bup-processing-description {
+  max-width: 620px;
+  margin: 0;
+  color: #60766d;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.bup-processing-timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-top: 26px;
+  padding: 20px;
+  border: 1px solid #dceee5;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.bup-timeline-icon {
+  display: grid;
+  flex: 0 0 43px;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 13px;
+  background: #e7f7ef;
+  color: #07865b;
+}
+
+.bup-timeline-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.bup-processing-timeline strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #173b30;
+  font-size: 15px;
+}
+
+.bup-processing-timeline p {
+  margin: 0;
+  color: #60766d;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.bup-processing-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.bup-processing-note > span {
+  display: grid;
+  flex: 0 0 20px;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #a8c8f7;
+  border-radius: 50%;
+  color: #3974c8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bup-processing-note p {
+  margin: 0;
+  color: #718096;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.bup-processing-order {
+  margin: 22px 0 0;
+  padding-top: 17px;
+  border-top: 1px solid #dceee5;
+  color: #718096;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.bup-processing-order code {
+  color: #31594b;
+  font-size: 12px;
+}
+
+@keyframes bup-processing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .bup-processing-card {
+    margin: 20px 0;
+    padding: 23px 19px;
+    border-radius: 17px;
+  }
+
+  .bup-processing-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+  }
+
+  .bup-processing-timeline {
+    gap: 11px;
+    padding: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bup-processing-card {
+    animation: none;
+  }
+}

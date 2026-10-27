@@ -8,6 +8,7 @@ import { rateLimit } from "express-rate-limit";
 import { PaymentOrder, PaymentAlert } from "./models.js";
 import { suggestMatches, normalizeReference } from "./matching.js";
 import { quoteBundle, PUBLIC_CATALOG } from "./catalog.js";
+import nodemailer from "nodemailer";
 
 const router = express.Router();
 
@@ -82,6 +83,57 @@ async function findCustomerOrder(req) {
   return order;
 }
 
+
+function getEmailTransporter() {
+  const { SMTP_HOST, SMTP_USER, SMTP_PASS } = process.env;
+  const port = Number(process.env.SMTP_PORT || 587);
+
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    throw new Error("SMTP configuration is incomplete");
+  }
+
+  if (![465, 587].includes(port)) {
+    throw new Error("SMTP_PORT must be 465 or 587");
+  }
+
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port,
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+    },
+  });
+}
+async function sendFailureEmail(order, transporter) {
+  const from = process.env.SMTP_FROM;
+  if (!from) throw new Error("SMTP_FROM is not configured");
+
+  const amount = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+  }).format(Number(order.amount));
+
+  return transporter.sendMail({
+    from,
+    to: order.customerEmail,
+    subject: "Update about your BundleOTT payment",
+    text: [
+      `Hi ${order.customerName},`,
+      "",
+      `Your BundleOTT order ${order.orderId} could not be verified.`,
+      `Order amount: ${amount}`,
+      "",
+      "If your payment was deducted, please contact our support team with your order ID. Please do not pay again until the transaction has been checked.",
+      "",
+      "If no amount was deducted, you may return to BundleOTT to place your order again.",
+      "",
+      "Regards,",
+      "BundleOTT Support",
+    ].join("\n"),
+  });
+}
 
 function extractPaymentHints(text) {
   const body = String(text || "").replace(/\u00a0/g, " ");
@@ -854,6 +906,181 @@ router.post("/admin/orders/:orderId/verify", authenticateAdmin, async (req, res)
     return res.status(500).json({ message: "Unable to approve payment" });
   }
 });
+
+// Send a payment-failure email for one rejected order.
+router.post(
+  "/admin/orders/:orderId/failure-email",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const order = await PaymentOrder.findOne({
+        orderId: req.params.orderId,
+      });
+
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      if (order.status !== "rejected") {
+        return res.status(409).json({
+          message: "Only rejected orders can receive failure emails",
+        });
+      }
+
+      if (order.failureEmailSentAt) {
+        return res.status(409).json({
+          message: "A failure email has already been recorded for this order",
+          sentAt: order.failureEmailSentAt,
+        });
+      }
+
+      if (!order.customerEmail) {
+        return res.status(400).json({
+          message: "Customer email is missing",
+        });
+      }
+
+      const transporter = getEmailTransporter();
+      const result = await sendFailureEmail(order, transporter);
+
+      const updated = await PaymentOrder.findOneAndUpdate(
+        {
+          _id: order._id,
+          status: "rejected",
+          failureEmailSentAt: { $exists: false },
+        },
+        {
+          $set: {
+            failureEmailSentAt: new Date(),
+            failureEmailMessageId: result.messageId || "",
+            failureEmailSentBy: req.admin.email,
+          },
+        },
+        { new: true }
+      );
+
+      if (!updated) {
+        return res.status(409).json({
+          message: "Email sent, but tracking needs review. Check SMTP logs before retrying.",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: `Email submitted to ${order.customerEmail}`,
+        sentAt: updated.failureEmailSentAt,
+      });
+    } catch (error) {
+      console.error("Failure email error:", error.message);
+      return res.status(500).json({
+        message: "Could not send the email. Check SMTP configuration and logs.",
+      });
+    }
+  }
+);
+
+// Send failure emails to selected rejected orders (maximum 50 per request).
+router.post(
+  "/admin/failure-emails/bulk",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const ids = req.body?.orderIds;
+
+      if (
+        !Array.isArray(ids) ||
+        ids.length < 1 ||
+        ids.length > 50 ||
+        ids.some((id) => typeof id !== "string" || !id.trim())
+      ) {
+        return res.status(400).json({
+          message: "Provide between 1 and 50 order IDs",
+        });
+      }
+
+      const uniqueIds = [...new Set(ids)];
+      const orders = await PaymentOrder.find({
+        orderId: { $in: uniqueIds },
+        status: "rejected",
+        failureEmailSentAt: { $exists: false },
+      });
+
+      const byId = new Map(orders.map((order) => [order.orderId, order]));
+      const results = [];
+      let transporter;
+
+      for (const orderId of uniqueIds) {
+        const order = byId.get(orderId);
+
+        if (!order) {
+          results.push({
+            orderId,
+            success: false,
+            message: "Not eligible, already emailed, or not found",
+          });
+          continue;
+        }
+
+        if (!order.customerEmail) {
+          results.push({
+            orderId,
+            success: false,
+            message: "Customer email is missing",
+          });
+          continue;
+        }
+
+        try {
+          transporter ||= getEmailTransporter();
+          const sent = await sendFailureEmail(order, transporter);
+
+          const updated = await PaymentOrder.findOneAndUpdate(
+            {
+              _id: order._id,
+              status: "rejected",
+              failureEmailSentAt: { $exists: false },
+            },
+            {
+              $set: {
+                failureEmailSentAt: new Date(),
+                failureEmailMessageId: sent.messageId || "",
+                failureEmailSentBy: req.admin.email,
+              },
+            },
+            { new: true }
+          );
+
+          results.push({
+            orderId,
+            success: Boolean(updated),
+            message: updated
+              ? "Email submitted"
+              : "Email submitted; tracking needs review",
+          });
+        } catch (error) {
+          console.error("Bulk failure email error:", orderId, error.message);
+          results.push({
+            orderId,
+            success: false,
+            message: "SMTP sending failed; check server logs before retrying",
+          });
+        }
+      }
+
+      return res.json({
+        success: true,
+        results,
+        sent: results.filter((r) => r.success).length,
+        failed: results.filter((r) => !r.success).length,
+      });
+    } catch (error) {
+      console.error("Bulk email error:", error.message);
+      return res.status(500).json({
+        message: "Unable to process bulk emails",
+      });
+    }
+  }
+);
 
 router.post("/admin/orders/:orderId/reject", authenticateAdmin, async (req, res) => {
   try {

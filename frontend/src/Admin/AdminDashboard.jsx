@@ -47,6 +47,9 @@ export default function AdminDashboard() {
   const [alertEventId, setAlertEventId] = useState("");
   const [confirmedFromBank, setConfirmedFromBank] = useState(false);
   const [verifyBusy, setVerifyBusy] = useState(false);
+  const [selectedEmailOrders, setSelectedEmailOrders] = useState([]);
+const [emailBusy, setEmailBusy] = useState(false);
+
 
   const logout = useCallback((message = "") => {
     window.sessionStorage.removeItem(SESSION_KEY);
@@ -54,6 +57,7 @@ export default function AdminDashboard() {
     setOrders([]);
     setSummary(null);
     setAlerts([]);
+    setSelectedEmailOrders([]);
     setVerifyOrder(null);
     setSuccess("");
     setError(message);
@@ -145,6 +149,83 @@ export default function AdminDashboard() {
     setConfirmedFromBank(false);
   };
 
+  const sendFailureEmail = async (order) => {
+  if (order.status !== "rejected" || emailBusy) return;
+
+  if (order.failureEmailSentAt) {
+    setError("A failure email is already recorded for this order.");
+    return;
+  }
+
+  if (!window.confirm(`Send a payment-failure email to ${order.customerEmail}?`)) {
+    return;
+  }
+
+  setEmailBusy(true);
+  setError("");
+  setSuccess("");
+
+  try {
+    const result = await api(
+      `/admin/orders/${encodeURIComponent(order.orderId)}/failure-email`,
+      { method: "POST" }
+    );
+
+    await loadData(true);
+    setSuccess(result.message || "Email submitted successfully.");
+  } catch (e) {
+    setError(e.message || "Could not send email.");
+  } finally {
+    setEmailBusy(false);
+  }
+};
+
+const sendBulkFailureEmails = async () => {
+  const eligible = orders.filter(
+    (order) =>
+      selectedEmailOrders.includes(order.orderId) &&
+      order.status === "rejected" &&
+      !order.failureEmailSentAt
+  );
+
+  if (!eligible.length) {
+    setError("Select at least one rejected order that has not already been emailed.");
+    return;
+  }
+
+  if (
+    !window.confirm(
+      `Send payment-failure emails to ${eligible.length} customers?`
+    )
+  ) {
+    return;
+  }
+
+  setEmailBusy(true);
+  setError("");
+  setSuccess("");
+
+  try {
+    const result = await api("/admin/failure-emails/bulk", {
+      method: "POST",
+      body: JSON.stringify({
+        orderIds: eligible.map((order) => order.orderId),
+      }),
+    });
+
+    setSelectedEmailOrders([]);
+    await loadData(true);
+
+    setSuccess(
+      `Email results: ${result.sent} submitted, ${result.failed} unsuccessful.`
+    );
+  } catch (e) {
+    setError(e.message || "Could not process bulk emails.");
+  } finally {
+    setEmailBusy(false);
+  }
+};
+
   const handleVerify = async (event) => {
     event.preventDefault();
     setError("");
@@ -185,6 +266,7 @@ export default function AdminDashboard() {
     setActivePage(page);
     setSearch("");
     setStatusFilter("All");
+    setSelectedEmailOrders([]);
     setError("");
     setSuccess("");
     setMobileOpen(false);
@@ -215,17 +297,55 @@ export default function AdminDashboard() {
 
   const renderOrders = (records, actions = false) => <div className="bu-table-scroll">
     <table className="bu-table">
-      <thead><tr><th>Customer</th><th>Plan / Order ID</th><th>Amount</th><th>Status</th><th>Created</th>{actions && <th>Action</th>}</tr></thead>
+      <thead>
+        <tr>
+          {actions && <th>Select</th>}
+          <th>Customer</th>
+          <th>Plan / Order ID</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Created</th>
+          {actions && <th>Action</th>}
+        </tr>
+      </thead>
       <tbody>
         {records.map((o) => <tr key={o.orderId}>
+          {actions && <td>
+            {o.status === "rejected" && !o.failureEmailSentAt && (
+              <input
+                type="checkbox"
+                aria-label={`Select ${o.customerEmail || o.orderId} for failure email`}
+                checked={selectedEmailOrders.includes(o.orderId)}
+                onChange={(event) => {
+                  setSelectedEmailOrders((current) =>
+                    event.target.checked
+                      ? [...new Set([...current, o.orderId])]
+                      : current.filter((id) => id !== o.orderId)
+                  );
+                }}
+              />
+            )}
+          </td>}
           <td><div className="bu-person"><span className="bu-avatar">{String(o.customerName || "C").split(/\s+/).slice(0, 2).map((p) => p[0] || "").join("").toUpperCase()}</span><div className="bu-person-copy"><strong>{o.customerName || "Customer"}</strong><small>{o.customerEmail || "No email"}</small></div></div></td>
           <td><span className="bu-plan-name">{o.planName || o.planId || "Plan"}</span><small className="bu-id">{o.orderId}</small></td>
           <td className="bu-amount">{money(o.amount)}</td>
           <td><Status value={o.status} /></td>
           <td className="bu-muted bu-nowrap">{dateLabel(o.createdAt)}</td>
-          {actions && <td>{o.status === "pending" ? <button type="button" className="bu-admin-secondary-button" onClick={() => openVerify(o)}>Verify payment</button> : <span className="bu-muted">—</span>}</td>}
+          {actions && <td>
+            {o.status === "pending" ? (
+              <button type="button" className="bu-admin-secondary-button" onClick={() => openVerify(o)}>Verify payment</button>
+            ) : o.status === "rejected" ? (
+              o.failureEmailSentAt ? (
+                <span className="bu-muted">Email sent · {dateLabel(o.failureEmailSentAt)}</span>
+              ) : (
+                <button type="button" className="bu-admin-secondary-button" disabled={emailBusy} onClick={() => sendFailureEmail(o)}>
+                  {emailBusy ? "Sending…" : "Send failure email"}
+                </button>
+              )
+            ) : <span className="bu-muted">—</span>}
+          </td>}
         </tr>)}
-        {records.length === 0 && <tr><td colSpan={actions ? 6 : 5}><div className="bu-empty">No live orders match this view.</div></td></tr>}
+        {records.length === 0 && <tr><td colSpan={actions ? 7 : 5}><div className="bu-empty">No live orders match this view.</div></td></tr>}
       </tbody>
     </table>
   </div>;
@@ -266,7 +386,20 @@ export default function AdminDashboard() {
 
         {activePage === "payments" && <section className="bu-panel bu-list-panel">
           <div className="bu-panel-heading"><div><h2>Live orders <span className="bu-count">{visibleOrders.length}</span></h2><p>Customer claims and SMS alerts are not proof of bank credit.</p></div></div>
-          <div className="bu-table-toolbar"><label className="bu-search-field"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customer, email, plan, order ID…" /></label><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Filter by status"><option>All</option><option>Pending</option><option>Paid</option><option>Rejected</option></select></div>
+          <div className="bu-table-toolbar">
+            <label className="bu-search-field"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customer, email, plan, order ID…" /></label>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Filter by status">
+              <option>All</option><option>Pending</option><option>Paid</option><option>Rejected</option>
+            </select>
+            <button
+              type="button"
+              className="bu-admin-primary-button"
+              disabled={emailBusy || selectedEmailOrders.length === 0}
+              onClick={sendBulkFailureEmails}
+            >
+              {emailBusy ? "Sending…" : `Email selected (${selectedEmailOrders.length})`}
+            </button>
+          </div>
           {verifyOrder && <section className="bu-verify-box">
             <div className="bu-verify-heading"><div><h3>Verify payment</h3><p>{verifyOrder.orderId} · Expected amount {money(verifyOrder.amount)}</p></div><button type="button" className="bu-icon-button" onClick={closeVerify} aria-label="Close verification"><X size={18} /></button></div>
             <div className="bu-verify-warning"><ShieldCheck size={18} /><span>Only continue after independently confirming the exact bank credit and transaction reference in the receiving bank account.</span></div>
