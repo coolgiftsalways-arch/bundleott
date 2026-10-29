@@ -48,3 +48,41 @@
 .bu-admin-refresh-note{display:flex;align-items:center;gap:7px;margin:18px 0 0;color:#778197;font-size:11px}
 .bu-admin-refresh-note svg{color:#3a9361}
 @media(max-width:760px){.bu-admin-auth-wrap{padding:16px}.bu-admin-auth-card{padding:25px 21px}.bu-topbar-actions{gap:6px}.bu-admin-header-button{padding:8px;font-size:0}.bu-admin-header-button svg{margin:0}.bu-verify-form-grid{grid-template-columns:minmax(0,1fr)}.bu-verify-wide{grid-column:auto}.bu-verify-box{padding:13px}}
+/* Manual payment status dropdown */
+.bu-manual-status-select {
+  width: 145px;
+  min-height: 38px;
+  padding: 9px 30px 9px 12px;
+  border: 1px solid #dce6f3;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #243b5a;
+  font-size: 12px !important;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.bu-manual-status-select:hover:not(:disabled) {
+  border-color: #63a7f4;
+}
+
+.bu-manual-status-select:focus {
+  outline: none;
+  border-color: #478ff5;
+  box-shadow: 0 0 0 3px #478ff522;
+}
+
+.bu-manual-status-select:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.bu-table td {
+  vertical-align: middle;
+}
+
+.bu-table td .bu-muted {
+  font-size: 11px;
+  line-height: 1.6;
+}

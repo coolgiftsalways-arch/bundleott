@@ -9,13 +9,13 @@ gsap.registerPlugin(ScrollTrigger);
 // Three genuine Pexels stock photographs (not AI-generated or mockup crops).
 // Distinct from the photographs used on the Home page.
 // Images load directly from Pexels CDN; no local image files are needed.
+
 const PHOTOS = {
-  hero: "https://images.pexels.com/photos/7691705/pexels-photo-7691705.jpeg?auto=compress&cs=tinysrgb&w=1500",
-  family:
-    "https://images.pexels.com/photos/4474006/pexels-photo-4474006.jpeg?auto=compress&cs=tinysrgb&w=1500",
-  creator:
-    "https://images.pexels.com/photos/6285266/pexels-photo-6285266.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  hero: "/about-1.jpg",
+  family: "/about-2.jpg",
+  creator: "/about-1.jpg",
 };
+
 
 function Icon({ name, size = 24 }) {
   const artwork = {

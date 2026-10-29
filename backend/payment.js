@@ -106,32 +106,66 @@ function getEmailTransporter() {
     },
   });
 }
-async function sendFailureEmail(order, transporter) {
+async function sendManualStatusEmail(order, status) {
   const from = process.env.SMTP_FROM;
-  if (!from) throw new Error("SMTP_FROM is not configured");
+
+  if (!from) {
+    throw new Error("SMTP_FROM is not configured");
+  }
+
+  if (!order.customerEmail) {
+    throw new Error("Customer email is missing");
+  }
+
+  const transporter = getEmailTransporter();
 
   const amount = new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
   }).format(Number(order.amount));
 
+  const paid = status === "paid";
+
+  const subject = paid
+    ? "Payment Successful — BundleUpOTT"
+    : "Payment Update — BundleUpOTT";
+
+  const text = paid
+    ? [
+        `Hi ${order.customerName},`,
+        "",
+        "Your payment has been manually confirmed by the BundleUpOTT team.",
+        "",
+        `Order ID: ${order.orderId}`,
+        `Subscription: ${order.planName}`,
+        `Amount: ${amount}`,
+        "Payment status: Successful",
+        "",
+        "Thank you for choosing BundleUpOTT!",
+        "",
+        "Regards,",
+        "BundleUpOTT Support",
+      ].join("\n")
+    : [
+        `Hi ${order.customerName},`,
+        "",
+        "We could not confirm your BundleUpOTT payment, and your order has been marked as failed.",
+        "",
+        `Order ID: ${order.orderId}`,
+        `Subscription: ${order.planName}`,
+        `Amount: ${amount}`,
+        "",
+        "If the amount was deducted from your account, please contact our support team with your order ID. Please do not pay again until the transaction has been checked.",
+        "",
+        "Regards,",
+        "BundleUpOTT Support",
+      ].join("\n");
+
   return transporter.sendMail({
     from,
     to: order.customerEmail,
-    subject: "Update about your BundleOTT payment",
-    text: [
-      `Hi ${order.customerName},`,
-      "",
-      `Your BundleOTT order ${order.orderId} could not be verified.`,
-      `Order amount: ${amount}`,
-      "",
-      "If your payment was deducted, please contact our support team with your order ID. Please do not pay again until the transaction has been checked.",
-      "",
-      "If no amount was deducted, you may return to BundleOTT to place your order again.",
-      "",
-      "Regards,",
-      "BundleOTT Support",
-    ].join("\n"),
+    subject,
+    text,
   });
 }
 
@@ -1140,6 +1174,229 @@ router.post(
       console.error("Bulk email error:", error.message);
       return res.status(500).json({
         message: "Unable to process bulk emails",
+      });
+    }
+  }
+);
+// Manually update an order from Pending to Paid or Failed.
+router.post(
+  "/admin/orders/:orderId/manual-status",
+  authenticateAdmin,
+  async (req, res) => {
+    let order;
+    let emailType;
+
+    try {
+      const requestedStatus = String(
+        req.body?.status || ""
+      ).trim().toLowerCase();
+
+      if (!["paid", "rejected"].includes(requestedStatus)) {
+        return res.status(400).json({
+          success: false,
+          message: "Choose Paid or Failed.",
+        });
+      }
+
+      if (
+        requestedStatus === "paid" &&
+        req.body?.confirmedPayment !== true
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Confirm that you checked the actual payment before marking it paid.",
+        });
+      }
+
+      emailType =
+        requestedStatus === "paid" ? "success" : "failure";
+
+      const note =
+        String(req.body?.note || "").trim().slice(0, 500) ||
+        (requestedStatus === "paid"
+          ? "Manually marked paid after admin confirmation."
+          : "Manually marked failed by admin.");
+
+      // Only a pending order can be manually finalised through this route.
+      order = await PaymentOrder.findOneAndUpdate(
+        {
+          orderId: req.params.orderId,
+          status: "pending",
+        },
+        {
+          $set: {
+            status: requestedStatus,
+            verifiedBy: req.admin.email,
+            verifiedAt: new Date(),
+            verificationNote: note,
+            paymentEmailStatus: "sending",
+            paymentEmailType: emailType,
+            paymentEmailError: "",
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!order) {
+        const existing = await PaymentOrder.findOne({
+          orderId: req.params.orderId,
+        }).select("orderId status");
+
+        if (!existing) {
+          return res.status(404).json({
+            success: false,
+            message: "Order not found.",
+          });
+        }
+
+        return res.status(409).json({
+          success: false,
+          message:
+            `Order is already ${existing.status}. Refresh the dashboard.`,
+        });
+      }
+
+      // The status is saved first. If email delivery fails, the dashboard
+      // will report that separately rather than pretending the email was sent.
+      try {
+        const result = await sendManualStatusEmail(
+          order,
+          requestedStatus
+        );
+
+        await PaymentOrder.updateOne(
+          {
+            _id: order._id,
+            status: requestedStatus,
+          },
+          {
+            $set: {
+              paymentEmailStatus: "sent",
+              paymentEmailType: emailType,
+              paymentEmailSentAt: new Date(),
+              paymentEmailMessageId: result.messageId || "",
+              paymentEmailError: "",
+            },
+          }
+        );
+
+        return res.json({
+          success: true,
+          status: requestedStatus,
+          emailStatus: "sent",
+          message:
+            `Order marked ${requestedStatus === "paid" ? "Paid" : "Failed"}. Email sent to ${order.customerEmail}.`,
+        });
+      } catch (emailError) {
+        console.error(
+          "Manual payment status email failed:",
+          emailError.message
+        );
+
+        await PaymentOrder.updateOne(
+          {
+            _id: order._id,
+            status: requestedStatus,
+          },
+          {
+            $set: {
+              paymentEmailStatus: "failed",
+              paymentEmailType: emailType,
+              paymentEmailError: String(
+                emailError.message || "Email delivery failed"
+              ).slice(0, 500),
+            },
+          }
+        );
+
+        return res.json({
+          success: true,
+          status: requestedStatus,
+          emailStatus: "failed",
+          message:
+            `Order marked ${requestedStatus === "paid" ? "Paid" : "Failed"}, but the email could not be sent. Check SMTP settings and retry the email.`,
+        });
+      }
+    } catch (error) {
+      console.error("Manual status update error:", error.message);
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to update the payment status.",
+      });
+    }
+  }
+);
+
+// Retry the status email if SMTP delivery failed.
+router.post(
+  "/admin/orders/:orderId/resend-status-email",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const order = await PaymentOrder.findOne({
+        orderId: req.params.orderId,
+      });
+
+      if (!order) {
+        return res.status(404).json({
+          message: "Order not found.",
+        });
+      }
+
+      if (!["paid", "rejected"].includes(order.status)) {
+        return res.status(409).json({
+          message: "The order needs a final status before an email can be sent.",
+        });
+      }
+
+      const emailType =
+        order.status === "paid" ? "success" : "failure";
+
+      if (
+        order.paymentEmailStatus === "sent" &&
+        order.paymentEmailType === emailType
+      ) {
+        return res.status(409).json({
+          message: "The matching status email has already been sent.",
+        });
+      }
+
+      const result = await sendManualStatusEmail(
+        order,
+        order.status
+      );
+
+      await PaymentOrder.updateOne(
+        {
+          _id: order._id,
+          status: order.status,
+        },
+        {
+          $set: {
+            paymentEmailStatus: "sent",
+            paymentEmailType: emailType,
+            paymentEmailSentAt: new Date(),
+            paymentEmailMessageId: result.messageId || "",
+            paymentEmailError: "",
+          },
+        }
+      );
+
+      return res.json({
+        success: true,
+        message: `Email sent to ${order.customerEmail}.`,
+      });
+    } catch (error) {
+      console.error("Status email retry failed:", error.message);
+
+      return res.status(500).json({
+        message:
+          "Email could not be sent. Check SMTP settings and the backend log.",
       });
     }
   }

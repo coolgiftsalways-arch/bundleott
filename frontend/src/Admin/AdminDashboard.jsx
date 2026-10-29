@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [selectedEmailOrders, setSelectedEmailOrders] = useState([]);
 const [emailBusy, setEmailBusy] = useState(false);
-
+const [statusBusyOrder, setStatusBusyOrder] = useState("");
 
   const logout = useCallback((message = "") => {
     window.sessionStorage.removeItem(SESSION_KEY);
@@ -329,7 +329,27 @@ const sendBulkFailureEmails = async () => {
           <td><div className="bu-person"><span className="bu-avatar">{String(o.customerName || "C").split(/\s+/).slice(0, 2).map((p) => p[0] || "").join("").toUpperCase()}</span><div className="bu-person-copy"><strong>{o.customerName || "Customer"}</strong><small>{o.customerEmail || "No email"}</small></div></div></td>
           <td><span className="bu-plan-name">{o.planName || o.planId || "Plan"}</span><small className="bu-id">{o.orderId}</small></td>
           <td className="bu-amount">{money(o.amount)}</td>
-          <td><Status value={o.status} /></td>
+          <td>
+  {actions && o.status === "pending" ? (
+    <select
+      className="bu-manual-status-select"
+      value="pending"
+      aria-label={`Change payment status for ${o.customerName || o.orderId}`}
+      disabled={statusBusyOrder === o.orderId}
+      onChange={(event) =>
+        handleManualStatusChange(o, event.target.value)
+      }
+    >
+      <option value="pending">Pending</option>
+      <option value="paid">Paid / Success</option>
+      <option value="rejected">Failed</option>
+    </select>
+  ) : (
+    <Status
+      value={o.status === "rejected" ? "failed" : o.status}
+    />
+  )}
+</td>
           <td className="bu-muted bu-nowrap">{dateLabel(o.createdAt)}</td>
           {actions && <td>
             {o.status === "pending" ? (
