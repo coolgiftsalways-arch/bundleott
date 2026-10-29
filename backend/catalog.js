@@ -1,3 +1,5 @@
+import { SUBSCRIPTION_CATALOGUE } from "../frontend/src/data/subscriptionCatalogue.js";
+
 // Server-authoritative demo catalogue aligned with frontend/src/pages/OurPlans.jsx.
 // IMPORTANT: replace with authorized, accurate products/prices before accepting real money.
 const ITEMS = [
@@ -31,22 +33,107 @@ const ITEMS = [
   ['firefly','Adobe Firefly',199,'ai'],
   ['elevenlabs','ElevenLabs',199,'ai'],
   ['runway','Runway',199,'ai'],
+  ['spotify_platinum', 'Spotify Premium Platinum', 299, 'other'],
 ];
 
-export const PUBLIC_CATALOG = Object.freeze(ITEMS.map(([id, name, price, category]) =>
-  Object.freeze({ id, name, price, category, currency: 'INR' })
-));
-const map = new Map(PUBLIC_CATALOG.map(p => [p.id, p]));
+const USD_INR_REFERENCE = 94.9601;
 
+function getCataloguePrice(plan) {
+  const raw = String(plan.price || "");
+  const billing = String(plan.billing || "");
+
+  const patterns = [
+    {
+      regex: /₹([\d,]+(?:\.\d+)?)\s*\/\s*month/i,
+      divisor: 1,
+      currency: "INR",
+    },
+    {
+      regex: /₹([\d,]+(?:\.\d+)?)\s*\/\s*year/i,
+      divisor: 12,
+      currency: "INR",
+    },
+    {
+      regex: /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/\s*month/i,
+      divisor: 1,
+      currency: "USD",
+    },
+    {
+      regex: /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/\s*year/i,
+      divisor: 12,
+      currency: "USD",
+    },
+  ];
+
+  for (const item of patterns) {
+    const match = raw.match(item.regex);
+    if (!match) continue;
+
+    // Use the same monthly-equivalent pricing logic as the frontend.
+    const value =
+      Number(match[1].replaceAll(",", "")) / item.divisor;
+
+    return item.currency === "USD"
+      ? value * USD_INR_REFERENCE
+      : value;
+  }
+
+  // No fixed numeric amount in the frontend catalogue.
+  return null;
+}
+
+function categoryFor(plan) {
+  if (plan.category === "OTT, films & TV") return "ott";
+  if (plan.category.startsWith("AI ")) return "ai";
+
+  if (
+    [
+      "YouTube & creator tools",
+      "Photo, video & design software",
+      "Stock assets, templates & licensing",
+    ].includes(plan.category)
+  ) {
+    return "creator";
+  }
+
+  return "other";
+}
+
+const LEGACY_ITEMS = ITEMS.map(([id, name, price, category]) => ({
+  id,
+  name,
+  price,
+  category,
+  currency: "INR",
+}));
+
+const FRONTEND_ITEMS = SUBSCRIPTION_CATALOGUE.map((plan) => ({
+  id: `sub_${String(plan.id)}`,
+  name: `${plan.brand} ${plan.tier}`,
+  price: getCataloguePrice(plan),
+  category: categoryFor(plan),
+  currency: "INR",
+}));
+
+export const PUBLIC_CATALOG = Object.freeze([
+  ...LEGACY_ITEMS,
+  ...FRONTEND_ITEMS,
+].map((item) => Object.freeze(item)));
+
+const map = new Map(
+  PUBLIC_CATALOG.map((plan) => [plan.id, plan])
+);
 // A cart is valid only with unique known item IDs. Browser prices are NEVER trusted.
 export function quoteBundle(planIds) {
-  if (!Array.isArray(planIds) || planIds.length < 1 || planIds.length > 30 ||
+  if (!Array.isArray(planIds) || planIds.length < 1 || planIds.length > 200 ||
       planIds.some(id => typeof id !== 'string') ||
       new Set(planIds).size !== planIds.length || planIds.some(id => !map.has(id))) return null;
   const items = planIds.map(id => map.get(id));
   const subtotal = items.reduce((n,p) => n + p.price, 0);
   const discount = planIds.includes('netflix') && planIds.includes('prime') ? 100 : 0;
   const amount = subtotal - discount;
-  if (!Number.isSafeInteger(amount) || amount <= 0) return null;
+  if (!Number.isFinite(amount) || Math.round(amount * 100) <= 0) {
+  return null;
+}
   return { items, discount, amount, name: items.map(p => p.name).join(' + ') };
 }

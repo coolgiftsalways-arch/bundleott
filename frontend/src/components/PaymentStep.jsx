@@ -822,14 +822,14 @@ setUtr('');
               <>
                 <p>
                   <strong>
-                    Connection testing:
+                    {/* Connection testing: */}
                   </strong>{' '}
-                  The order has been
+                  {/* The order has been
                   created. Payment is
                   optional; do not pay
                   until catalogue pricing
                   and service fulfilment
-                  are approved.
+                  are approved. */}
                 </p>
 
                 {/* QR COUNTDOWN */}

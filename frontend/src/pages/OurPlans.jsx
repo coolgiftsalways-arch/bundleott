@@ -82,6 +82,7 @@ const PAYMENT_PLAN_IDS = {
   firefly: "firefly",
   elevenlabs: "elevenlabs",
   runway: "runway",
+  spotify: "spotify_platinum",
 };
 
 function groupOf(plan) {
@@ -1051,30 +1052,34 @@ export default function OurPlans() {
   setCheckoutError("");
 }
 
-    const mappedPlans = selected.map((plan) => {
-      const brand = String(plan.brand || "").trim().toLowerCase();
+    // Automatically map each frontend catalogue entry to the backend.
+const unpricedPlans = selected.filter((plan) => {
+  const amount = getPriceInfo(plan).amount;
+  return !Number.isFinite(amount) || amount <= 0;
+});
 
-      const match = Object.entries(PAYMENT_PLAN_IDS).find(([key]) =>
-        brand.includes(key)
-      );
+if (unpricedPlans.length > 0) {
+  const names = unpricedPlans
+    .map((plan) => `${plan.brand} — ${plan.tier}`)
+    .join(", ");
 
-      return match
-        ? { id: match[1], name: `${plan.brand} ${plan.tier}` }
-        : null;
-    });
+  setCheckoutError(
+    `These services need a fixed price before checkout: ${names}`
+  );
 
-    if (mappedPlans.some((plan) => !plan)) {
-      setCheckoutError(
-        "One or more selected services are not configured for payment yet. Please remove unsupported services and try again."
-      );
-      return false;
-    }
+  return false;
+}
 
-    const uniquePlans = [
-      ...new Map(
-        mappedPlans.map((plan) => [plan.id, plan])
-      ).values(),
-    ];
+const mappedPlans = selected.map((plan) => ({
+  id: `sub_${String(plan.id)}`,
+  name: `${plan.brand} ${plan.tier}`,
+}));
+
+const uniquePlans = [
+  ...new Map(
+    mappedPlans.map((plan) => [plan.id, plan])
+  ).values(),
+];
 
     sessionStorage.setItem(
       "bundleupott_checkout_draft",

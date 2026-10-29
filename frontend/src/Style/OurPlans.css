@@ -1878,3 +1878,337 @@
 .bu-cloud-reopen:hover {
      background: #e5f4ff;
 }
+
+
+/* =========================================
+   BUNDLEUPOTT — SUBSCRIPTION DETAILS MODAL
+   Fixes tabs, benefits, FAQ and responsive UI
+========================================= */
+
+.bu-details-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 42px 35px 30px;
+  overflow-y: auto;
+  color: var(--bu-ink);
+  font-family: "Manrope", sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: #c8d9eb transparent;
+}
+
+.bu-details-content h3 {
+  margin: 0 0 16px;
+  color: #182643;
+  font-family: "Sora", sans-serif;
+  font-size: 19px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+/* Tabs container */
+
+.bu-details-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 9px;
+  flex-shrink: 0;
+  padding: 8px 42px 18px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e6edf7;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.bu-details-tabs button {
+  appearance: none;
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 10px 15px;
+  border: 1px solid #e1eaf6;
+  border-radius: 12px;
+  background: #fff;
+  color: #536782;
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.bu-details-tabs button:hover {
+  border-color: #9ed8ee;
+  background: #f3faff;
+  transform: translateY(-1px);
+}
+
+.bu-details-tabs button.active,
+.bu-details-tabs button[aria-selected="true"] {
+  border-color: transparent;
+  background: linear-gradient(
+    105deg,
+    #408aff 0%,
+    #35a7e9 50%,
+    #25ceb0 100%
+  );
+  color: #fff;
+  box-shadow: 0 7px 16px #368cd12a;
+}
+
+.bu-details-tabs button:focus-visible {
+  outline: 3px solid #61a9ff;
+  outline-offset: 3px;
+}
+
+/* Tab content panel */
+
+.bu-details-tab-panel {
+  min-width: 0;
+  padding: 25px;
+  border: 1px solid #e7edf7;
+  border-radius: 20px;
+  background: linear-gradient(
+    125deg,
+    #fbfdff 0%,
+    #f4faff 100%
+  );
+}
+
+.bu-details-tab-panel > div > p {
+  margin: 12px 0 0;
+  color: #687e9b;
+  font-size: 13px;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.bu-details-description {
+  padding-top: 15px;
+  border-top: 1px solid #e5edf6;
+}
+
+/* Benefits list */
+
+.bu-detail-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.bu-detail-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid #e7eef7;
+  border-radius: 13px;
+  background: #fff;
+  color: #405573;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  box-shadow: 0 4px 14px #346a8f08;
+}
+
+.bu-detail-benefits li svg {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  margin-top: 3px;
+  color: #18a489;
+}
+
+/* About and description text */
+
+.bu-details-tab-panel p {
+  color: #687e9b;
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+.bu-details-tab-panel p:first-of-type {
+  margin-top: 0;
+}
+
+/* How it works */
+
+.bu-detail-steps {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  counter-reset: bu-step;
+}
+
+.bu-detail-steps li {
+  position: relative;
+  padding: 14px 15px 14px 52px;
+  border: 1px solid #e5edf7;
+  border-radius: 13px;
+  background: #fff;
+  color: #536782;
+  font-size: 12px;
+  line-height: 1.75;
+  counter-increment: bu-step;
+}
+
+.bu-detail-steps li::before {
+  content: counter(bu-step);
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 9px;
+  background: #e5f3ff;
+  color: #278bd8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* FAQ */
+
+.bu-details-tab-panel details {
+  margin-top: 12px;
+  padding: 15px 16px;
+  border: 1px solid #e4edf7;
+  border-radius: 13px;
+  background: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.bu-details-tab-panel details:first-of-type {
+  margin-top: 0;
+}
+
+.bu-details-tab-panel details[open] {
+  border-color: #b8e4f1;
+}
+
+.bu-details-tab-panel summary {
+  position: relative;
+  padding-right: 24px;
+  color: #304260;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.bu-details-tab-panel details p {
+  margin: 12px 0 0;
+  color: #71839c;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* Close button */
+
+.bu-details-close {
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.bu-details-close:hover {
+  transform: rotate(4deg);
+}
+
+/* Responsive modal */
+
+@media (max-width: 1160px) {
+  .bu-details-content {
+    padding: 38px 22px 23px;
+  }
+
+  .bu-detail-benefits {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 850px) {
+  .bu-details-content {
+    min-height: auto;
+    padding: 28px 22px 24px;
+    overflow: visible;
+  }
+
+  .bu-details-tabs {
+    margin-bottom: 16px;
+  }
+
+  .bu-details-tab-panel {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 620px) {
+  .bu-details-content {
+    padding: 24px 15px 18px;
+  }
+
+  .bu-details-tabs {
+    gap: 7px;
+    padding: 5px 0 14px;
+    margin-bottom: 15px;
+  }
+
+  .bu-details-tabs button {
+    min-height: 38px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+
+  .bu-details-tab-panel {
+    padding: 17px 14px;
+    border-radius: 15px;
+  }
+
+  .bu-details-content h3 {
+    font-size: 16px;
+  }
+
+  .bu-detail-benefits {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .bu-detail-benefits li {
+    padding: 11px;
+    font-size: 12px;
+  }
+
+  .bu-details-tab-panel > div > p,
+  .bu-details-tab-panel p {
+    font-size: 12px;
+  }
+
+  .bu-details-tab-panel summary {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bu-details-content *,
+  .bu-details-content *::before,
+  .bu-details-content *::after {
+    transition: none !important;
+  }
+}
