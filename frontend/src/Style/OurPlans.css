@@ -2212,3 +2212,107 @@
     transition: none !important;
   }
 }
+.bu-card-offers {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.bu-card-offers-title {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.bu-card-offers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bu-card-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.bu-card-offer span {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.bu-card-offer strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.bu-card-main {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bu-card-main:focus-visible,
+.bu-card-offer:focus-visible,
+.bu-see-benefits-button:focus-visible {
+  outline: 3px solid #4389ff;
+  outline-offset: 3px;
+}
+
+.bu-card-offer {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.bu-card-offer:not(:disabled):hover {
+  transform: translateY(-2px);
+  border-color: #4389ff;
+}
+
+.bu-card-offer.is-selected {
+  border-color: #1cc7ad;
+  background: #e5faf4;
+  box-shadow: 0 0 0 1px #1cc7ad;
+}
+
+.bu-card-offer small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: #07866e;
+}
+
+.bu-card-offer:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.bu-see-benefits-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

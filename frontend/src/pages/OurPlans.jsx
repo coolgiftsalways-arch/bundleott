@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SUBSCRIPTION_CATALOGUE } from "../data/subscriptionCatalogue";
 import "../Style/OurPlans.css";
 import PaymentStep from "../components/PaymentStep";
+import SUBSCRIPTION_OFFERS from "../data/BundleUpOTT_subscriptionOffers.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -200,6 +201,24 @@ function getPriceInfo(plan) {
   };
 }
 
+function getOfferAmount(plan, months) {
+  const offer = SUBSCRIPTION_OFFERS[String(plan.id)];
+  const raw = offer?.offers?.[String(months)];
+
+  // "Verify" and other non-numeric prices are unavailable.
+  const match = String(raw ?? "").match(
+    /₹\s*([\d,]+(?:\.\d{1,2})?)/
+  );
+
+  if (!match) return null;
+
+  const amount = Number(match[1].replaceAll(",", ""));
+
+  return Number.isFinite(amount) && amount > 0
+    ? amount
+    : null;
+}
+
 function domainOf(plan) {
   const brand = plan.brand.toLowerCase();
 
@@ -366,45 +385,130 @@ function benefitsFor(plan) {
   return entries;
 }
 
-function SubscriptionCard({ plan, selected, onOpen, onToggle }) {
+function SubscriptionCard({
+  plan,
+  selected,
+  selectedDuration,
+  onOpen,
+  onToggle,
+  onSelectOffer,
+}) {
   const price = getPriceInfo(plan);
 
+  const durations = [
+    { months: "1", label: "1 Month" },
+    { months: "3", label: "3 Months" },
+    { months: "6", label: "6 Months" },
+    { months: "12", label: "12 Months" },
+  ];
+
   return (
-    <article className={`bu-plan-card ${selected ? "bu-card-selected" : ""}`}>
-      <button
-        type="button"
-        className="bu-card-content"
-        onClick={() => onOpen(plan)}
-        aria-label={`View everything included in ${plan.brand} ${plan.tier}`}
-      >
-        <div className="bu-card-top">
-          <Logo plan={plan} />
-          <span className="bu-card-group">{groupOf(plan).toUpperCase()}</span>
+    <article
+      className={`bu-plan-card ${
+        selected ? "bu-card-selected" : ""
+      }`}
+    >
+      <div className="bu-card-content">
+        {/* Separate button for viewing the subscription details */}
+        <button
+          type="button"
+          className="bu-card-main"
+          onClick={() => onOpen(plan)}
+          aria-label={`View ${plan.brand} ${plan.tier} details`}
+        >
+          <div className="bu-card-top">
+            <Logo plan={plan} />
+            <span className="bu-card-group">
+              {groupOf(plan).toUpperCase()}
+            </span>
+          </div>
+
+          <h3>{plan.brand}</h3>
+          <span className="bu-tier-name">{plan.tier}</span>
+
+          <strong className="bu-card-price">
+            {price.display}
+          </strong>
+
+          <small className="bu-card-billing">
+            {price.note} · {plan.billing}
+          </small>
+        </button>
+
+        {/* These are real, independent buttons */}
+        <div className="bu-card-offers">
+          <p className="bu-card-offers-title">
+            Choose a duration
+          </p>
+
+          <div className="bu-card-offers-grid">
+            {durations.map(({ months, label }) => {
+              const amount = getOfferAmount(plan, months);
+
+              const isChosen =
+                selected &&
+                String(selectedDuration || "1") === months;
+
+              return (
+                <button
+                  key={months}
+                  type="button"
+                  className={`bu-card-offer ${
+                    isChosen ? "is-selected" : ""
+                  }`}
+                  disabled={amount === null}
+                  aria-pressed={isChosen}
+                  title={
+                    amount === null
+                      ? "This price needs confirmation"
+                      : `Add ${plan.brand} for ${label}`
+                  }
+                  onClick={() => onSelectOffer(plan.id, months)}
+                >
+                  <span>{label}</span>
+
+                  <strong>
+                    {amount === null
+                      ? "Verify price"
+                      : INR.format(amount)}
+                  </strong>
+
+                  <small>
+                    {amount === null
+                      ? "Unavailable"
+                      : isChosen
+                        ? "✓ Selected"
+                        : "Tap to add"}
+                  </small>
+                </button>
+              );
+            })}
+          </div>
         </div>
-
-        <h3>{plan.brand}</h3>
-        <span className="bu-tier-name">{plan.tier}</span>
-        <strong className="bu-card-price">{price.display}</strong>
-
-        <small className="bu-card-billing">
-          {price.note} · {plan.billing}
-        </small>
 
         <p className="bu-card-summary">{plan.features}</p>
 
-        <span className="bu-see-benefits">
-          <Icon name="eye" size={15} /> See what you'll get{" "}
+        <button
+          type="button"
+          className="bu-see-benefits bu-see-benefits-button"
+          onClick={() => onOpen(plan)}
+        >
+          <Icon name="eye" size={15} />
+          See what you'll get
           <Icon name="arrow" size={14} />
-        </span>
-      </button>
+        </button>
+      </div>
 
       <button
         type="button"
-        className={`bu-add-btn ${selected ? "bu-add-selected" : ""}`}
+        className={`bu-add-btn ${
+          selected ? "bu-add-selected" : ""
+        }`}
         onClick={() => onToggle(plan.id)}
       >
-        <Icon name={selected ? "check" : "layer"} size={16} />{" "}
-        {selected ? "Added · Remove" : "+ Add to bundle"}
+        <Icon name={selected ? "check" : "layer"} size={16} />
+
+        {selected ? "Added · Remove" : "+ Add 1 month"}
       </button>
     </article>
   );
@@ -894,6 +998,8 @@ export default function OurPlans() {
   const [checkoutPlans, setCheckoutPlans] = useState([]);
   const [checkoutError, setCheckoutError] = useState("");
   const [cloudDismissed, setCloudDismissed] = useState(false);
+  const [selectedDurations, setSelectedDurations] = useState({});
+
 
   const [selectedIds, setSelectedIds] = useState(() => {
     const oldIds = {
@@ -954,24 +1060,30 @@ export default function OurPlans() {
     [selectedIds]
   );
 
-  const priceInfo = selected.map(getPriceInfo);
+  const priceInfo = selected.map((plan) => ({
+  plan,
+  months: selectedDurations[String(plan.id)] || "1",
+  amount: getOfferAmount(
+    plan,
+    selectedDurations[String(plan.id)] || "1"
+  ),
+}));
 
-  const knownBaseAmount = priceInfo.reduce(
-    (total, item) => total + (item.amount ?? 0),
-    0
-  );
+const knownBaseAmount = priceInfo.reduce(
+  (total, item) => total + (item.amount ?? 0),
+  0
+);
 
-  const unknownCount = priceInfo.filter(
-    (item) => item.amount === null
-  ).length;
+const unknownCount = priceInfo.filter(
+  (item) => item.amount === null
+).length;
 
-  const amount =
-    selected.length && (knownBaseAmount > 0 || cloudAdded)
-      ? knownBaseAmount + (cloudAdded ? CLOUD_OFFER.price : 0)
-      : null;
+const amount =
+  selected.length && (knownBaseAmount > 0 || cloudAdded)
+    ? knownBaseAmount + (cloudAdded ? CLOUD_OFFER.price : 0)
+    : null;
 
-  const isEstimated =
-    priceInfo.some((item) => item.estimated) || unknownCount > 0;
+const isEstimated = true;
 
   const removeAll = () => {
     setSelectedIds([]);
@@ -1036,6 +1148,51 @@ export default function OurPlans() {
       ];
     });
   }
+
+  function selectOffer(id, months) {
+  const key = String(id);
+  const incoming = BY_ID.get(key);
+
+  if (!incoming) return;
+
+  // Add the subscription, or replace its previously selected tier.
+  setSelectedIds((prev) => [
+    ...prev.filter((item) => {
+      const other = BY_ID.get(item);
+
+      return (
+        item !== key &&
+        (!other ||
+          other.brand !== incoming.brand ||
+          other.category !== incoming.category)
+      );
+    }),
+    key,
+  ]);
+
+  // Save the chosen duration for this subscription.
+  setSelectedDurations((prev) => {
+    const next = { ...prev };
+
+    Object.keys(next).forEach((item) => {
+      const other = BY_ID.get(item);
+
+      if (
+        item === key ||
+        (other &&
+          other.brand === incoming.brand &&
+          other.category === incoming.category)
+      ) {
+        delete next[item];
+      }
+    });
+
+    next[key] = String(months);
+    return next;
+  });
+
+  setCloudAdded(false);
+}
 
   function saveCustomer(customer) {
     setCheckoutError("");
@@ -1316,12 +1473,16 @@ const uniquePlans = [
               <div className="bu-card-grid">
                 {results.slice(0, limit).map((plan) => (
                   <SubscriptionCard
-                    key={plan.id}
-                    plan={plan}
-                    selected={selectedIds.includes(String(plan.id))}
-                    onOpen={setActivePlan}
-                    onToggle={togglePlan}
-                  />
+  key={plan.id}
+  plan={plan}
+  selected={selectedIds.includes(String(plan.id))}
+  selectedDuration={
+    selectedDurations[String(plan.id)] || "1"
+  }
+  onOpen={setActivePlan}
+  onToggle={togglePlan}
+  onSelectOffer={selectOffer}
+/>
                 ))}
               </div>
 
@@ -1389,8 +1550,20 @@ const uniquePlans = [
                       <div>
                         <strong>{plan.brand}</strong>
                         <small>
-                          {plan.tier} · {getPriceInfo(plan).display}
-                        </small>
+  {plan.tier} ·{" "}
+  {selectedDurations[String(plan.id)] || "1"} month(s) ·{" "}
+  {getOfferAmount(
+    plan,
+    selectedDurations[String(plan.id)] || "1"
+  ) === null
+    ? "Price to confirm"
+    : INR.format(
+        getOfferAmount(
+          plan,
+          selectedDurations[String(plan.id)] || "1"
+        )
+      )}
+</small>
                       </div>
 
                       <button

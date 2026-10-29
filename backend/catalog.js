@@ -1,5 +1,5 @@
 import { SUBSCRIPTION_CATALOGUE } from "../frontend/src/data/subscriptionCatalogue.js";
-
+import { SUBSCRIPTION_OFFERS } from "../frontend/src/data/BundleUpOTT_subscriptionOffers.js";
 // Server-authoritative demo catalogue aligned with frontend/src/pages/OurPlans.jsx.
 // IMPORTANT: replace with authorized, accurate products/prices before accepting real money.
 const ITEMS = [
@@ -37,6 +37,33 @@ const ITEMS = [
 ];
 
 const USD_INR_REFERENCE = 94.9601;
+const OFFER_MONTHS = ["1", "3", "6", "12"];
+
+function parseOfferAmount(value) {
+  const match = String(value ?? "").match(
+    /₹\s*([\d,]+(?:\.\d{1,2})?)/
+  );
+
+  if (!match) return null;
+
+  const amount = Number(match[1].replaceAll(",", ""));
+
+  return Number.isFinite(amount) && amount > 0
+    ? Math.round(amount * 100) / 100
+    : null;
+}
+
+function getDurationPrices(plan) {
+  const offer = SUBSCRIPTION_OFFERS[String(plan.id)];
+
+  return Object.fromEntries(
+    OFFER_MONTHS.map((months) => [
+      months,
+      parseOfferAmount(offer?.offers?.[months]),
+    ])
+  );
+}
+
 
 function getCataloguePrice(plan) {
   const raw = String(plan.price || "");
@@ -105,14 +132,25 @@ const LEGACY_ITEMS = ITEMS.map(([id, name, price, category]) => ({
   price,
   category,
   currency: "INR",
+
+  // Legacy plans have no verified multi-month offer data.
+  durationPrices: {
+    "1": price,
+    "3": null,
+    "6": null,
+    "12": null,
+  },
 }));
 
 const FRONTEND_ITEMS = SUBSCRIPTION_CATALOGUE.map((plan) => ({
   id: `sub_${String(plan.id)}`,
   name: `${plan.brand} ${plan.tier}`,
+  brand: plan.brand,
+  tier: plan.tier,
   price: getCataloguePrice(plan),
   category: categoryFor(plan),
   currency: "INR",
+  durationPrices: getDurationPrices(plan),
 }));
 
 export const PUBLIC_CATALOG = Object.freeze([
@@ -124,16 +162,104 @@ const map = new Map(
   PUBLIC_CATALOG.map((plan) => [plan.id, plan])
 );
 // A cart is valid only with unique known item IDs. Browser prices are NEVER trusted.
-export function quoteBundle(planIds) {
-  if (!Array.isArray(planIds) || planIds.length < 1 || planIds.length > 200 ||
-      planIds.some(id => typeof id !== 'string') ||
-      new Set(planIds).size !== planIds.length || planIds.some(id => !map.has(id))) return null;
-  const items = planIds.map(id => map.get(id));
-  const subtotal = items.reduce((n,p) => n + p.price, 0);
-  const discount = planIds.includes('netflix') && planIds.includes('prime') ? 100 : 0;
-  const amount = subtotal - discount;
-  if (!Number.isFinite(amount) || Math.round(amount * 100) <= 0) {
-  return null;
-}
-  return { items, discount, amount, name: items.map(p => p.name).join(' + ') };
+export function quoteBundle(selections) {
+  if (
+    !Array.isArray(selections) ||
+    selections.length < 1 ||
+    selections.length > 200
+  ) {
+    return null;
+  }
+
+  // Support old string IDs as one-month selections.
+  // New requests should send { id, months }.
+  const normalized = selections.map((selection) => {
+    if (typeof selection === "string") {
+      return { id: selection, months: "1" };
+    }
+
+    if (
+      !selection ||
+      typeof selection !== "object" ||
+      typeof selection.id !== "string"
+    ) {
+      return null;
+    }
+
+    const months = String(selection.months ?? "");
+
+    if (!OFFER_MONTHS.includes(months)) {
+      return null;
+    }
+
+    return {
+      id: selection.id,
+      months,
+    };
+  });
+
+  if (normalized.some((selection) => !selection)) {
+    return null;
+  }
+
+  const ids = normalized.map((selection) => selection.id);
+
+  // A customer cannot add the same subscription twice.
+  if (
+    new Set(ids).size !== ids.length ||
+    ids.some((id) => !map.has(id))
+  ) {
+    return null;
+  }
+
+  const items = normalized.map(({ id, months }) => {
+    const catalogueItem = map.get(id);
+    const price = catalogueItem.durationPrices?.[months];
+
+    // Block unverified or unavailable prices.
+    if (!Number.isFinite(price) || price <= 0) {
+      return null;
+    }
+
+    return {
+      id: catalogueItem.id,
+      name: catalogueItem.name,
+      category: catalogueItem.category,
+      currency: "INR",
+      months: Number(months),
+      price,
+    };
+  });
+
+  if (items.some((item) => !item)) {
+    return null;
+  }
+
+  const subtotal = Math.round(
+    items.reduce((total, item) => total + item.price, 0) * 100
+  ) / 100;
+
+  // Preserve the existing promotion for legacy plan IDs.
+  const discount =
+    ids.includes("netflix") && ids.includes("prime")
+      ? 100
+      : 0;
+
+  const amount = Math.round((subtotal - discount) * 100) / 100;
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return null;
+  }
+
+  return {
+    items,
+    subtotal,
+    discount,
+    amount,
+    name: items
+      .map((item) =>
+        `${item.name} (${item.months} month${item.months === 1 ? "" : "s"})`
+      )
+      .join(" + "),
+  };
 }
