@@ -384,18 +384,81 @@ router.post("/orders", publicLimit, async (req, res) => {
       status: "pending",
     });
 
-    const params = new URLSearchParams({
-      pa: process.env.UPI_ID,
-      pn: process.env.UPI_NAME,
-      am: Number(order.amount).toFixed(2),
-      cu: "INR",
-      tr: order.orderId,
-      tn: `bundleupott ${order.orderId.slice(0, 8)}`,
-    });
-    const upiUrl = `upi://pay?${params.toString()}`;
-    const qrCode = await QRCode.toDataURL(upiUrl, { width: 320, margin: 2 });
+    // Create a Razorpay payment link for this order's exact amount.
+const razorpayResponse = await fetch(
+  "https://api.razorpay.com/v1/payment_links",
+  {
+    method: "POST",
+    headers: {
+      Authorization:
+        `Basic ${Buffer.from(
+          `${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`
+        ).toString("base64")}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      amount: Math.round(Number(order.amount) * 100),
+      currency: "INR",
+      accept_partial: false,
+      reference_id: order.orderId,
+      description: `BundleUpOTT order ${order.orderId.slice(0, 8)}`,
 
-    return res.status(201).json({ success: true, order: publicOrder(order), accessToken, upiUrl, qrCode });
+      customer: {
+        name: order.customerName,
+        email: order.customerEmail,
+        ...(order.customerMobile
+          ? { contact: order.customerMobile }
+          : {}),
+      },
+
+      notify: {
+        sms: false,
+        email: false,
+      },
+      reminder_enable: false,
+      notes: {
+        orderId: order.orderId,
+        brand: "BundleUpOTT",
+      },
+    }),
+  }
+);
+
+const paymentLink = await razorpayResponse
+  .json()
+  .catch(() => ({}));
+
+if (!razorpayResponse.ok || !paymentLink.short_url) {
+  console.error(
+    "Razorpay payment link creation failed:",
+    paymentLink
+  );
+
+  return res.status(502).json({
+    success: false,
+    message:
+      paymentLink?.error?.description ||
+      "Unable to create Razorpay payment link.",
+  });
+}
+
+// Generate a QR that opens the Razorpay payment page.
+const paymentUrl = paymentLink.short_url;
+
+const qrCode = await QRCode.toDataURL(paymentUrl, {
+  width: 320,
+  margin: 2,
+});
+
+return res.status(201).json({
+  success: true,
+  order: publicOrder(order),
+  accessToken,
+  paymentUrl,
+  upiUrl: paymentUrl,
+  qrCode,
+  razorpayPaymentLinkId: paymentLink.id,
+});
   } catch (error) {
     console.error("Create order error:", error.message);
     return res.status(500).json({ message: "Unable to create payment order" });
