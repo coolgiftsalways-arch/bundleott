@@ -101,6 +101,15 @@
      border-bottom: 1px solid #e9f3fa;
 }
 
+.bu-hero {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.bu-hero-grid {
+  padding-top: 25px;
+}
+
 .bu-hero-grid {
      display: grid;
      grid-template-columns: 1.12fr .88fr;
@@ -2715,4 +2724,428 @@
   display: block;
   stroke: currentColor;
   background: transparent;
+}
+
+
+
+/* =========================================================
+   MOBILE PRODUCT DETAILS — SINGLE SCREEN LAYOUT
+   Keeps desktop styling unchanged.
+========================================================= */
+@media (max-width: 620px) {
+  .bu-details-backdrop {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .bu-details-modal {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    width: 100% !important;
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    border-radius: 20px !important;
+  }
+
+  /* Compact product header */
+  .bu-details-product {
+    display: grid !important;
+    grid-template-columns: 46px minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "pill pill pill"
+      "logo name price"
+      "logo tier price"
+      "cta cta cta" !important;
+    align-items: center !important;
+    justify-content: initial !important;
+    gap: 5px 10px !important;
+    min-height: 0 !important;
+    padding: 11px 14px 10px !important;
+    overflow: hidden !important;
+    text-align: left !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #e6eef5 !important;
+  }
+
+  .bu-details-product .bu-mini-pill {
+    grid-area: pill !important;
+    width: fit-content !important;
+    max-width: calc(100% - 48px) !important;
+    margin: 0 48px 2px 0 !important;
+    padding: 5px 9px !important;
+    font-size: 8px !important;
+    line-height: 1.2 !important;
+  }
+
+  .bu-details-product .bu-logo-large {
+    grid-area: logo !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+  }
+
+  .bu-details-product .bu-logo-large img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .bu-details-product .bu-logo-large b {
+    font-size: 15px !important;
+  }
+
+  .bu-details-product h2 {
+    grid-area: name !important;
+    align-self: end !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding-right: 2px !important;
+    font-size: 16px !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .bu-details-product .bu-detail-tier {
+    grid-area: tier !important;
+    align-self: start !important;
+    justify-self: start !important;
+    width: fit-content !important;
+    padding: 4px 9px !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+
+  .bu-details-product .bu-details-price {
+    grid-area: price !important;
+    justify-self: end !important;
+    align-self: center !important;
+    max-width: 112px !important;
+    margin: 0 !important;
+    font-size: clamp(14px, 4vw, 19px) !important;
+    line-height: 1.2 !important;
+    text-align: right !important;
+  }
+
+  .bu-details-product .bu-details-price-note,
+  .bu-details-product .bu-details-intro {
+    display: none !important;
+  }
+
+  .bu-details-product > .bu-primary-btn {
+    grid-area: cta !important;
+    width: 100% !important;
+    min-height: 36px !important;
+    margin: 3px 0 0 !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+    font-size: 11px !important;
+  }
+
+  .bu-details-close {
+    top: 9px !important;
+    right: 9px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border-radius: 9px !important;
+  }
+
+  .bu-details-close svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  /* Tabs and benefits occupy the remaining viewport */
+  .bu-details-content {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+    padding: 0 11px 11px !important;
+    overflow: hidden !important;
+  }
+
+  .bu-details-tabs {
+    flex: 0 0 auto !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    padding: 9px 0 !important;
+    overflow: visible !important;
+    border-bottom: 1px solid #e8eef6 !important;
+  }
+
+  .bu-details-tabs button {
+    min-height: 34px !important;
+    padding: 8px 12px !important;
+    border-radius: 9px !important;
+    font-size: 10px !important;
+  }
+
+  .bu-details-tab-panel {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    padding: 10px !important;
+    margin-top: 9px !important;
+    overflow: hidden !important;
+    border-radius: 13px !important;
+  }
+
+  .bu-details-tab-panel > div {
+    min-height: 0 !important;
+  }
+
+  .bu-details-content h3 {
+    margin: 0 0 8px !important;
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+  }
+
+  .bu-detail-benefits {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  .bu-detail-benefits li {
+    min-width: 0 !important;
+    gap: 6px !important;
+    padding: 8px !important;
+    border-radius: 10px !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+  }
+
+  .bu-detail-benefits li svg {
+    flex: 0 0 13px !important;
+    width: 13px !important;
+    height: 13px !important;
+    margin-top: 1px !important;
+  }
+
+  .bu-detail-benefits li strong {
+    display: block !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+  }
+
+  .bu-detail-benefits li p {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+    margin: 3px 0 0 !important;
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Show a concise preview on phones; full details remain in About/desktop. */
+  .bu-detail-benefits li:nth-child(n + 5) {
+    display: none !important;
+  }
+
+  .bu-details-description {
+    display: none !important;
+  }
+
+  /* Keep the About tab contained within the same screen. */
+  .bu-details-tab-panel > div > p,
+  .bu-details-tab-panel p {
+    margin-top: 5px !important;
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+  }
+
+  .bu-details-tab-panel h4 {
+    margin: 9px 0 5px !important;
+    font-size: 11px !important;
+  }
+
+  .bu-detail-price-options {
+    gap: 6px !important;
+  }
+
+  .bu-detail-price-options > div {
+    gap: 4px !important;
+    padding: 8px !important;
+  }
+
+  .bu-detail-price-options > div strong {
+    font-size: 9px !important;
+  }
+
+  .bu-detail-price-options > div span {
+    font-size: 13px !important;
+  }
+}
+
+/* Very short phones: tighten vertical spacing further. */
+@media (max-width: 620px) and (max-height: 700px) {
+  .bu-details-product {
+    gap: 3px 8px !important;
+    padding: 8px 12px !important;
+  }
+
+  .bu-details-product > .bu-primary-btn {
+    min-height: 32px !important;
+    margin-top: 1px !important;
+  }
+
+  .bu-details-tabs {
+    padding: 7px 0 !important;
+  }
+
+  .bu-details-tab-panel {
+    margin-top: 7px !important;
+    padding: 8px !important;
+  }
+
+  .bu-detail-benefits {
+    gap: 5px !important;
+  }
+
+  .bu-detail-benefits li {
+    padding: 6px !important;
+  }
+}
+/* FIX: MOBILE PRICE ALIGNMENT */
+@media (max-width: 850px) {
+
+  .bu-details-product {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .bu-details-product .bu-details-price {
+    display: block !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+
+    font-size: clamp(23px, 6.5vw, 32px) !important;
+    line-height: 1.2 !important;
+
+    text-align: center !important;
+    margin: 8px auto !important;
+  }
+
+  .bu-details-product .bu-details-price-note {
+    width: 100% !important;
+    text-align: center !important;
+  }
+}
+
+
+/* ==========================================
+   MOBILE PRODUCT MODAL - SHOW ALL BENEFITS
+========================================== */
+
+@media (max-width: 620px) {
+
+  /* Allow the complete modal to expand and scroll naturally */
+  .bu-details-backdrop {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .bu-details-modal {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Keep the product header compact */
+  .bu-details-product {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Let all tab content display */
+  .bu-details-content {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 12px !important;
+  }
+
+  .bu-details-tabs {
+    flex-shrink: 0 !important;
+  }
+
+  .bu-details-tab-panel {
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 16px !important;
+  }
+
+  /* Display EVERY benefit - no four-card limit */
+  .bu-detail-benefits {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .bu-detail-benefits li,
+  .bu-detail-benefits li:nth-child(n + 5) {
+    display: flex !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 13px !important;
+    font-size: 12px !important;
+    line-height: 1.6 !important;
+  }
+
+  .bu-detail-benefits li p {
+    display: block !important;
+    overflow: visible !important;
+    -webkit-line-clamp: unset !important;
+    font-size: 11px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Restore full descriptions */
+  .bu-details-description {
+    display: block !important;
+  }
+
+  /* Correct mobile price alignment */
+  .bu-details-product .bu-details-price {
+    width: auto !important;
+    max-width: 112px !important;
+    white-space: normal !important;
+    text-align: right !important;
+    margin: 0 !important;
+    font-size: clamp(14px, 4vw, 19px) !important;
+  }
+}
+/* Compact checkout page spacing */
+.bu-plans-page.bu-checkout-view .bu-catalogue {
+  padding-top: 35px !important;
+  padding-bottom: 30px !important;
+  min-height: auto !important;
 }

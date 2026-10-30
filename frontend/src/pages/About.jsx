@@ -417,11 +417,11 @@ export default function About() {
       >
         <div className="ba-container ba-stat-box ba-reveal">
           <div>
-            <strong>18</strong>
+            <strong>34</strong>
             <span>OTT Listings</span>
           </div>
           <div>
-            <strong>12</strong>
+            <strong>18</strong>
             <span>AI Tool Listings</span>
           </div>
           <div>

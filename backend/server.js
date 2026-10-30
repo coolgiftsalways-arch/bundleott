@@ -65,13 +65,12 @@ app.use(helmet());
 
 // CORS configuration
 const allowedOrigins = [
+  "http://localhost:5000",
+  "http://127.0.0.1:5000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
   "https://bundleupott.com",
   "https://www.bundleupott.com",
-  "http://localhost:5173",
-  ...(process.env.FRONTEND_URL || "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean),
 ];
 
 app.use(

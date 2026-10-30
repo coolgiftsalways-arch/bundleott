@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
+
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "../Style/OurPlans.css";
@@ -72,7 +73,7 @@ const USD_INR_REFERENCE = 94.9601;
 
 const CLOUD_OFFER = {
   id: "bundleupott-cloud-250gb",
-  name: "250 GB Cloud Storage",
+  name: "250 GB Google Drive Cloud Storage",
   storageGB: 250,
   price: 149,
   originalPrice: 499,
@@ -498,7 +499,7 @@ const amount = offerPrice.amount;
           onClick={() => onOpen(plan)}
         >
           <Icon name="eye" size={15} />
-          See what you'll get
+          See benefits
           <Icon name="arrow" size={14} />
         </button>
       </div>
@@ -945,8 +946,9 @@ function CustomerForm({
                     setForm({ ...form, consent: e.target.checked })
                   }
                 />
-                I agree to be contacted about my selected subscriptions.
+                I agree to be contacted about my selected subscriptions and accept BundleUpOtt’s Terms and Conditions.
               </label>
+              
 
               {(checkoutError || error) && (
   <p className="bu-form-error" role="alert">
@@ -977,6 +979,16 @@ export default function OurPlans() {
   const rootRef = useRef(null);
   const [searchParams] = useSearchParams();
 
+    useEffect(() => {
+    window.history.scrollRestoration = "manual";
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant",
+    });
+  }, []);
+  
   const [group, setGroup] = useState("all");
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
@@ -1624,13 +1636,13 @@ const uniquePlans = [
                     : `${isEstimated ? "≈" : ""}${INR.format(Math.round(amount))}`}
                 </strong>
 
-                <small>
+                {/* <small>
                   {unknownCount > 0
                     ? `${unknownCount} plan(s) need a price quote and are excluded from this estimate.`
                     : isEstimated
                       ? "Approximate INR / monthly equivalent only. USD conversions, annual billing and provider taxes may change actual prices."
                       : "Reference INR monthly prices. Final eligible pricing must be verified."}
-                </small>
+                </small> */}
               </div>
 
               <button
