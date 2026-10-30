@@ -6,6 +6,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "../Style/OurPlans.css";
 import PaymentStep from "../components/PaymentStep";
 import { SUBSCRIPTION_CATALOGUE } from "../data/subscriptionCatalogue";
+import {
+  getInrProductDetails,
+} from "../data/bundleottInrProductDetails";
 
 import {
   EFFECTIVE_PRICE_OVERRIDES,
@@ -330,52 +333,45 @@ function Logo({ plan, large = false }) {
     </span>
   );
 }
+function benefitsFor(plan, detail) {
+  if (detail) {
+    return [
+      ...(detail.whatYouGet || []).map((text, index) => ({
+        title: index === 0
+          ? "What this tier includes"
+          : "More included benefits",
+        text,
+      })),
 
-function benefitsFor(plan) {
-  const featureItems = String(plan.features || "")
-    .split(/\s*;\s*/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+      ...(detail.limitations || []).map((text) => ({
+        title: "Usage and limitations",
+        text,
+      })),
 
-  const entries = featureItems.map((text, index) => ({
-    title: index === 0 ? "What this tier includes" : "More included benefits",
-    text,
-    icon: "spark",
-  }));
+      ...(detail.deviceAccess || []).map((text) => ({
+        title: "Devices and account access",
+        text,
+      })),
 
-  if (plan.limits) {
-    entries.push({
-      title: "Usage and limitations",
-      text: plan.limits,
-      icon: "bolt",
-    });
+      ...(detail.importantNotes || []).map((text) => ({
+        title: "Important plan notes",
+        text,
+      })),
+    ];
   }
 
-  if (plan.devices) {
-    entries.push({
-      title: "Devices and account access",
-      text: plan.devices,
-      icon: "device",
-    });
-  }
+  // Keep the existing catalogue information as fallback.
+  return [
+    ...(String(plan.features || "")
+      .split(/\s*;\s*/)
+      .filter(Boolean)
+      .map((text) => ({ title: "Included benefits", text }))),
 
-  if (plan.useCase) {
-    entries.push({
-      title: "Ideal for",
-      text: plan.useCase,
-      icon: "check",
-    });
-  }
-
-  if (plan.note) {
-    entries.push({
-      title: "Important plan notes",
-      text: plan.note,
-      icon: "info",
-    });
-  }
-
-  return entries;
+    ...(plan.limits ? [{ title: "Usage and limitations", text: plan.limits }] : []),
+    ...(plan.devices ? [{ title: "Device access", text: plan.devices }] : []),
+    ...(plan.useCase ? [{ title: "Ideal for", text: plan.useCase }] : []),
+    ...(plan.note ? [{ title: "Important notes", text: plan.note }] : []),
+  ];
 }
 
 function SubscriptionCard({
@@ -623,13 +619,13 @@ function DetailsModal({ plan, selected, onClose, onToggle }) {
   useModalLock(onClose);
   useEffect(() => closeRef.current?.focus(), []);
 
-  const benefits = benefitsFor(plan);
+ const detail = getInrProductDetails(plan.id);
+const benefits = benefitsFor(plan, detail);
 
   const tabs = [
     ["benefits", "What you will get"],
     ["about", "About"],
-    ["steps", "How it works"],
-    ["faq", "FAQ"],
+    
   ];
 
   return createPortal(
@@ -709,17 +705,17 @@ function DetailsModal({ plan, selected, onClose, onToggle }) {
               <div>
                 <h3>Included benefits</h3>
                 <ul className="bu-detail-benefits">
-                  {(Array.isArray(benefits) ? benefits : []).map(
-                    (benefit, index) => (
-                      <li key={`${String(benefit)}-${index}`}>
-                        <Icon name="check" size={17} />
-                        {typeof benefit === "string"
-                          ? benefit
-                          : benefit.label || benefit.title || ""}
-                      </li>
-                    )
-                  )}
-                </ul>
+  {benefits.map((benefit, index) => (
+    <li key={`${benefit.title}-${index}`}>
+      <Icon name="check" size={17} />
+
+      <div>
+        <strong>{benefit.title}</strong>
+        <p>{benefit.text}</p>
+      </div>
+    </li>
+  ))}
+</ul>
 
                 {plan.features && (
                   <p className="bu-details-description">
@@ -730,66 +726,52 @@ function DetailsModal({ plan, selected, onClose, onToggle }) {
             )}
 
             {tab === "about" && (
-              <div>
-                <h3>About {plan.brand}</h3>
-                <p>
-                  {plan.description ||
-                    plan.useCase ||
-                    plan.features ||
-                    `Explore the available ${plan.brand} subscription details.`}
-                </p>
-                <p>
-                  Plan features, device limits, availability, and subscription
-                  terms depend on the selected plan and provider.
-                </p>
-              </div>
-            )}
+  <div>
+    <h3>About {plan.brand}</h3>
 
-            {tab === "steps" && (
-              <div>
-                <h3>How it works</h3>
-                <ol className="bu-detail-steps">
-                  <li>Select the subscription you want.</li>
-                  <li>Review your bundle and provide your contact details.</li>
-                  <li>Continue to checkout to request a payment QR code.</li>
-                  <li>
-                    Complete payment and wait for confirmation before assuming
-                    the order is active.
-                  </li>
-                </ol>
-              </div>
-            )}
+    <p>
+      {detail?.about ||
+        plan.description ||
+        plan.useCase ||
+        plan.features}
+    </p>
 
-            {tab === "faq" && (
-              <div>
-                <h3>Frequently asked questions</h3>
+    {detail && (
+      <>
+        <h4>Plan information</h4>
 
-                <details>
-                  <summary>Can I choose multiple subscriptions?</summary>
-                  <p>
-                    Yes. Select the subscriptions you want in your bundle.
-                    The final payable amount must be confirmed by the server.
-                  </p>
-                </details>
+        <p><strong>Plan:</strong> {detail.title}</p>
+        <p><strong>Billing:</strong> {detail.billing}</p>
+        <p><strong>Reference price:</strong> {detail.advertisedRealPrice}</p>
+        <p><strong>Monthly reference:</strong> {detail.monthlyReference}</p>
 
-                <details>
-                  <summary>When will my subscription be activated?</summary>
-                  <p>
-                    Activation depends on successful payment verification and
-                    fulfillment of the order.
-                  </p>
-                </details>
+        {detail.source && (
+          <p>
+            <strong>Source:</strong>{" "}
+            <a href={detail.source} target="_blank" rel="noreferrer">
+              View provider information
+            </a>
+          </p>
+        )}
 
-                <details>
-                  <summary>Is the displayed price final?</summary>
-                  <p>
-                    Displayed prices are estimates until the checkout server
-                    confirms the payable amount.
-                  </p>
-                </details>
-              </div>
-            )}
-          </div>
+        {Object.keys(detail.offers || {}).length > 0 && (
+          <>
+            <h4>Bundle price options</h4>
+
+            <div className="bu-detail-price-options">
+              {Object.entries(detail.offers).map(([months, price]) => (
+                <div key={months}>
+                  <strong>{months} month(s)</strong>
+                  <span>{price}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </>
+    )}
+  </div>
+)}         </div>
         </div>
       </div>
     </div>,

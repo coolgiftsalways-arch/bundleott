@@ -11,6 +11,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
+import WhatsAppFloat from "./components/WhatsAppFloat";
+
 // ========================================
 // WEBSITE PAGES
 // ========================================
@@ -26,6 +28,7 @@ import About from "./pages/About";
 import AdminDashboard from "./Admin/AdminDashboard";
 import AdminLogin from "./Admin/AdminLogin";
 import AdminProtectedRoute from "./Admin/AdminProtectedRoute";
+
 
 // ========================================
 // SCROLL TO TOP ON PAGE CHANGE
@@ -148,6 +151,9 @@ export default function App() {
           element={<Navigate to="/" replace />}
         />
       </Routes>
+
+            {/* FLOATING WHATSAPP BUTTON */}
+      {!isAdminPage && <WhatsAppFloat />}
 
       {/* WEBSITE FOOTER */}
       {!isAdminPage && <Footer />}
