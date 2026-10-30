@@ -534,7 +534,7 @@ function CloudStorageOffer({ onAdd, onDismiss }) {
           <Icon name="cloud" size={43} />
         </span>
         <div>
-          <h4>250 GB Cloud Storage</h4>
+          <h4>250 GB Google Drive Cloud Storage</h4>
           <p>Optional add-on to your custom bundle</p>
         </div>
       </div>
