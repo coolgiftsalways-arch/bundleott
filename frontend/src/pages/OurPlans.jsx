@@ -3,10 +3,13 @@ import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SUBSCRIPTION_CATALOGUE } from "../data/subscriptionCatalogue";
 import "../Style/OurPlans.css";
 import PaymentStep from "../components/PaymentStep";
-import SUBSCRIPTION_OFFERS from "../data/BundleUpOTT_subscriptionOffers.js";
+import { SUBSCRIPTION_CATALOGUE } from "../data/subscriptionCatalogue";
+
+import {
+  EFFECTIVE_PRICE_OVERRIDES,
+} from "../data/BundleUpOTT_effectivePrices.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,12 +19,41 @@ const INR = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
+const OFFER_MONTHS = ["1", "3", "6", "12"];
+
+const PRICED_SUBSCRIPTION_CATALOGUE =
+  SUBSCRIPTION_CATALOGUE.filter((plan) => {
+    const pricing = EFFECTIVE_PRICE_OVERRIDES[String(plan.id)];
+
+    if (
+      pricing?.pricingType !== "subscription" ||
+      pricing.currency !== "INR"
+    ) {
+      return false;
+    }
+
+    return OFFER_MONTHS.every((month) => {
+      const price = pricing.effectivePrices?.[month];
+
+      return (
+        typeof price === "number" &&
+        Number.isFinite(price) &&
+        price > 0
+      );
+    });
+  });
+
 const BY_ID = new Map(
-  SUBSCRIPTION_CATALOGUE.map((plan) => [String(plan.id), plan]),
+  PRICED_SUBSCRIPTION_CATALOGUE.map((plan) => [
+    String(plan.id),
+    plan,
+  ]),
 );
 
 const CATEGORIES = [
-  ...new Set(SUBSCRIPTION_CATALOGUE.map((plan) => plan.category)),
+  ...new Set(
+    PRICED_SUBSCRIPTION_CATALOGUE.map((plan) => plan.category)
+  ),
 ];
 
 const TABS = [
@@ -103,7 +135,7 @@ function groupOf(plan) {
   return "other";
 }
 
-const COUNTS = SUBSCRIPTION_CATALOGUE.reduce(
+const COUNTS = PRICED_SUBSCRIPTION_CATALOGUE.reduce(
   (acc, plan) => {
     acc.all++;
     acc[groupOf(plan)]++;
@@ -112,101 +144,11 @@ const COUNTS = SUBSCRIPTION_CATALOGUE.reduce(
   { all: 0, ott: 0, ai: 0, creator: 0, other: 0 },
 );
 
-function getPriceInfo(plan) {
-  const raw = String(plan.price || "");
-  const billing = String(plan.billing || "");
 
-  const exact = raw.match(/^₹([\d,]+(?:\.\d+)?)\/month$/i);
+function getOriginalMonthlyPrice(plan) {
+  const pricing = EFFECTIVE_PRICE_OVERRIDES[String(plan.id)];
 
-  if (exact && billing.toLowerCase() === "monthly") {
-    const amount = Number(exact[1].replaceAll(",", ""));
-
-    return {
-      amount,
-      display: `${INR.format(amount)}/month`,
-      estimated: false,
-      note: "India price reference",
-    };
-  }
-
-  const inrMonthly = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/*\s*month/i);
-
-  if (inrMonthly) {
-    const amount = Number(inrMonthly[1].replaceAll(",", ""));
-
-    return {
-      amount,
-      display: `≈${INR.format(amount)}/month`,
-      estimated: true,
-      note: "India reference; verify current checkout",
-    };
-  }
-
-  const inrYear = raw.match(/₹([\d,]+(?:\.\d+)?)\s*\/*\s*year/i);
-
-  if (inrYear) {
-    const year = Number(inrYear[1].replaceAll(",", ""));
-
-    return {
-      amount: year / 12,
-      display: `≈${INR.format(Math.round(year / 12))}/mo equivalent`,
-      estimated: true,
-      note: `${INR.format(year)} billed yearly`,
-    };
-  }
-
-  const usdMonthly = raw.match(
-    /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/*\s*month/i,
-  );
-
-  if (usdMonthly) {
-    const usd = Number(usdMonthly[1].replaceAll(",", ""));
-    const amount = usd * USD_INR_REFERENCE;
-
-    const annualEquivalent =
-      /annual|year|equivalent|billed/i.test(billing) &&
-      !/^monthly$/i.test(billing);
-
-    return {
-      amount,
-      display: `≈${INR.format(Math.round(amount))}/${annualEquivalent ? "mo equivalent" : "month"}`,
-      estimated: true,
-      note: annualEquivalent
-        ? "Converted USD reference; annual/other billing may apply"
-        : "Converted USD reference; taxes and FX may differ",
-    };
-  }
-
-  const usdYear = raw.match(
-    /(?:US\$|\$)\s*([\d,]+(?:\.\d+)?)\s*\/*\s*year/i,
-  );
-
-  if (usdYear) {
-    const annualUsd = Number(usdYear[1].replaceAll(",", ""));
-    const amount = (annualUsd * USD_INR_REFERENCE) / 12;
-
-    return {
-      amount,
-      display: `≈${INR.format(Math.round(amount))}/mo equivalent`,
-      estimated: true,
-      note: "Converted from annual USD reference; billed yearly",
-    };
-  }
-
-  return {
-    amount: null,
-    display: "₹— · price on request",
-    estimated: true,
-    note: "Current INR price must be confirmed with provider",
-  };
-}
-
-function getOfferAmount(plan, months) {
-  const offer = SUBSCRIPTION_OFFERS[String(plan.id)];
-  const raw = offer?.offers?.[String(months)];
-
-  // "Verify" and other non-numeric prices are unavailable.
-  const match = String(raw ?? "").match(
+  const match = String(pricing?.monthlyReference ?? "").match(
     /₹\s*([\d,]+(?:\.\d{1,2})?)/
   );
 
@@ -219,30 +161,59 @@ function getOfferAmount(plan, months) {
     : null;
 }
 
-function domainOf(plan) {
-  const brand = plan.brand.toLowerCase();
+function getPriceInfo(plan) {
+  const amount = getOriginalMonthlyPrice(plan);
 
-  const domains = [
-    ["chatgpt", "chatgpt.com"],
-    ["gemini", "gemini.google.com"],
-    ["claude", "claude.ai"],
-    ["perplexity", "perplexity.ai"],
-    ["netflix", "netflix.com"],
-    ["jiohotstar", "jiohotstar.com"],
-    ["amazon prime", "primevideo.com"],
-    ["sonyliv", "sonyliv.com"],
-    ["zee5", "zee5.com"],
-    ["spotify", "spotify.com"],
-    ["youtube", "youtube.com"],
-    ["canva", "canva.com"],
-    ["adobe", "adobe.com"],
-    ["midjourney", "midjourney.com"],
-    ["runway", "runwayml.com"],
-    ["apple", "apple.com"],
-  ];
-
-  return domains.find(([key]) => brand.includes(key))?.[1] || "";
+  return {
+    amount,
+    display:
+      amount === null
+        ? "Price unavailable"
+        : `${INR.format(amount)}/month`,
+    estimated: false,
+    note: "Original monthly reference price",
+  };
 }
+
+function getOfferPriceInfo(plan, months) {
+  const pricing = EFFECTIVE_PRICE_OVERRIDES[String(plan.id)];
+
+  const key = String(months);
+
+  const amount = pricing?.effectivePrices?.[key];
+
+  const monthlyReference = getOriginalMonthlyPrice(plan);
+
+  if (
+    typeof amount !== "number" ||
+    !Number.isFinite(amount) ||
+    amount <= 0 ||
+    monthlyReference === null
+  ) {
+    return {
+      amount: null,
+      originalAmount: null,
+      approximate: false,
+      savingsPercent: null,
+    };
+  }
+
+  const originalAmount = monthlyReference * Number(key);
+
+  return {
+    amount,
+    originalAmount,
+    approximate: false,
+    savingsPercent: Math.round(
+      ((originalAmount - amount) / originalAmount) * 100
+    ),
+  };
+}
+
+function getOfferAmount(plan, months) {
+  return getOfferPriceInfo(plan, months).amount;
+}
+
 
 function Icon({ name = "spark", size = 20 }) {
   const paths = {
@@ -314,6 +285,28 @@ function Icon({ name = "spark", size = 20 }) {
       {paths[name] || paths.spark}
     </svg>
   );
+}
+
+function domainOf(plan) {
+  const raw =
+    plan?.domain ||
+    plan?.websiteDomain ||
+    plan?.website ||
+    "";
+
+  if (typeof raw !== "string" || !raw.trim()) {
+    return null;
+  }
+
+  try {
+    const url = /^[a-z][a-z\d+.-]*:\/\//i.test(raw)
+      ? raw
+      : `https://${raw}`;
+
+    return new URL(url).hostname.replace(/^www\./i, "");
+  } catch {
+    return null;
+  }
 }
 
 function Logo({ plan, large = false }) {
@@ -443,7 +436,8 @@ function SubscriptionCard({
 
           <div className="bu-card-offers-grid">
             {durations.map(({ months, label }) => {
-              const amount = getOfferAmount(plan, months);
+              const offerPrice = getOfferPriceInfo(plan, months);
+const amount = offerPrice.amount;
 
               const isChosen =
                 selected &&
@@ -467,11 +461,25 @@ function SubscriptionCard({
                 >
                   <span>{label}</span>
 
-                  <strong>
-                    {amount === null
-                      ? "Verify price"
-                      : INR.format(amount)}
-                  </strong>
+                  <div className="bu-offer-pricing">
+  {amount === null ? (
+    <strong>Unavailable</strong>
+  ) : (
+    <>
+      <del>
+        {INR.format(offerPrice.originalAmount)}
+      </del>
+
+      <strong className="bu-offer-sale-price">
+        {INR.format(offerPrice.amount)}
+      </strong>
+
+      <small className="bu-offer-saving">
+        Save {offerPrice.savingsPercent}%
+      </small>
+    </>
+  )}
+</div>
 
                   <small>
                     {amount === null
@@ -1101,7 +1109,7 @@ const isEstimated = true;
 
   const results = useMemo(
     () =>
-      SUBSCRIPTION_CATALOGUE.filter((plan) => {
+      PRICED_SUBSCRIPTION_CATALOGUE.filter((plan) => {
         if (group !== "all" && groupOf(plan) !== group) return false;
         if (category !== "all" && plan.category !== category) return false;
 
@@ -1211,8 +1219,8 @@ const isEstimated = true;
 
     // Automatically map each frontend catalogue entry to the backend.
 const unpricedPlans = selected.filter((plan) => {
-  const amount = getPriceInfo(plan).amount;
-  return !Number.isFinite(amount) || amount <= 0;
+  const months = selectedDurations[String(plan.id)] || "1";
+  return getOfferPriceInfo(plan, months).amount === null;
 });
 
 if (unpricedPlans.length > 0) {
@@ -1230,6 +1238,7 @@ if (unpricedPlans.length > 0) {
 const mappedPlans = selected.map((plan) => ({
   id: `sub_${String(plan.id)}`,
   name: `${plan.brand} ${plan.tier}`,
+  months: Number(selectedDurations[String(plan.id)] || "1"),
 }));
 
 const uniquePlans = [

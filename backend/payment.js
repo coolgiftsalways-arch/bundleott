@@ -227,9 +227,18 @@ router.get("/catalog", (req, res) => res.json({ success: true, plans: PUBLIC_CAT
 
 
 function buildPricingQuote(input = {}) {
-  const { planId, planIds } = input;
-  const isBundle = Array.isArray(planIds);
-  const bundle = isBundle ? quoteBundle(planIds) : null;
+    const { planId, planIds } = input;
+
+  const bundleSelections = Array.isArray(input.selections)
+    ? input.selections
+    : planIds;
+
+  const isBundle = Array.isArray(bundleSelections);
+
+  const bundle = isBundle
+    ? quoteBundle(bundleSelections)
+    : null;
+
 
   if (
     (isBundle && !bundle) ||
@@ -494,10 +503,14 @@ return res.status(201).json({
   razorpayPaymentLinkId: paymentLink.id,
 });
   } catch (error) {
-    console.error("Create order error:", error.message);
-    return res.status(500).json({ message: "Unable to create payment order" });
+  console.error("CREATE ORDER ERROR:", error);
+
+  return res.status(500).json({
+    success: false,
+    message: "Unable to create payment order",
+  });
   }
-});
+  });
 
 router.get("/orders/:orderId/status", publicLimit, async (req, res) => {
   try {

@@ -2050,4 +2050,315 @@ export const SUBSCRIPTION_OFFERS = {
   },
 };
 
+
+const BUNDLEUPOTT_PRICE_PATCH = {
+  "37": {
+    tier: "Starter",
+    billing: "Monthly",
+    advertisedRealPrice: "US$6/month Starter; Creator US$22/month; Pro US$99/month",
+    monthlyReference: "US$6/month",
+    pricingNote: "Starter reference only. Creator and Pro have separate prices.",
+    pricingSource: "https://elevenlabs.io/pricing",
+    offers: ["US$5.70", "US$16.20", "US$30.60", "US$54.00"]
+  },
+
+  "59": {
+    tier: "Additional App Store tier",
+    monthlyReference: "From ₹299/month",
+    advertisedRealPrice: "Additional India App Store tiers from ₹299; exact SKU varies",
+    pricingNote: "Starting-price reference; confirm the exact tier.",
+    pricingSource: "https://apps.apple.com/in/app/crunchyroll/id329913454",
+    offers: ["₹284", "₹807", "₹1,525", "₹2,691"]
+  },
+
+  "63": {
+    tier: "Premium 4K",
+    billing: "Monthly reference",
+    monthlyReference: "₹299/month",
+    advertisedRealPrice: "₹299 for the 1-month Premium 4K reference",
+    pricingNote: "Other ZEE5 tiers and billing terms differ.",
+    pricingSource: "https://www.zee5.com/",
+    offers: ["₹284", "₹807", "₹1,525", "₹2,691"]
+  },
+
+  "64": {
+    tier: "Monthly subscription",
+    billing: "Monthly reference",
+    monthlyReference: "₹99/month",
+    advertisedRealPrice: "₹99 monthly reference",
+    pricingNote: "Quarterly and annual provider SKUs differ.",
+    pricingSource: "https://lionsgateplay.com/",
+    offers: ["₹94", "₹267", "₹505", "₹891"]
+  },
+
+  "65": {
+    tier: "Premium Annual",
+    billing: "Annual",
+    monthlyReference: "₹74.92/month",
+    advertisedRealPrice: "₹899/year",
+    pricingNote: "Monthly equivalent calculated from annual reference.",
+    pricingSource: "https://www.sunnxt.com/",
+    offers: ["₹71", "₹202", "₹382", "₹674"]
+  },
+
+  "66": {
+    tier: "Annual Premium",
+    billing: "Annual",
+    monthlyReference: "₹58.25/month",
+    advertisedRealPrice: "₹699/year",
+    pricingNote: "Annual App Store reference; other plans differ.",
+    pricingSource: "https://www.aha.video/",
+    offers: ["₹55", "₹157", "₹297", "₹524"]
+  },
+
+  "76": {
+    tier: "Premium",
+    billing: "Monthly / quarterly / annual",
+    monthlyReference: "₹149/month",
+    advertisedRealPrice: "₹149/month; ₹399/quarter; ₹1,499/year reference",
+    pricingSource: "https://www.airtelxstream.in/",
+    offers: ["₹142", "₹402", "₹760", "₹1,341"]
+  },
+
+  "81": {
+    tier: "Premium Lite",
+    billing: "Monthly",
+    monthlyReference: "₹89/month",
+    advertisedRealPrice: "₹89/month India reference",
+    pricingSource: "https://support.google.com/youtube/answer/15968883?hl=en-IN",
+    offers: ["₹85", "₹240", "₹454", "₹801"]
+  },
+
+  "82": {
+    tier: "Channel membership",
+    billing: "Creator-defined monthly membership",
+    pricingType: "variable",
+    monthlyReference: "From ₹59/month",
+    advertisedRealPrice: "India membership levels start at ₹59/month",
+    pricingNote: "Each creator sets the available membership levels and prices. A particular channel and tier must be selected.",
+    pricingSource: "https://support.google.com/youtube/answer/10120158?co=GENIE.CountryCode%3DIN&hl=en",
+    offers: ["Verify", "Verify", "Verify", "Verify"]
+  },
+
+  "84": {
+    tier: "Pro",
+    billing: "Monthly / annual",
+    monthlyReference: "US$4.50/month",
+    advertisedRealPrice: "US$4.50/month Pro reference",
+    pricingSource: "https://www.tubebuddy.com/pricing/",
+    offers: ["US$4.27", "US$12.15", "US$22.95", "US$40.50"]
+  },
+
+  "86": {
+    tier: "Standard",
+    billing: "Monthly / annual",
+    monthlyReference: "US$19/month",
+    advertisedRealPrice: "US$19/month Standard reference",
+    pricingSource: "https://restream.io/pricing",
+    offers: ["US$18.05", "US$51.30", "US$96.90", "US$171.00"]
+  },
+
+  "97": {
+    tier: "Pro Monthly",
+    billing: "Monthly",
+    monthlyReference: "₹99/month",
+    advertisedRealPrice: "₹99 Pro Monthly App Store reference",
+    pricingSource: "https://apps.apple.com/in/app/jiosaavn-music-podcasts/id441813332",
+    offers: ["₹94", "₹267", "₹505", "₹891"]
+  },
+
+  "118": {
+    tier: "Studio licence (one-time purchase)",
+    billing: "One-time purchase",
+    pricingType: "one_time",
+    monthlyReference: "Not a monthly subscription",
+    advertisedRealPrice: "₹31,980 one-time licence",
+    oneTimeAmount: 31980,
+    pricingNote: "One-time licence; not a recurring subscription.",
+    pricingSource: "https://www.blackmagicdesign.com/in/products/davinciresolve/studio",
+    offers: [
+      "Not a subscription",
+      "Not a subscription",
+      "Not a subscription",
+      "Not a subscription"
+    ]
+  },
+
+  "132": {
+    tier: "Core",
+    billing: "Annual commitment",
+    monthlyReference: "US$16.50/month",
+    advertisedRealPrice: "US$16.50/month equivalent billed annually",
+    pricingSource: "https://elements.envato.com/pricing",
+    offers: ["US$15.68", "US$44.55", "US$84.15", "US$148.50"]
+  },
+
+  "134": {
+    tier: "Premium",
+    billing: "Monthly / annual",
+    monthlyReference: "US$20/month",
+    advertisedRealPrice: "US$20/month Premium reference",
+    pricingSource: "https://www.freepik.com/pricing",
+    offers: ["US$19.00", "US$54.00", "US$102.00", "US$180.00"]
+  },
+
+  "146": {
+    tier: "Plus",
+    billing: "Per seat / month",
+    monthlyReference: "US$10/month",
+    advertisedRealPrice: "US$10 per seat/month Plus",
+    pricingNote: "Per-seat price. Final workspace price depends on seat count.",
+    pricingSource: "https://www.notion.com/pricing",
+    offers: ["US$9.50", "US$27.00", "US$51.00", "US$90.00"]
+  },
+
+  "147": {
+    tier: "Plus individual",
+    billing: "Monthly / annual",
+    monthlyReference: "US$11.99/month",
+    advertisedRealPrice: "US$11.99/month Plus",
+    pricingSource: "https://www.dropbox.com/plans",
+    offers: ["US$11.39", "US$32.37", "US$61.15", "US$107.91"]
+  },
+
+  "148": {
+    tier: "Business Starter",
+    billing: "Per user / month",
+    monthlyReference: "₹193.38/month",
+    advertisedRealPrice: "₹193.38/user/month flexible billing",
+    pricingNote: "Price is per user; annual commitment and taxes differ.",
+    pricingSource: "https://workspace.google.com/intl/en_in/business/",
+    offers: ["₹184", "₹522", "₹986", "₹1,740"]
+  },
+
+  "152": {
+    tier: "Premium Career",
+    billing: "Monthly / annual",
+    monthlyReference: "US$39.99/month",
+    advertisedRealPrice: "US$39.99/month global reference",
+    pricingNote: "Global USD reference only. India checkout may be localised.",
+    pricingSource: "https://premium.linkedin.com/content/lem/premium/us/en/careers/career.html",
+    offers: ["US$37.99", "US$107.97", "US$203.95", "US$359.91"]
+  },
+
+  "155": {
+    tier: "Clean Experience",
+    billing: "Monthly auto-renewal",
+    monthlyReference: "₹39/month",
+    advertisedRealPrice: "₹39/month renewal reference; ₹29 introductory offer",
+    pricingSource: "https://www.moneycontrol.com/promos/pro.php",
+    offers: ["₹37", "₹105", "₹199", "₹351"]
+  },
+
+  "156": {
+    tier: "Digital access",
+    billing: "1-month / 3-month / annual App Store SKUs",
+    monthlyReference: "₹499/month",
+    advertisedRealPrice: "₹499 for 1 month; ₹799 for 3 months; ₹2,399 for 1 year",
+    pricingNote: "The 6-month SKU was not listed. These are specific India App Store products.",
+    pricingSource: "https://apps.apple.com/in/app/the-hindu-india-world-news/id771672321",
+    offers: ["₹499", "₹799", "Not listed by provider", "₹2,399"]
+  },
+
+  "160": {
+    tier: "Deluxe India",
+    billing: "Monthly / quarterly / annual",
+    monthlyReference: "₹1,109/month",
+    advertisedRealPrice: "₹1,109/month; ₹2,989/3 months; ₹9,879/year",
+    pricingSource: "https://www.playstation.com/en-in/ps-plus/",
+    offers: ["₹1,109", "₹2,989", "Not offered by provider", "₹9,879"]
+  },
+
+  "161": {
+    tier: "Monthly India reference",
+    billing: "Monthly / annual",
+    monthlyReference: "₹99/month",
+    advertisedRealPrice: "₹99/month and ₹889/year historical India reference",
+    pricingNote: "Historical launch reference; confirm current Play Store checkout.",
+    pricingSource: "https://play.google.com/store/pass",
+    offers: ["₹94", "₹267", "₹505", "₹891"]
+  },
+
+  "162": {
+    tier: "Essential",
+    billing: "Monthly",
+    monthlyReference: "₹499/month",
+    advertisedRealPrice: "₹499 Essential; ₹699 Premium; ₹1,089 Ultimate reference",
+    pricingSource: "https://www.xbox.com/en-IN/xbox-game-pass",
+    offers: ["₹474", "₹1,347", "₹2,545", "₹4,491"]
+  },
+
+  "164": {
+    tier: "VPN Plus",
+    billing: "Monthly / annual / multi-year",
+    monthlyReference: "US$9.99/month",
+    advertisedRealPrice: "US$9.99/month standard reference",
+    pricingSource: "https://protonvpn.com/pricing",
+    offers: ["US$9.49", "US$26.97", "US$50.95", "US$89.91"]
+  },
+
+  "166": {
+    tier: "Premium shared hosting (48-month prepaid)",
+    billing: "48-month prepaid; renewal ₹449/month",
+    pricingType: "prepaid",
+    monthlyReference: "₹149/month",
+    advertisedRealPrice: "₹149/month equivalent; ₹7,152 upfront before GST for 48 months",
+    pricingNote: "₹149/month is only the 48-month upfront equivalent. Renewal is ₹449/month before GST. Not a 1/3/6/12-month product.",
+    pricingSource: "https://www.hostinger.com/in/pricing",
+    offers: [
+      "Not offered as one-month billing",
+      "Not offered as three-month billing",
+      "Not offered as six-month billing",
+      "Not offered as twelve-month billing"
+    ]
+  },
+
+  "167": {
+    tier: "Basic Site Plan",
+    billing: "Monthly / annual",
+    monthlyReference: "US$18/month",
+    advertisedRealPrice: "US$18/month month-to-month Basic",
+    pricingSource: "https://webflow.com/pricing",
+    offers: ["US$17.10", "US$48.60", "US$91.80", "US$162.00"]
+  },
+
+  "168": {
+    tier: "Basic Site Plan",
+    billing: "Monthly / annual",
+    monthlyReference: "US$15/month",
+    advertisedRealPrice: "US$15/month month-to-month Basic",
+    pricingSource: "https://www.framer.com/pricing",
+    offers: ["US$14.25", "US$40.50", "US$76.50", "US$135.00"]
+  },
+
+  "169": {
+    tier: "Ultra",
+    billing: "Monthly / annual",
+    monthlyReference: "US$27/month",
+    advertisedRealPrice: "US$27/month or US$189/year",
+    pricingSource: "https://streamlabs.com/faq",
+    offers: ["US$25.65", "US$72.90", "US$137.70", "US$243.00"]
+  }
+};
+
+const BUNDLEUPOTT_MONTHS = ["1", "3", "6", "12"];
+
+for (const [id, update] of Object.entries(BUNDLEUPOTT_PRICE_PATCH)) {
+  if (!SUBSCRIPTION_OFFERS[id]) {
+    throw new Error(`Subscription offer ID ${id} is missing.`);
+  }
+
+  const { offers, ...details } = update;
+
+  Object.assign(SUBSCRIPTION_OFFERS[id], details);
+
+  SUBSCRIPTION_OFFERS[id].offers = Object.fromEntries(
+    BUNDLEUPOTT_MONTHS.map((month, index) => [
+      month,
+      offers[index]
+    ])
+  );
+}
+
+
 export default SUBSCRIPTION_OFFERS;

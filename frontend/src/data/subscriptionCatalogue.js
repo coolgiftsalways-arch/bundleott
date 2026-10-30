@@ -3049,3 +3049,76 @@ export const BUNDLE_TEMPLATES = [
     items: ["135", "137", "104"],
   },
 ];
+
+/**
+ * Returns detailed information for the Product Details popup.
+ * Uses the existing catalogue data without changing product prices.
+ */
+export function getSubscriptionProductDetails(productOrId) {
+  const product =
+    typeof productOrId === "object" && productOrId !== null
+      ? productOrId
+      : SUBSCRIPTION_CATALOGUE.find(
+          (item) => String(item.id) === String(productOrId)
+        );
+
+  if (!product) return null;
+
+  const splitDetails = (value) => {
+    if (!value || typeof value !== "string") return [];
+
+    return value
+      .split(/;\s*/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  };
+
+  const benefits = splitDetails(product.features);
+  const limitations = splitDetails(product.limits);
+  const devices = splitDetails(product.devices);
+  const notes = splitDetails(product.note);
+
+  return {
+    id: String(product.id),
+    category: product.category,
+    brand: product.brand,
+    tier: product.tier,
+    title: `${product.brand} ${product.tier}`,
+
+    about: product.useCase || "",
+    billing: product.billing || "",
+
+    benefits,
+    limitations,
+    devices,
+    notes,
+
+    howItWorks: [
+      "Select your preferred subscription.",
+      "Choose an available subscription duration.",
+      "Review the product details and complete checkout.",
+      "Follow the activation instructions provided after your order is confirmed."
+    ],
+
+    faqs: [
+      {
+        question: "What benefits are included?",
+        answer: benefits.join(" ") || "Please check the provider's current plan details."
+      },
+      {
+        question: "Are there any limitations?",
+        answer: limitations.join(" ") || "Usage restrictions depend on the provider's plan."
+      },
+      {
+        question: "Which devices are supported?",
+        answer: devices.join(" ") || "Device compatibility depends on the provider."
+      },
+      {
+        question: "How do I activate my subscription?",
+        answer: "Follow the product-specific activation instructions provided after your order is confirmed."
+      }
+    ],
+
+    source: product.source || ""
+  };
+}

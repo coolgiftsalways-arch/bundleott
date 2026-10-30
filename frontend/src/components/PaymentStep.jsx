@@ -54,16 +54,23 @@ export default function PaymentStep({ customer, plans, total }) {
   const [couponMessage, setCouponMessage] = useState('');
   const [couponError, setCouponError] = useState(false);
   const [couponBusy, setCouponBusy] = useState(false);
-
   const autoCreateAttempted = useRef(false);
+
 
   const safePlans = Array.isArray(plans) ? plans : [];
 
-  const planIds = safePlans
-    .map((p) => p?.id)
-    .filter(Boolean);
+const selections = safePlans
+  .filter((p) => p?.id)
+  .map((p) => ({
+    id: p.id,
+    months: String(p.months || "1"),
+  }));
 
-  const planKey = planIds.join('|');
+const planIds = selections.map((item) => item.id);
+
+const planKey = selections
+  .map((item) => `${item.id}:${item.months}`)
+  .join("|");
 
   /*
    * ---------------------------------------------------------
@@ -116,8 +123,8 @@ setQrExpired(false);
 setTimeLeft(180);
 setReferenceSent(false);
 setUtr('');
-
-    autoCreateAttempted.current = false;
+autoCreateAttempted.current = false;
+    
   }, [planKey]);
 
   /*
@@ -157,9 +164,10 @@ setUtr('');
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            planIds,
-            couponCode: couponInput.trim(),
-          }),
+  planIds,
+  selections,
+  couponCode: couponInput.trim(),
+}),
         }
       );
 
@@ -237,6 +245,8 @@ setUtr('');
               customer.phone,
 
             planIds,
+            selections,
+
 
             couponCode:
               couponQuote?.couponCode || '',
@@ -258,13 +268,8 @@ setUtr('');
 setOrderStatus(data.order.status || 'pending');
 
 setQrExpired(false);
-setQrExpiresAt(
-  data.qrCode
-    ? Date.now() + 3 * 60 * 1000
-    : null
-);
-setTimeLeft(data.qrCode ? 180 : 0);
-
+setQrExpiresAt(null);
+setTimeLeft(0);
 setReferenceSent(false);
 setUtr('');
     } catch (err) {
@@ -285,38 +290,31 @@ setUtr('');
     }
   }
 
-  /*
-   * ---------------------------------------------------------
-   * AUTOMATIC ORDER CREATION
-   * ---------------------------------------------------------
-   */
   useEffect(() => {
-    if (
-      connection !== 'connected' ||
-      !customer?.fullName ||
-      !customer?.email ||
-      !safePlans.length ||
-      orderData ||
-      busy ||
-      autoCreateAttempted.current
-    ) {
-      return;
-    }
+  if (
+    connection !== 'connected' ||
+    !customer?.fullName ||
+    !customer?.email ||
+    !safePlans.length ||
+    orderData ||
+    busy ||
+    autoCreateAttempted.current
+  ) {
+    return;
+  }
 
-    autoCreateAttempted.current = true;
+  autoCreateAttempted.current = true;
+  createOrder();
 
-    createOrder();
-  }, [
-    connection,
-    planKey,
-    customer?.email,
-  ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [
+  connection,
+  planKey,
+  customer?.email,
+  customer?.fullName,
+]);
 
-  /*
-   * ---------------------------------------------------------
-   * ORDER INFORMATION
-   * ---------------------------------------------------------
-   */
+  
   const id = orderData?.order?.orderId;
   const token = orderData?.accessToken;
 
@@ -505,182 +503,14 @@ setUtr('');
         </strong>
       </p>
 
-      {!orderData && (
-        <>
-          {/* COUPON FORM */}
-
-          <form
-            className="bup-coupon-form"
-            onSubmit={applyCoupon}
-          >
-            <label htmlFor="bup-coupon-code">
-              Coupon code
-            </label>
-
-            <input
-              id="bup-coupon-code"
-              value={couponInput}
-              onChange={(event) => {
-                setCouponInput(
-                  event.target.value
-                );
-
-                setCouponQuote(null);
-                setCouponMessage('');
-                setCouponError(false);
-              }}
-              maxLength={30}
-              autoComplete="off"
-              placeholder="Enter coupon code"
-              disabled={
-                couponBusy || busy
-              }
-            />
-
-            <button
-              type="submit"
-              disabled={
-                couponBusy ||
-                busy ||
-                connection !==
-                  'connected'
-              }
-            >
-              {couponBusy
-                ? 'Checking…'
-                : 'Apply coupon'}
-            </button>
-          </form>
-
-          {/* COUPON MESSAGE */}
-
-          {couponMessage && (
-            <p
-              role={
-                couponError
-                  ? 'alert'
-                  : 'status'
-              }
-              className={
-                couponError
-                  ? 'bup-payment-error'
-                  : 'bup-payment-ok'
-              }
-            >
-              {couponMessage}
-            </p>
-          )}
-
-          {/* COUPON SUMMARY */}
-
-          {couponQuote && (
-            <div
-              className="bup-coupon-summary"
-              aria-live="polite"
-            >
-              <p>
-                <strong>
-                  Item subtotal:
-                </strong>{' '}
-                {CURRENCY.format(
-                  Number(
-                    couponQuote.subtotal
-                  )
-                )}
-              </p>
-
-              {Number(
-                couponQuote.discount
-              ) > 0 && (
-                <p>
-                  <strong>
-                    Existing bundle
-                    discount:
-                  </strong>{' '}
-                  −
-                  {CURRENCY.format(
-                    Number(
-                      couponQuote.discount
-                    )
-                  )}
-                </p>
-              )}
-
-              <p>
-                <strong>
-                  Price before coupon:
-                </strong>{' '}
-                {CURRENCY.format(
-                  Number(
-                    couponQuote.preCouponAmount
-                  )
-                )}
-              </p>
-
-              <p>
-                <strong>
-                  {
-                    couponQuote.couponCode
-                  }{' '}
-                  discount:
-                </strong>{' '}
-                −
-                {CURRENCY.format(
-                  Number(
-                    couponQuote.couponDiscount
-                  )
-                )}
-              </p>
-
-              <p>
-                <strong>
-                  Final amount:
-                </strong>{' '}
-                {CURRENCY.format(
-                  Number(
-                    couponQuote.amount
-                  )
-                )}
-              </p>
-
-              <p>
-                TEST99 is for testing only
-                and is rejected when the
-                backend runs with
-                NODE_ENV=production.
-              </p>
-            </div>
-          )}
-
-          {/* INFORMATION */}
-
-          <p>
-            Creating an order saves it in
-            MongoDB as pending. Payment is
-            optional while you test; do not
-            send money until catalogue
-            pricing and service fulfilment
-            are approved.
-          </p>
-
-          {/* CREATE ORDER */}
-
-          <button
-            type="button"
-            className="bup-checkout-button"
-            disabled={
-              busy ||
-              connection !==
-                'connected'
-            }
-            onClick={createOrder}
-          >
-            {busy
-              ? 'Creating order…'
-              : 'Create payment order'}
-          </button>
-        </>
-      )}
+      
+          {!orderData && (
+  <div className="bup-payment-preparing" role="status">
+    {connection === "connected"
+      ? "Preparing your payment QR code..."
+      : "Connecting to payment server..."}
+  </div>
+)}
 
       {/* ORDER */}
 

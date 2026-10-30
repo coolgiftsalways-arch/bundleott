@@ -2316,3 +2316,52 @@
   font: inherit;
   cursor: pointer;
 }
+
+
+/* Updated Excel-based duration pricing */
+
+.bu-offer-pricing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.bu-offer-pricing del {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.bu-offer-pricing .bu-offer-sale-price {
+  color: #16896e;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.bu-offer-pricing .bu-offer-saving {
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #e5faf2;
+  color: #16896e;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* Mobile pricing adjustments */
+@media (max-width: 620px) {
+  .bu-offer-pricing .bu-offer-sale-price {
+    font-size: 13px;
+  }
+
+  .bu-offer-pricing del {
+    font-size: 9px;
+  }
+
+  .bu-offer-pricing .bu-offer-saving {
+    font-size: 8px;
+  }
+}
