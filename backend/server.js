@@ -13,18 +13,25 @@ import paymentRoutes from "./payment.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config({
+  path: path.join(__dirname, ".env"),
+});
 
 const app = express();
+
 const PORT = Number(process.env.PORT || 5000);
 
 const frontendDistPath = path.resolve(__dirname, "../frontend/dist");
+
 const frontendIndexPath = path.join(frontendDistPath, "index.html");
 
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
 
-// Validate required environment variables
+// ======================================
+// ENVIRONMENT VALIDATION
+// ======================================
+
 const requiredVariables = [
   "MONGO_URI",
   "WEBHOOK_TOKEN",
@@ -33,6 +40,8 @@ const requiredVariables = [
   "ADMIN_JWT_SECRET",
   "UPI_ID",
   "UPI_NAME",
+  "RAZORPAY_KEY_ID",
+  "RAZORPAY_KEY_SECRET",
 ];
 
 const missing = requiredVariables.filter((name) => {
@@ -48,6 +57,7 @@ const missing = requiredVariables.filter((name) => {
 
 if (missing.length > 0) {
   console.error("Missing environment configuration:", missing.join(", "));
+
   process.exit(1);
 }
 
@@ -60,12 +70,17 @@ if (
   process.exit(1);
 }
 
-// Security headers
+// ======================================
+// SECURITY
+// ======================================
+
 app.use(helmet());
 
-// CORS configuration
+// ======================================
+// CORS CONFIGURATION
+// ======================================
 
-const allowedOrigins = [
+const defaultOrigins = [
   "http://localhost:5000",
   "http://127.0.0.1:5000",
   "http://localhost:5173",
@@ -74,26 +89,58 @@ const allowedOrigins = [
   "https://www.bundleupott.com",
 ];
 
+const environmentOrigins = String(process.env.CLIENT_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [...new Set([...defaultOrigins, ...environmentOrigins])];
+
+console.log("Allowed frontend origins:", allowedOrigins);
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Requests without an Origin header, such as server-to-server requests.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const normalizedOrigin = origin.trim().replace(/\/+$/, "");
+
+      if (allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
 
       console.error("Blocked CORS origin:", origin);
+
       return callback(new Error("Origin not allowed by CORS"));
     },
+
     credentials: true,
+
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
+
+    allowedHeaders: ["Content-Type", "Authorization", "x-order-token"],
+
+    optionsSuccessStatus: 204,
+  }),
 );
 
+// ======================================
+// BODY PARSER
+// ======================================
 
-app.use(express.json({ limit: "64kb" }));
+app.use(
+  express.json({
+    limit: "64kb",
+  }),
+);
 
-// Health check
+// ======================================
+// HEALTH CHECK
+// ======================================
+
 app.get("/health", (req, res) => {
   const connected = mongoose.connection.readyState === 1;
 
@@ -105,7 +152,10 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Payment routes
+// ======================================
+// PAYMENT ROUTES
+// ======================================
+
 app.use("/api/payment", (req, res, next) => {
   console.log("Payment API request:", req.method, req.originalUrl);
 
@@ -118,31 +168,47 @@ app.use("/api/payment", (req, res, next) => {
 
 app.use("/api/payment", paymentRoutes);
 
-// Frontend build diagnostics
+// ======================================
+// FRONTEND BUILD DIAGNOSTICS
+// ======================================
+
 console.log("Runtime directory:", __dirname);
+
 console.log("Frontend dist path:", frontendDistPath);
+
 console.log("Frontend dist exists:", fs.existsSync(frontendDistPath));
+
 console.log("Frontend index exists:", fs.existsSync(frontendIndexPath));
 
 if (fs.existsSync(frontendDistPath)) {
   console.log("Frontend dist contents:", fs.readdirSync(frontendDistPath));
 }
 
-// Log frontend asset requests
+// ======================================
+// FRONTEND ASSETS
+// ======================================
+
 app.use("/assets", (req, res, next) => {
   console.log("Asset request:", req.originalUrl);
+
   next();
 });
 
-// Serve the Vite production build
+// ======================================
+// SERVE REACT BUILD
+// ======================================
+
 app.use(
   express.static(frontendDistPath, {
     index: false,
     fallthrough: true,
-  })
+  }),
 );
 
-// React routes
+// ======================================
+// REACT ROUTES
+// ======================================
+
 app.get(/.*/, (req, res, next) => {
   if (req.path.startsWith("/api/")) {
     return next();
@@ -163,11 +229,16 @@ app.get(/.*/, (req, res, next) => {
   }
 
   res.sendFile(frontendIndexPath, (err) => {
-    if (err) next(err);
+    if (err) {
+      next(err);
+    }
   });
 });
 
-// 404 handler
+// ======================================
+// 404 HANDLER
+// ======================================
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -175,7 +246,10 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// ======================================
+// ERROR HANDLER
+// ======================================
+
 app.use((err, req, res, next) => {
   console.error("Server error:", err.message);
 
@@ -194,6 +268,7 @@ app.use((err, req, res, next) => {
 
   res.status(status).json({
     success: false,
+
     message:
       status === 403
         ? "Request origin not allowed"
@@ -205,7 +280,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+// ======================================
+// START SERVER
+// ======================================
+
 async function startServer() {
   await connectDB();
 
@@ -225,5 +303,6 @@ async function startServer() {
 
 startServer().catch((error) => {
   console.error("Startup failed:", error.message);
+
   process.exit(1);
 });

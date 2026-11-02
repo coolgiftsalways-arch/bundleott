@@ -197,10 +197,7 @@ const footerNavigation = [
   {
     title: "Navigation",
     links: [
-      {
-        name: "Home",
-        path: "/",
-      },
+     
       {
         name: "Our Plans",
         path: "/our-plans",
