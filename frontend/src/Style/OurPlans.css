@@ -1,2718 +1,5306 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap");
 
+
+
 /* bundleupott / OurPlans.css — all 170 plans and large details modal */
+
 .bu-plans-page,
+
 .bu-details-backdrop {
+
      --bu-ink: #182643;
+
      --bu-muted: #74849d;
+
      --bu-line: #e6edf8;
+
      --bu-gradient: linear-gradient(105deg, #408aff 0%, #35a7e9 50%, #25ceb0 100%);
+
      font-family: "Manrope", sans-serif;
+
      color: var(--bu-ink);
+
 }
+
+
 
 .bu-plans-page {
+
      overflow-x: clip;
+
      width: 100%;
+
      background: #fff;
+
 }
+
+
 
 .bu-plans-page *,
+
 .bu-plans-page *::before,
+
 .bu-plans-page *::after,
+
 .bu-details-backdrop *,
+
 .bu-details-backdrop *::before,
+
 .bu-details-backdrop *::after {
+
      box-sizing: border-box;
+
 }
+
+
 
 .bu-plans-page h1,
+
 .bu-plans-page h2,
+
 .bu-plans-page h3,
+
 .bu-details-backdrop h2,
+
 .bu-details-backdrop h3 {
+
      font-family: "Sora", sans-serif;
+
 }
 
+
+
 .bu-plans-page button,
+
 .bu-plans-page input,
+
 .bu-plans-page select,
+
 .bu-details-backdrop button,
+
 .bu-details-backdrop input {
+
      font: inherit;
+
 }
 
+
+
 .bu-plans-page button,
+
 .bu-details-backdrop button {
+
      cursor: pointer;
+
 }
+
+
 
 .bu-plans-page button:disabled,
+
 .bu-details-backdrop button:disabled {
+
      cursor: not-allowed;
+
      opacity: .46;
+
 }
+
+
 
 .bu-plans-page :focus-visible,
+
 .bu-details-backdrop :focus-visible {
+
      outline: 3px solid #61a9ff;
+
      outline-offset: 3px;
+
 }
+
+
 
 .bu-shell {
+
      width: min(92%, 1260px);
+
      margin: auto;
+
 }
+
+
 
 .bu-eyebrow {
+
      color: #398ed7;
+
      font-size: 11px;
+
      font-weight: 800;
+
      letter-spacing: 1.8px;
+
 }
+
+
 
 .bu-primary-btn {
+
      display: inline-flex;
+
      justify-content: center;
+
      align-items: center;
+
      gap: 12px;
+
      min-height: 48px;
+
      padding: 12px 22px;
+
      border: 0;
+
      border-radius: 13px;
+
      color: #fff;
+
      background: var(--bu-gradient);
+
      font-size: 13px !important;
+
      font-weight: 800 !important;
+
      box-shadow: 0 9px 20px #46a8ce2c;
+
      transition: transform .25s, box-shadow .25s;
+
 }
+
+
 
 .bu-primary-btn:hover:not(:disabled) {
+
      transform: translateY(-2px);
+
      box-shadow: 0 13px 28px #46a8ce3d;
+
 }
+
+
 
 /* Hero and visual */
+
 .bu-hero {
+
      position: relative;
+
      overflow: hidden;
+
      background: linear-gradient(116deg, #fbfdff 0%, #f0f9ff 55%, #e9fbf6 100%);
+
      border-bottom: 1px solid #e9f3fa;
+
 }
+
+
 
 .bu-hero-grid {
+
      display: grid;
+
      grid-template-columns: 1.12fr .88fr;
+
      gap: 30px;
+
      min-height: 460px;
+
      align-items: center;
+
      padding: 48px 0;
+
 }
+
+
 
 .bu-hero-copy h1 {
+
      max-width: 710px;
+
      margin: 20px 0;
+
      font-size: clamp(38px, 4.4vw, 61px);
+
      line-height: 1.12;
+
      font-weight: 800;
+
      letter-spacing: -2.6px;
+
 }
+
+
 
 .bu-hero-copy h1 span,
+
 .bu-section-heading h2 span,
+
 .bu-outro h2 span {
+
      background: var(--bu-gradient);
+
      -webkit-background-clip: text;
+
      background-clip: text;
+
      color: transparent;
+
 }
+
+
 
 .bu-hero-copy p {
+
      max-width: 620px;
+
      color: #697c95;
+
      font-size: 14px;
+
      line-height: 1.85;
+
 }
+
+
 
 .bu-hero-copy>button {
+
      margin-top: 14px;
+
 }
+
+
 
 .bu-hero-copy>small {
+
      display: block;
+
      margin-top: 20px;
+
      color: #889aae;
+
      font-size: 10px;
+
      line-height: 1.7;
+
 }
+
+
 
 .bu-pill {
+
      display: inline-flex;
+
      align-items: center;
+
      gap: 8px;
+
      padding: 9px 14px;
+
      border-radius: 50px;
+
      background: #e8f4ff;
+
      color: #438ddd;
+
      font-size: 10px;
+
      font-weight: 800;
+
      letter-spacing: .7px;
+
 }
+
+
 
 .bu-hero-art {
+
      position: relative;
+
      height: 340px;
+
      display: grid;
+
      place-items: center;
+
 }
+
+
 
 .bu-hero-ring {
+
      position: absolute;
+
      width: 300px;
+
      height: 300px;
+
      border: 1px solid #c9e7ff;
+
      border-radius: 50%;
+
 }
+
+
 
 .bu-hero-ring.ring-two {
+
      width: 390px;
+
      height: 390px;
+
      border-style: dashed;
+
      border-color: #b4eae3;
+
 }
+
+
 
 .bu-hero-center {
+
      position: relative;
+
      width: 205px;
+
      height: 205px;
+
      display: flex;
+
      align-items: center;
+
      justify-content: center;
+
      flex-direction: column;
+
      gap: 11px;
+
      border-radius: 44px;
+
      background: var(--bu-gradient);
+
      box-shadow: 0 22px 55px #3699ca47;
+
      color: #fff;
+
      transform: rotate(-6deg);
+
 }
+
+
 
 .bu-hero-center strong {
+
      font: 800 22px "Sora", sans-serif;
+
 }
+
+
 
 .bu-hero-center span {
+
      letter-spacing: 1px;
+
      font-size: 10px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-floating {
+
      position: absolute;
+
      padding: 14px 18px;
+
      background: #fff;
+
      border: 1px solid #e9f0fa;
+
      border-radius: 15px;
+
      box-shadow: 0 12px 30px #5384ad29;
+
      font-size: 13px;
+
      font-weight: 800;
+
      animation: buFloat 3.5s ease-in-out infinite alternate;
+
 }
+
+
 
 .bu-floating-one {
+
      top: 24%;
+
      left: 0;
+
 }
+
+
 
 .bu-floating-two {
+
      bottom: 12%;
+
      right: 0;
+
      animation-delay: 1s;
+
 }
+
+
 
 .bu-metrics {
+
      display: grid;
+
      grid-template-columns: repeat(4, 1fr);
+
      gap: 12px;
+
      padding: 23px 0;
+
      border-top: 1px solid #dcebf4;
+
 }
+
+
 
 .bu-metrics span {
+
      display: flex;
+
      align-items: center;
+
      gap: 9px;
+
      color: #6d8099;
+
      font-size: 11px;
+
      font-weight: 700;
+
 }
+
+
 
 .bu-metrics strong {
+
      color: #348fe2;
+
      font: 800 23px "Sora", sans-serif;
+
 }
+
+
 
 /* Catalogue title and filters */
+
 .bu-catalogue {
+
      padding: 75px 0 100px;
+
      background: linear-gradient(180deg, #f7fbff 0%, #f7fdfa 100%);
+
      scroll-margin-top: 95px;
+
 }
+
+
 
 .bu-section-heading {
+
      margin-bottom: 32px;
+
 }
+
+
 
 .bu-section-heading h2 {
+
      margin: 16px 0;
+
      font-size: clamp(31px, 3.5vw, 49px);
+
      line-height: 1.18;
+
      letter-spacing: -1.6px;
+
 }
+
+
 
 .bu-section-heading>p {
+
      max-width: 790px;
+
      color: #70829a;
+
      font-size: 13px;
+
      line-height: 1.8;
+
 }
+
+
 
 .bu-refund-note {
+
      display: flex;
+
      align-items: flex-start;
+
      gap: 13px;
+
      max-width: 960px;
+
      padding: 15px 19px;
+
      margin-top: 24px;
+
      border-radius: 14px;
+
      border: 1px solid #bdebd9;
+
      background: linear-gradient(100deg, #e9fbf4, #eff9ff);
+
      color: #207d6d;
+
      font-size: 12px;
+
      line-height: 1.8;
+
 }
+
+
 
 .bu-refund-note>svg {
+
      flex-shrink: 0;
+
      margin-top: 2px;
+
 }
+
+
 
 .bu-toolbar {
+
      padding: 21px;
+
      margin-bottom: 27px;
+
      border: 1px solid #e7edf8;
+
      border-radius: 22px;
+
      background: #fff;
+
 }
+
+
 
 .bu-tabs {
+
      display: flex;
+
      align-items: center;
+
      gap: 13px;
+
      overflow-x: auto;
+
      padding: 2px 2px 20px;
+
      border-bottom: 1px solid #e8eef6;
+
      scrollbar-width: thin;
+
 }
+
+
 
 .bu-tabs button {
+
      flex: 0 0 auto;
+
      display: inline-flex;
+
      align-items: center;
+
      gap: 12px;
+
      min-height: 54px;
+
      padding: 10px 16px;
+
      border-radius: 13px;
+
      border: 1px solid #e2eaf6;
+
      background: #fff;
+
      color: #5d6f8a;
+
      font-size: 12px;
+
      font-weight: 800;
+
      white-space: nowrap;
+
      transition: .2s;
+
 }
+
+
 
 .bu-tabs button:hover {
+
      border-color: #b6e3f8;
+
      transform: translateY(-2px);
+
 }
+
+
 
 .bu-tabs button.is-active {
+
      border-color: transparent;
+
      background: var(--bu-gradient);
+
      color: #fff;
+
      box-shadow: 0 8px 19px #54a8d338;
+
 }
+
+
 
 .bu-tabs b {
+
      display: grid;
+
      min-width: 31px;
+
      height: 27px;
+
      padding: 0 6px;
+
      place-items: center;
+
      border-radius: 8px;
+
      color: #318dde;
+
      background: #e9f5ff;
+
      font-size: 11px;
+
 }
+
+
 
 .bu-tabs button.is-active b {
+
      color: #318bd7;
+
      background: #fff;
+
 }
+
+
 
 .bu-filter-controls {
+
      display: flex;
+
      gap: 16px;
+
      align-items: end;
+
      margin-top: 18px;
+
 }
+
+
 
 .bu-search {
+
      flex: 1;
+
      min-height: 45px;
+
      display: flex;
+
      align-items: center;
+
      gap: 10px;
+
      padding: 0 15px;
+
      border: 1px solid #e0eaf6;
+
      border-radius: 12px;
+
      color: #478dc5;
+
      background: #fbfdff;
+
 }
+
+
 
 .bu-search input {
+
      width: 100%;
+
      min-width: 0;
+
      border: none;
+
      outline: none;
+
      background: none;
+
      color: #263856;
+
      font-size: 12px;
+
 }
+
+
 
 .bu-category-picker {
+
      min-width: 280px;
+
      display: flex;
+
      flex-direction: column;
+
      gap: 5px;
+
      color: #70829a;
+
      font-size: 10px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-category-picker select {
+
      height: 45px;
+
      width: 100%;
+
      border: 1px solid #e0eaf6;
+
      border-radius: 12px;
+
      padding: 0 12px;
+
      color: #304565;
+
      background: #fbfdff;
+
      font-size: 11px;
+
 }
+
+
 
 /* Cards and summary */
+
 .bu-layout {
+
      display: grid;
+
      grid-template-columns: minmax(0, 1fr) 325px;
+
      align-items: start;
+
      gap: 22px;
+
 }
+
+
 
 .bu-list {
+
      min-width: 0;
+
 }
+
+
 
 .bu-result-line {
+
      display: flex;
+
      align-items: center;
+
      justify-content: space-between;
+
      gap: 10px;
+
      margin: 0 0 17px;
+
 }
+
+
 
 .bu-result-line strong {
+
      font-size: 14px;
+
 }
+
+
 
 .bu-result-line span {
+
      color: #8395aa;
+
      font-size: 11px;
+
 }
+
+
 
 .bu-card-grid {
+
      display: grid;
+
      grid-template-columns: repeat(3, minmax(0, 1fr));
+
      gap: 14px;
+
 }
+
+
 
 .bu-plan-card {
+
      min-width: 0;
+
      display: flex;
+
      flex-direction: column;
+
      padding: 15px;
+
      border: 1px solid #e6edf7;
+
      border-radius: 20px;
+
      background: #fff;
+
      box-shadow: 0 7px 26px #346a8f0a;
+
      transition: transform .25s, box-shadow .25s, border-color .25s;
+
 }
+
+
 
 .bu-plan-card:hover {
+
      transform: translateY(-5px);
+
      border-color: #7acddc;
+
      box-shadow: 0 16px 38px #326d9e1a;
+
 }
+
+
 
 .bu-plan-card.bu-card-selected {
+
      border: 1.5px solid #5fd1ba;
+
      background: #fbfffe;
+
 }
+
+
 
 .bu-card-content {
+
      display: flex;
+
      flex-direction: column;
+
      align-items: flex-start;
+
      width: 100%;
+
      flex: 1;
+
      padding: 5px 3px 12px;
+
      border: 0;
+
      background: none;
+
      color: inherit;
+
      text-align: left;
+
 }
+
+
 
 .bu-card-top {
+
      width: 100%;
+
      display: flex;
+
      align-items: flex-start;
+
      justify-content: space-between;
+
      gap: 8px;
+
 }
+
+
 
 .bu-logo {
+
      flex-shrink: 0;
+
      width: 54px;
+
      height: 54px;
+
      display: grid;
+
      place-items: center;
+
      border-radius: 14px;
+
      color: #337ed4;
+
      background: #e8f3ff;
+
      font-size: 14px;
+
 }
+
+
 
 .bu-logo-ai {
+
      background: #e8f8f2;
+
      color: #159c80;
+
 }
+
+
 
 .bu-logo-creator {
+
      background: #f2edff;
+
      color: #8963c8;
+
 }
+
+
 
 .bu-logo-other {
+
      background: #fff5e9;
+
      color: #a98243;
+
 }
+
+
 
 .bu-logo img {
+
      width: 36px;
+
      height: 36px;
+
      object-fit: contain;
+
 }
+
+
 
 .bu-card-group {
+
      padding: 7px 10px;
+
      border-radius: 9px;
+
      color: #378fd7;
+
      background: #e9f4ff;
+
      font-size: 9px;
+
      font-weight: 800;
+
      letter-spacing: .5px;
+
 }
+
+
 
 .bu-card-content h3 {
+
      margin: 20px 0 6px;
+
      font-size: 16px;
+
      line-height: 1.35;
+
 }
+
+
 
 .bu-tier-name {
+
      padding: 6px 10px;
+
      border-radius: 12px;
+
      background: #eef5fc;
+
      color: #41709b;
+
      font-size: 11px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-card-price {
+
      display: block;
+
      margin-top: 15px;
+
      font: 800 17px/1.45 "Sora", sans-serif;
+
      color: #2387eb;
+
      overflow-wrap: anywhere;
+
 }
+
+
 
 .bu-card-billing {
+
      margin-top: 6px;
+
      font-size: 10px;
+
      line-height: 1.6;
+
      color: #8193aa;
+
 }
+
+
 
 .bu-card-summary {
+
      flex: 1;
+
      min-height: 54px;
+
      margin: 13px 0 11px;
+
      color: #71829a;
+
      font-size: 11px;
+
      line-height: 1.75;
+
      display: -webkit-box;
+
      -webkit-box-orient: vertical;
+
      -webkit-line-clamp: 3;
+
      overflow: hidden;
+
 }
+
+
 
 .bu-see-benefits {
+
      display: inline-flex;
+
      align-items: center;
+
      gap: 7px;
+
      color: #278bd8;
+
      font-size: 10px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-see-benefits svg:last-child {
+
      margin-left: 2px;
+
 }
+
+
 
 .bu-add-btn {
+
      display: flex;
+
      align-items: center;
+
      justify-content: center;
+
      gap: 8px;
+
      width: 100%;
+
      min-height: 43px;
+
      margin-top: 4px;
+
      border: 1px solid #bddff8;
+
      border-radius: 12px;
+
      background: #ecf7ff;
+
      color: #318dd9;
+
      font-size: 11px !important;
+
      font-weight: 800 !important;
+
 }
+
+
 
 .bu-add-btn:hover {
+
      background: #dcf1ff;
+
 }
+
+
 
 .bu-add-btn.bu-add-selected {
+
      border-color: #a5e4d6;
+
      background: #e7faf3;
+
      color: #16896e;
+
 }
+
+
 
 .bu-more {
+
      display: flex;
+
      align-items: center;
+
      justify-content: center;
+
      gap: 8px;
+
      margin: 24px auto 0;
+
      padding: 11px 20px;
+
      border-radius: 30px;
+
      background: #fff;
+
      border: 1px solid #d8eaf9;
+
      color: #378fd6;
+
      font-size: 12px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-empty {
+
      padding: 55px 20px;
+
      text-align: center;
+
      background: #fff;
+
      border-radius: 16px;
+
 }
+
+
 
 .bu-empty button {
+
      border: 0;
+
      color: #2984d8;
+
      background: none;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-disclaimer {
+
      margin-top: 20px;
+
      color: #8d9caf;
+
      font-size: 10px;
+
      line-height: 1.8;
+
 }
+
+
 
 .bu-summary {
+
      position: sticky;
+
      top: 100px;
+
      min-width: 0;
+
      max-height: calc(100vh - 118px);
+
      overflow-y: auto;
+
      padding: 25px;
+
      border-radius: 21px;
+
      border: 1px solid #dbe9f7;
+
      background: #fff;
+
      box-shadow: 0 14px 37px #366d9a14;
+
      scrollbar-width: thin;
+
 }
+
+
 
 .bu-summary h3 {
+
      margin: 13px 0 10px;
+
      font-size: 20px;
+
 }
+
+
 
 .bu-summary>p {
+
      color: #7f91a8;
+
      font-size: 11px;
+
      line-height: 1.7;
+
 }
+
+
 
 .bu-summary-numbers {
+
      display: grid;
+
      grid-template-columns: repeat(3, 1fr);
+
      gap: 7px;
+
      padding: 13px;
+
      margin: 18px 0;
+
      border-radius: 13px;
+
      background: #f0f9ff;
+
 }
+
+
 
 .bu-summary-numbers span {
+
      display: flex;
+
      flex-direction: column;
+
      align-items: center;
+
      gap: 5px;
+
      color: #7b8da4;
+
      font-size: 10px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-summary-numbers b {
+
      font: 800 20px "Sora", sans-serif;
+
      color: #328ce3;
+
 }
+
+
 
 .bu-selected-list {
+
      min-height: 120px;
+
      max-height: 265px;
+
      overflow-y: auto;
+
 }
+
+
 
 .bu-selected-row {
+
      display: flex;
+
      align-items: center;
+
      gap: 10px;
+
      padding: 10px 0;
+
      border-bottom: 1px solid #eff3f7;
+
 }
+
+
 
 .bu-selected-row .bu-logo {
+
      width: 36px;
+
      height: 36px;
+
      border-radius: 9px;
+
 }
+
+
 
 .bu-selected-row .bu-logo img {
+
      width: 23px;
+
      height: 23px;
+
 }
+
+
 
 .bu-selected-row>div {
+
      min-width: 0;
+
      flex: 1;
+
 }
+
+
 
 .bu-selected-row strong,
+
 .bu-selected-row small {
+
      display: block;
+
      overflow: hidden;
+
      text-overflow: ellipsis;
+
      white-space: nowrap;
+
 }
+
+
 
 .bu-selected-row strong {
+
      font-size: 11px;
+
 }
+
+
 
 .bu-selected-row small {
+
      color: #8da0b5;
+
      font-size: 10px;
+
 }
+
+
 
 .bu-selected-row>button {
+
      flex-shrink: 0;
+
      border: 0;
+
      width: 29px;
+
      height: 29px;
+
      display: grid;
+
      place-items: center;
+
      border-radius: 9px;
+
      background: #f2f7fb;
+
      color: #72869e;
+
 }
+
+
 
 .bu-no-selection {
+
      display: flex;
+
      flex-direction: column;
+
      align-items: center;
+
      gap: 10px;
+
      padding: 27px 10px;
+
      color: #899db1;
+
      text-align: center;
+
      font-size: 10px;
+
 }
+
+
 
 .bu-no-selection strong {
+
      font-size: 12px;
+
      color: #485b78;
+
 }
+
+
 
 .bu-total {
+
      display: flex;
+
      flex-direction: column;
+
      gap: 9px;
+
      padding: 18px 0;
+
      margin-top: 13px;
+
      border-block: 1px solid #edf2f8;
+
 }
+
+
 
 .bu-total span {
+
      color: #788aa0;
+
      font-size: 11px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-total>strong {
+
      font: 800 23px "Sora", sans-serif;
+
 }
+
+
 
 .bu-total small {
+
      color: #8e9fb3;
+
      font-size: 10px;
+
      line-height: 1.6;
+
 }
+
+
 
 .bu-continue {
+
      width: 100%;
+
      margin-top: 20px;
+
 }
+
+
 
 .bu-clear {
+
      display: block;
+
      width: 100%;
+
      padding: 14px 0 8px;
+
      border: 0;
+
      background: none;
+
      color: #788ca5;
+
      font-size: 11px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-summary-foot {
+
      text-align: center;
+
      font-size: 9px !important;
+
 }
+
+
 
 .bu-outro {
+
      padding: 65px 0;
+
      background: #fff;
+
 }
+
+
 
 .bu-outro-inner {
+
      display: flex;
+
      align-items: center;
+
      justify-content: space-between;
+
      gap: 26px;
+
      padding: 36px 44px;
+
      border-radius: 22px;
+
      background: linear-gradient(105deg, #ebf6ff, #e4faf3);
+
 }
+
+
 
 .bu-outro h2 {
+
      margin: 10px 0;
+
      font-size: clamp(24px, 3vw, 35px);
+
 }
+
+
 
 .bu-outro p {
+
      color: #73869f;
+
      font-size: 12px;
+
 }
+
+
 
 /* Full-size plan modal, faithfully styled after the approved mockup */
+
 .bu-details-backdrop {
+
      position: fixed;
+
      z-index: 99999;
+
      inset: 0;
+
      display: flex;
+
      justify-content: center;
+
      align-items: center;
+
      padding: 22px;
+
      background: rgba(28, 42, 70, .53);
+
      backdrop-filter: blur(9px);
+
 }
+
+
 
 .bu-details-modal {
+
      position: relative;
+
      display: grid;
+
      grid-template-columns: 290px minmax(0, 1fr);
+
      width: min(1160px, 100%);
+
      max-height: min(92vh, 930px);
+
      overflow: hidden;
+
      border: 1px solid #eef2f8;
+
      border-radius: 28px;
+
      background: #fff;
+
      box-shadow: 0 38px 110px #162a4740;
+
 }
+
+
 
 .bu-details-close {
+
      position: absolute;
+
      z-index: 3;
+
      top: 17px;
+
      right: 17px;
+
      display: grid;
+
      place-items: center;
+
      width: 39px;
+
      height: 39px;
+
      border: 0;
+
      border-radius: 11px;
+
      background: #f1f7fc;
+
      color: #243755;
+
 }
+
+
 
 .bu-details-close:hover {
+
      background: #e1f2fe;
+
 }
+
+
 
 .bu-details-product {
+
      display: flex;
+
      align-items: center;
+
      flex-direction: column;
+
      justify-content: center;
+
      min-width: 0;
+
      padding: 39px 26px;
+
      text-align: center;
+
      border-right: 1px solid #e6eef5;
+
      background: linear-gradient(160deg, #f6fbff, #effcf8);
+
 }
+
+
 
 .bu-mini-pill {
+
      margin-bottom: 21px;
+
      padding: 8px 12px;
+
      color: #347ed3;
+
      background: #e2f2ff;
+
      border-radius: 30px;
+
      font-size: 10px;
+
      font-weight: 800;
+
      letter-spacing: .5px;
+
 }
+
+
 
 .bu-logo-large {
+
      width: 104px;
+
      height: 104px;
+
      border-radius: 23px;
+
      box-shadow: 0 9px 28px #51869c21;
+
 }
+
+
 
 .bu-logo-large img {
+
      width: 77px;
+
      height: 77px;
+
 }
+
+
 
 .bu-logo-large b {
+
      font-size: 28px;
+
 }
+
+
 
 .bu-details-product h2 {
+
      margin: 24px 0 11px;
+
      font-size: 28px;
+
      line-height: 1.2;
+
      overflow-wrap: anywhere;
+
 }
+
+
 
 .bu-detail-tier {
+
      padding: 8px 17px;
+
      border-radius: 30px;
+
      background: #e7f1ff;
+
      color: #2f73bc;
+
      font-size: 12px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-details-price {
+
      margin-top: 20px;
+
      font: 800 clamp(22px, 3vw, 30px) "Sora", sans-serif;
+
      color: #2684f4;
+
      overflow-wrap: anywhere;
+
 }
+
+
 
 .bu-details-price-note {
+
      margin-top: 10px;
+
      color: #667b9a;
+
      font-size: 12px;
+
      line-height: 1.6;
+
 }
+
+
 
 .bu-details-intro {
+
      color: #687e9b;
+
      font-size: 12px;
+
      line-height: 1.7;
+
      margin: 14px 0 24px;
+
 }
+
+
 
 .bu-detail-side-btn {
+
      width: 100%;
+
 }
+
+
 
 .bu-already-selected {
+
      background: #e5f6f1 !important;
+
      color: #138f78 !important;
+
      box-shadow: none !important;
+
 }
+
+
 
 .bu-details-right {
+
      display: flex;
+
      min-width: 0;
+
      min-height: 0;
+
      flex-direction: column;
+
      padding: 42px 35px 30px;
+
      overflow-y: auto;
+
      scrollbar-width: thin;
+
 }
+
+
 
 .bu-details-topline {
+
      padding-right: 40px;
+
 }
+
+
 
 .bu-details-topline h2 {
+
      margin: 7px 0 6px;
+
      font-size: clamp(24px, 2.7vw, 34px);
+
      line-height: 1.3;
+
 }
+
+
 
 .bu-details-topline h2 span {
+
      color: #3698ec;
+
 }
+
+
 
 .bu-details-topline p {
+
      margin: 0;
+
      color: #7188a3;
+
      font-size: 12px;
+
 }
+
+
 
 .bu-detail-tabs {
+
      display: flex;
+
      align-items: center;
+
      gap: 9px;
+
      padding: 25px 0 18px;
+
      overflow-x: auto;
+
 }
+
+
 
 .bu-detail-tabs button {
+
      flex: 0 0 auto;
+
      padding: 13px 18px;
+
      border: 1px solid #e0eafa;
+
      border-radius: 12px;
+
      background: #fff;
+
      color: #536782;
+
      font-size: 12px;
+
      font-weight: 800;
+
      white-space: nowrap;
+
 }
+
+
 
 .bu-detail-tabs button.bu-detail-tab-active {
+
      border-color: transparent;
+
      background: var(--bu-gradient);
+
      color: #fff;
+
      box-shadow: 0 7px 15px #368cd12a;
+
 }
+
+
 
 .bu-detail-panel {
+
      padding: 23px;
+
      border: 1px solid #e8edf7;
+
      background: linear-gradient(120deg, #fafcfe, #f7fbff);
+
      border-radius: 20px;
+
 }
+
+
 
 .bu-detail-panel h3 {
+
      margin: 0 0 9px;
+
      font-size: 16px;
+
 }
+
+
 
 .bu-panel-caption {
+
      margin: 0 0 19px;
+
      color: #8091a8;
+
      font-size: 11px;
+
      line-height: 1.7;
+
 }
+
+
 
 .bu-benefit-grid {
+
      display: grid;
+
      grid-template-columns: repeat(2, minmax(0, 1fr));
+
      gap: 22px 16px;
+
 }
+
+
 
 .bu-benefit {
+
      display: flex;
+
      min-width: 0;
+
      align-items: flex-start;
+
      gap: 12px;
+
 }
+
+
 
 .bu-benefit-icon {
+
      flex: 0 0 47px;
+
      width: 47px;
+
      height: 47px;
+
      display: grid;
+
      place-items: center;
+
      border-radius: 15px;
+
      color: #087f78;
+
      background: #dff7f2;
+
 }
+
+
 
 .bu-benefit strong {
+
      display: block;
+
      padding-top: 3px;
+
      color: #1e2d4c;
+
      font-size: 12px;
+
      line-height: 1.45;
+
 }
+
+
 
 .bu-benefit p {
+
      margin: 7px 0 0;
+
      color: #647b98;
+
      font-size: 11px;
+
      line-height: 1.72;
+
      overflow-wrap: anywhere;
+
 }
+
+
 
 .bu-detail-bottom {
+
      display: flex;
+
      flex-wrap: wrap;
+
      gap: 12px;
+
      align-items: center;
+
      margin-top: auto;
+
      padding-top: 21px;
+
 }
+
+
 
 .bu-detail-bottom .bu-modal-add {
+
      flex: 1 1 310px;
+
      min-width: 0;
+
      white-space: normal;
+
      text-align: center;
+
 }
+
+
 
 .bu-provider-link {
+
      display: inline-flex;
+
      align-items: center;
+
      gap: 7px;
+
      color: #318ce0;
+
      font-size: 11px;
+
      font-weight: 800;
+
      text-decoration: underline;
+
      text-underline-offset: 3px;
+
 }
+
+
 
 .bu-detail-bottom>small {
+
      width: 100%;
+
      color: #8b9bb0;
+
      font-size: 10px;
+
      line-height: 1.6;
+
      text-align: center;
+
 }
+
+
 
 .bu-about-details dl {
+
      display: grid;
+
      grid-template-columns: repeat(2, minmax(0, 1fr));
+
      gap: 11px;
+
 }
+
+
 
 .bu-about-details dl div {
+
      padding: 12px;
+
      background: #fff;
+
      border-radius: 11px;
+
 }
+
+
 
 .bu-about-details dt {
+
      color: #7c8ca3;
+
      font-size: 10px;
+
 }
+
+
 
 .bu-about-details dd {
+
      margin: 6px 0 0;
+
      font-size: 12px;
+
      font-weight: 800;
+
      overflow-wrap: anywhere;
+
 }
+
+
 
 .bu-about-details>p {
+
      font-size: 12px;
+
      color: #7184a0;
+
      line-height: 1.85;
+
 }
+
+
 
 .bu-steps>div {
+
      display: flex;
+
      align-items: flex-start;
+
      gap: 15px;
+
      margin-top: 17px;
+
 }
+
+
 
 .bu-steps>div>b {
+
      flex: 0 0 40px;
+
      width: 40px;
+
      height: 40px;
+
      display: grid;
+
      place-items: center;
+
      border-radius: 11px;
+
      color: #298fd1;
+
      background: #e2f4ff;
+
      font-size: 12px;
+
 }
+
+
 
 .bu-steps>div>p {
+
      margin: 0;
+
      color: #74869e;
+
      font-size: 12px;
+
      line-height: 1.7;
+
 }
+
+
 
 .bu-steps p strong {
+
      display: block;
+
      margin-bottom: 3px;
+
      color: #233657;
+
      font-size: 13px;
+
 }
+
+
 
 .bu-faq details {
+
      margin-top: 12px;
+
      padding: 14px 16px;
+
      border: 1px solid #e5edf6;
+
      border-radius: 12px;
+
      background: #fff;
+
 }
+
+
 
 .bu-faq summary {
+
      cursor: pointer;
+
      color: #304260;
+
      font-size: 12px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-faq p {
+
      color: #7789a0;
+
      font-size: 11px;
+
      line-height: 1.8;
+
 }
+
+
 
 /* Customer details form */
+
 .bu-customer-modal {
+
      position: relative;
+
      width: min(100%, 500px);
+
      max-height: 94vh;
+
      overflow-y: auto;
+
      padding: 43px 34px 32px;
+
      border-radius: 25px;
+
      background: #fff;
+
      box-shadow: 0 28px 80px #192d4d4f;
+
 }
+
+
 
 .bu-customer-modal h2 {
+
      margin: 12px 0;
+
      font-size: 26px;
+
      letter-spacing: -1px;
+
 }
+
+
 
 .bu-form-intro {
+
      margin: 15px 0 23px;
+
      color: #7a8da5;
+
      font-size: 12px;
+
      line-height: 1.7;
+
 }
+
+
 
 .bu-customer-modal form>label:not(.bu-checkbox) {
+
      display: flex;
+
      flex-direction: column;
+
      gap: 7px;
+
      margin-bottom: 17px;
+
      font-size: 12px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-customer-modal input:not([type="checkbox"]) {
+
      height: 45px;
+
      border: 1px solid #dfe9f6;
+
      border-radius: 11px;
+
      padding: 0 13px;
+
      font-size: 13px;
+
      outline: none;
+
 }
+
+
 
 .bu-customer-modal input:focus {
+
      border-color: #57a5ff;
+
 }
+
+
 
 .bu-checkbox {
+
      display: flex;
+
      align-items: flex-start;
+
      gap: 10px;
+
      color: #71839b;
+
      font-size: 11px;
+
      line-height: 1.7;
+
 }
+
+
 
 .bu-checkbox input {
+
      margin-top: 4px;
+
 }
+
+
 
 .bu-submit {
+
      width: 100%;
+
      margin-top: 20px;
+
 }
+
+
 
 .bu-form-error {
+
      color: #b63e60;
+
      background: #fff0f4;
+
      border-radius: 10px;
+
      padding: 10px 12px;
+
      font-size: 11px;
+
 }
+
+
 
 .bu-customer-modal>small {
+
      display: block;
+
      margin-top: 13px;
+
      color: #a0adc0;
+
      font-size: 10px;
+
      text-align: center;
+
 }
+
+
 
 .bu-form-done {
+
      display: grid;
+
      justify-items: center;
+
      gap: 12px;
+
      text-align: center;
+
      padding: 40px 8px;
+
 }
+
+
 
 .bu-form-done>svg {
+
      color: #20b698;
+
 }
+
+
 
 .bu-form-done p {
+
      color: #7286a0;
+
      font-size: 12px;
+
      line-height: 1.8;
+
 }
+
+
 
 @keyframes buFloat {
+
      to {
+
           transform: translateY(-12px);
+
      }
+
 }
+
+
 
 @media (max-width: 1160px) {
+
      .bu-layout {
+
           grid-template-columns: minmax(0, 1fr) 300px;
+
           gap: 15px;
+
      }
+
+
 
      .bu-card-grid {
+
           grid-template-columns: repeat(2, minmax(0, 1fr));
+
      }
+
+
 
      .bu-details-modal {
+
           grid-template-columns: 250px minmax(0, 1fr);
+
      }
 
+
+
      .bu-details-right {
+
           padding: 38px 22px 23px;
+
      }
+
 }
+
+
 
 @media (max-width: 850px) {
+
      .bu-hero-grid {
+
           grid-template-columns: 1fr;
+
           padding: 46px 0 20px;
+
      }
 
+
+
      .bu-hero-art {
+
           height: 270px;
+
           max-width: 510px;
+
           width: 100%;
+
           margin: auto;
+
      }
+
+
 
      .bu-hero-ring {
+
           width: 220px;
+
           height: 220px;
+
      }
 
+
+
      .bu-hero-ring.ring-two {
+
           width: 280px;
+
           height: 280px;
+
      }
+
+
 
      .bu-hero-center {
+
           width: 165px;
+
           height: 165px;
+
           border-radius: 29px;
+
      }
+
+
 
      .bu-hero-center strong {
+
           font-size: 16px;
+
      }
+
+
 
      .bu-layout {
+
           grid-template-columns: 1fr;
+
      }
+
+
 
      .bu-summary {
+
           position: static;
+
           max-height: none;
+
      }
+
+
 
      .bu-card-grid {
+
           grid-template-columns: repeat(3, minmax(0, 1fr));
+
      }
+
+
 
      .bu-details-modal {
+
           grid-template-columns: 1fr;
+
           overflow-y: auto;
+
      }
 
+
+
      .bu-details-product {
+
           padding: 24px 20px;
+
           border-right: none;
+
           border-bottom: 1px solid #edf1f7;
+
      }
+
+
 
      .bu-details-product .bu-logo-large {
+
           width: 70px;
+
           height: 70px;
+
      }
+
+
 
      .bu-details-product .bu-logo-large img {
+
           width: 51px;
+
           height: 51px;
+
      }
+
+
 
      .bu-details-product h2 {
+
           margin: 13px 0 7px;
+
           font-size: 23px;
+
      }
+
+
 
      .bu-details-price {
+
           margin-top: 12px;
+
           font-size: 22px;
+
      }
 
+
+
      .bu-details-intro {
+
           margin: 8px 0 12px;
+
      }
+
+
 
      .bu-detail-side-btn {
+
           max-width: 350px;
+
      }
 
+
+
      .bu-details-right {
+
           overflow: visible;
+
      }
+
 }
+
+
 
 @media (max-width: 620px) {
+
      .bu-shell {
+
           width: calc(100% - 32px);
+
      }
+
+
 
      .bu-hero-copy h1 {
+
           font-size: 35px;
+
           letter-spacing: -1.5px;
+
      }
+
+
 
      .bu-hero-copy p {
+
           font-size: 12px;
+
      }
+
+
 
      .bu-metrics {
+
           grid-template-columns: repeat(2, 1fr);
+
      }
+
+
 
      .bu-metrics span {
+
           flex-direction: column;
+
           align-items: flex-start;
+
           gap: 4px;
+
      }
+
+
 
      .bu-catalogue {
+
           padding: 52px 0 65px;
+
      }
+
+
 
      .bu-section-heading h2 {
+
           font-size: 31px;
+
      }
+
+
 
      .bu-toolbar {
+
           padding: 12px;
+
      }
+
+
 
      .bu-tabs {
+
           gap: 8px;
+
      }
+
+
 
      .bu-tabs button {
+
           gap: 8px;
+
           min-height: 46px;
+
           padding: 9px 11px;
+
      }
+
+
 
      .bu-tabs b {
+
           min-width: 26px;
+
           height: 23px;
+
      }
+
+
 
      .bu-filter-controls {
+
           flex-direction: column;
+
           align-items: stretch;
+
      }
+
+
 
      .bu-category-picker {
+
           min-width: 0;
+
      }
+
+
 
      .bu-search {
+
           flex: auto;
+
      }
+
+
 
      .bu-result-line {
+
           flex-direction: column;
+
           align-items: flex-start;
+
      }
+
+
 
      .bu-card-grid {
+
           grid-template-columns: repeat(2, minmax(0, 1fr));
+
           gap: 10px;
+
      }
 
+
+
      .bu-plan-card {
+
           padding: 10px;
+
           border-radius: 14px;
+
      }
+
+
 
      .bu-card-content h3 {
+
           font-size: 13px;
+
      }
+
+
 
      .bu-logo {
+
           width: 42px;
+
           height: 42px;
+
      }
+
+
 
      .bu-logo img {
+
           width: 29px;
+
           height: 29px;
+
      }
+
+
 
      .bu-card-price {
+
           font-size: 13px;
+
      }
+
+
 
      .bu-tier-name {
+
           font-size: 10px;
+
      }
+
+
 
      .bu-card-summary {
+
           font-size: 10px;
+
      }
+
+
 
      .bu-card-billing {
+
           font-size: 9px;
+
      }
+
+
 
      .bu-add-btn {
+
           font-size: 10px !important;
+
      }
+
+
 
      .bu-card-group {
+
           font-size: 8px;
+
      }
+
+
 
      .bu-outro {
+
           padding: 48px 0;
+
      }
+
+
 
      .bu-outro-inner {
+
           padding: 27px 23px;
+
           flex-direction: column;
+
           align-items: flex-start;
+
      }
+
+
 
      .bu-details-backdrop {
+
           padding: 10px;
+
      }
+
+
 
      .bu-details-modal {
+
           border-radius: 18px;
+
           max-height: 95vh;
+
      }
+
+
 
      .bu-details-right {
+
           padding: 25px 15px 18px;
+
      }
+
+
 
      .bu-detail-tabs {
+
           gap: 7px;
+
      }
+
+
 
      .bu-detail-tabs button {
+
           padding: 11px 12px;
+
           font-size: 10px;
+
      }
+
+
 
      .bu-detail-panel {
+
           padding: 17px 14px;
+
      }
+
+
 
      .bu-benefit-grid {
+
           grid-template-columns: 1fr;
+
           gap: 20px;
+
      }
+
+
 
      .bu-detail-bottom .bu-modal-add {
+
           font-size: 11px !important;
+
      }
+
+
 
      .bu-benefit strong {
+
           font-size: 12px;
+
      }
+
+
 
      .bu-details-product {
+
           padding: 22px 15px;
+
      }
+
+
 
      .bu-details-intro {
+
           font-size: 11px;
+
      }
+
+
 
      .bu-customer-modal {
+
           padding: 44px 23px 25px;
+
      }
+
 }
+
+
 
 @media (max-width: 365px) {
+
      .bu-card-grid {
+
           grid-template-columns: 1fr;
+
      }
+
+
 
      .bu-plan-card {
+
           padding: 17px;
+
      }
+
+
 
      .bu-hero-art {
+
           height: 220px;
+
      }
 
+
+
      .bu-hero-ring.ring-two {
+
           width: 240px;
+
           height: 240px;
+
      }
+
 }
+
+
 
 @media (prefers-reduced-motion: reduce) {
 
+
+
      .bu-plans-page *,
+
      .bu-details-backdrop * {
+
           animation: none !important;
+
           transition: none !important;
+
      }
+
 }
+
+
+
 
 
 /* ===============================================
+
    OPTIONAL CLOUD STORAGE PROMO — ONLY AFTER ADD
-=============================================== */
+
+\=============================================== */
+
 .bu-cloud-offer {
+
      margin: 18px 0 3px;
+
      padding: 15px;
+
      border: 1px solid #ffdd9d;
+
      border-radius: 18px;
+
      background: linear-gradient(130deg, #fffdf8, #fff5ed);
+
      box-shadow: 0 8px 28px #e6a34412;
+
 }
+
+
 
 .bu-cloud-offer-tags {
+
      display: flex;
+
      flex-wrap: wrap;
+
      align-items: center;
+
      justify-content: space-between;
+
      gap: 7px;
+
 }
+
+
 
 .bu-cloud-limited {
+
      color: #fff;
+
      background: linear-gradient(100deg, #fa435d, #ff6173);
+
      padding: 7px 9px;
+
      border-radius: 9px;
+
      font-size: 9px;
+
      font-weight: 800;
+
      letter-spacing: .3px;
+
 }
+
+
 
 .bu-cloud-days {
+
      color: #754b00;
+
      background: #ffe7a7;
+
      padding: 7px 9px;
+
      border-radius: 9px;
+
      font-size: 9px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-cloud-offer-heading {
+
      display: flex;
+
      align-items: center;
+
      gap: 10px;
+
      margin-top: 16px;
+
 }
+
+
 
 .bu-cloud-art {
+
      width: 56px;
+
      height: 56px;
+
      flex-shrink: 0;
+
      display: grid;
+
      place-items: center;
+
      color: #1977ee;
+
      background: linear-gradient(140deg, #e1f3ff, #d1e6ff);
+
      border-radius: 17px;
+
      box-shadow: inset 0 -3px 8px #4f9ff021;
+
 }
+
+
 
 .bu-cloud-offer h4 {
+
      margin: 0 0 4px;
+
      font: 800 14px/1.3 "Sora", sans-serif;
+
      color: #13233b;
+
 }
+
+
 
 .bu-cloud-offer-heading p {
+
      margin: 0;
+
      color: #7b88a0;
+
      font-size: 10px;
+
      line-height: 1.5;
+
 }
+
+
 
 .bu-cloud-price-row {
+
      display: flex;
+
      align-items: baseline;
+
      gap: 10px;
+
      flex-wrap: wrap;
+
      margin-top: 15px;
+
 }
+
+
 
 .bu-cloud-price-row strong {
+
      color: #e93347;
+
      font: 800 26px "Sora", sans-serif;
+
 }
+
+
 
 .bu-cloud-price-row strong small {
+
      font: 700 11px "Manrope", sans-serif;
+
      color: #6b7891;
+
 }
+
+
 
 .bu-cloud-price-row del {
+
      color: #8795a8;
+
      font-size: 11px;
+
 }
+
+
 
 .bu-cloud-save {
+
      margin: 8px 0 13px;
+
      color: #138e70;
+
      font-size: 10px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-cloud-benefits {
+
      display: grid;
+
      gap: 9px;
+
      margin: 0;
+
      padding: 0;
+
      list-style: none;
+
 }
+
+
 
 .bu-cloud-benefits li {
+
      display: flex;
+
      align-items: flex-start;
+
      gap: 8px;
+
      color: #4f5e75;
+
      font-size: 10px;
+
      line-height: 1.5;
+
 }
+
+
 
 .bu-cloud-benefits svg {
+
      flex: 0 0 17px;
+
      color: #14a67c;
+
 }
+
+
 
 .bu-cloud-actions {
+
      display: grid;
+
      grid-template-columns: 1fr 1.3fr;
+
      gap: 8px;
+
      margin-top: 17px;
+
 }
+
+
 
 .bu-cloud-actions button {
+
      min-height: 41px;
+
      padding: 10px 8px;
+
      border-radius: 11px;
+
      font-size: 10px;
+
      font-weight: 800;
+
 }
+
+
 
 .bu-cloud-cancel {
+
      color: #243753;
+
      background: #fff;
+
      border: 1px solid #e6e6e6;
+
 }
+
+
 
 .bu-cloud-add {
+
      color: #fff;
+
      background: linear-gradient(110deg, #2686ff, #24bdce);
+
      border: 1px solid transparent;
+
 }
+
+
 
 .bu-cloud-offer>small {
+
      display: block;
+
      margin-top: 11px;
+
      color: #aa9383;
+
      font-size: 9px;
+
      line-height: 1.55;
+
 }
+
+
 
 .bu-cloud-selected {
+
      display: flex;
+
      align-items: center;
+
      gap: 10px;
+
      margin-top: 15px;
+
      padding: 12px 10px;
+
      border: 1px solid #9de0ca;
+
      border-radius: 13px;
+
      background: #eefdF8;
+
 }
+
+
 
 .bu-cloud-selected-icon {
+
      flex: 0 0 36px;
+
      width: 36px;
+
      height: 36px;
+
      display: grid;
+
      place-items: center;
+
      border-radius: 10px;
+
      color: #2682ec;
+
      background: #dcebff;
+
 }
+
+
 
 .bu-cloud-selected>div {
+
      flex: 1;
+
      min-width: 0;
+
 }
+
+
 
 .bu-cloud-selected strong,
+
 .bu-cloud-selected small {
+
      display: block;
+
 }
+
+
 
 .bu-cloud-selected strong {
+
      font-size: 11px;
+
 }
+
+
 
 .bu-cloud-selected small {
+
      margin-top: 4px;
+
      color: #73839e;
+
      font-size: 10px;
+
 }
+
+
 
 .bu-cloud-selected>button {
+
      flex: 0 0 30px;
+
      width: 30px;
+
      height: 30px;
+
      display: grid;
+
      place-items: center;
+
      border: none;
+
      border-radius: 9px;
+
      color: #69829d;
+
      background: #fff;
+
 }
+
+
 
 @media(max-width:400px) {
+
      .bu-cloud-offer {
+
           padding: 12px;
+
      }
+
+
 
      .bu-cloud-actions {
+
           grid-template-columns: 1fr;
+
      }
+
 }
+
+
 
 .bu-cloud-reopen {
+
      display: flex;
+
      align-items: center;
+
      justify-content: center;
+
      gap: 7px;
+
      margin: 15px 0 3px;
+
      padding: 10px;
+
      width: 100%;
+
      border: 1px dashed #88bbef;
+
      border-radius: 12px;
+
      background: #f2faff;
+
      color: #258add;
+
      font-size: 11px;
+
      font-weight: 800;
+
 }
 
+
+
 .bu-cloud-reopen:hover {
+
      background: #e5f4ff;
+
 }
+
+
+
 
 
 /* =========================================
+
    BUNDLEUPOTT — SUBSCRIPTION DETAILS MODAL
+
    Fixes tabs, benefits, FAQ and responsive UI
-========================================= */
+
+\========================================= */
+
+
 
 .bu-details-content {
+
   display: flex;
+
   flex-direction: column;
+
   min-width: 0;
+
   min-height: 0;
+
   padding: 42px 35px 30px;
+
   overflow-y: auto;
+
   color: var(--bu-ink);
+
   font-family: "Manrope", sans-serif;
+
   scrollbar-width: thin;
+
   scrollbar-color: #c8d9eb transparent;
+
 }
 
+
+
 .bu-details-content h3 {
+
   margin: 0 0 16px;
+
   color: #182643;
+
   font-family: "Sora", sans-serif;
+
   font-size: 19px;
+
   line-height: 1.4;
+
   font-weight: 700;
+
 }
+
+
 
 /* Tabs container */
 
+
+
 .bu-details-tabs {
+
   display: flex;
+
   align-items: center;
+
   flex-wrap: nowrap;
+
   gap: 9px;
+
   flex-shrink: 0;
+
   padding: 8px 42px 18px 0;
+
   margin-bottom: 20px;
+
   border-bottom: 1px solid #e6edf7;
+
   overflow-x: auto;
+
   scrollbar-width: thin;
+
 }
+
+
 
 .bu-details-tabs button {
+
   appearance: none;
+
   flex: 0 0 auto;
+
   min-height: 42px;
+
   padding: 10px 15px;
+
   border: 1px solid #e1eaf6;
+
   border-radius: 12px;
+
   background: #fff;
+
   color: #536782;
+
   font-family: "Manrope", sans-serif;
+
   font-size: 12px;
+
   font-weight: 800;
+
   line-height: 1.4;
+
   white-space: nowrap;
+
   cursor: pointer;
+
   transition:
-    background 0.2s ease,
+
+    *background* 0.2s ease,
+
     color 0.2s ease,
+
     border-color 0.2s ease,
+
     transform 0.2s ease;
+
 }
+
+
 
 .bu-details-tabs button:hover {
+
   border-color: #9ed8ee;
+
   background: #f3faff;
+
   transform: translateY(-1px);
+
 }
+
+
 
 .bu-details-tabs button.active,
+
 .bu-details-tabs button[aria-selected="true"] {
+
   border-color: transparent;
+
   background: linear-gradient(
+
     105deg,
+
     #408aff 0%,
+
     #35a7e9 50%,
+
     #25ceb0 100%
+
   );
+
   color: #fff;
+
   box-shadow: 0 7px 16px #368cd12a;
+
 }
 
+
+
 .bu-details-tabs button:focus-visible {
+
   outline: 3px solid #61a9ff;
+
   outline-offset: 3px;
+
 }
+
+
 
 /* Tab content panel */
 
+
+
 .bu-details-tab-panel {
+
   min-width: 0;
+
   padding: 25px;
+
   border: 1px solid #e7edf7;
+
   border-radius: 20px;
+
   background: linear-gradient(
+
     125deg,
+
     #fbfdff 0%,
+
     #f4faff 100%
+
   );
+
 }
+
+
 
 .bu-details-tab-panel > div > p {
+
   margin: 12px 0 0;
+
   color: #687e9b;
+
   font-size: 13px;
+
   line-height: 1.85;
+
   overflow-wrap: anywhere;
+
 }
 
+
+
 .bu-details-description {
+
   padding-top: 15px;
+
   border-top: 1px solid #e5edf6;
+
 }
+
+
 
 /* Benefits list */
 
+
+
 .bu-detail-benefits {
+
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 12px;
+
   padding: 0;
+
   margin: 0;
+
   list-style: none;
+
 }
+
+
 
 .bu-detail-benefits li {
+
   display: flex;
+
   align-items: flex-start;
+
   gap: 10px;
+
   min-width: 0;
+
   padding: 13px;
+
   border: 1px solid #e7eef7;
+
   border-radius: 13px;
+
   background: #fff;
+
   color: #405573;
+
   font-size: 12px;
+
   line-height: 1.7;
+
   overflow-wrap: anywhere;
+
   box-shadow: 0 4px 14px #346a8f08;
+
 }
 
+
+
 .bu-detail-benefits li svg {
+
   flex: 0 0 17px;
+
   width: 17px;
+
   height: 17px;
+
   margin-top: 3px;
+
   color: #18a489;
+
 }
+
+
 
 /* About and description text */
 
+
+
 .bu-details-tab-panel p {
+
   color: #687e9b;
+
   font-size: 13px;
+
   line-height: 1.85;
+
 }
 
+
+
 .bu-details-tab-panel p:first-of-type {
+
   margin-top: 0;
+
 }
+
+
 
 /* How it works */
 
+
+
 .bu-detail-steps {
+
   display: grid;
+
   gap: 12px;
+
   padding: 0;
+
   margin: 0;
+
   list-style: none;
+
   counter-reset: bu-step;
+
 }
+
+
 
 .bu-detail-steps li {
+
   position: relative;
+
   padding: 14px 15px 14px 52px;
+
   border: 1px solid #e5edf7;
+
   border-radius: 13px;
+
   background: #fff;
+
   color: #536782;
+
   font-size: 12px;
+
   line-height: 1.75;
+
   counter-increment: bu-step;
+
 }
 
+
+
 .bu-detail-steps li::before {
+
   content: counter(bu-step);
+
   position: absolute;
+
   top: 13px;
+
   left: 13px;
+
   display: grid;
+
   width: 27px;
+
   height: 27px;
+
   place-items: center;
+
   border-radius: 9px;
+
   background: #e5f3ff;
+
   color: #278bd8;
+
   font-size: 12px;
+
   font-weight: 800;
+
 }
+
+
 
 /* FAQ */
 
+
+
 .bu-details-tab-panel details {
+
   margin-top: 12px;
+
   padding: 15px 16px;
+
   border: 1px solid #e4edf7;
+
   border-radius: 13px;
+
   background: #fff;
+
   transition: border-color 0.2s ease;
+
 }
+
+
 
 .bu-details-tab-panel details:first-of-type {
+
   margin-top: 0;
+
 }
+
+
 
 .bu-details-tab-panel details[open] {
+
   border-color: #b8e4f1;
+
 }
+
+
 
 .bu-details-tab-panel summary {
+
   position: relative;
+
   padding-right: 24px;
+
   color: #304260;
+
   font-size: 13px;
+
   font-weight: 800;
+
   line-height: 1.6;
+
   cursor: pointer;
+
 }
 
+
+
 .bu-details-tab-panel details p {
+
   margin: 12px 0 0;
+
   color: #71839c;
+
   font-size: 12px;
+
   line-height: 1.8;
+
 }
+
+
 
 /* Close button */
 
+
+
 .bu-details-close {
+
   cursor: pointer;
+
   transition:
-    background 0.2s ease,
+
+    *background* 0.2s ease,
+
     transform 0.2s ease;
+
 }
 
+
+
 .bu-details-close:hover {
+
   transform: rotate(4deg);
+
 }
+
+
 
 /* Responsive modal */
 
+
+
 @media (max-width: 1160px) {
+
   .bu-details-content {
+
     padding: 38px 22px 23px;
+
   }
 
+
+
   .bu-detail-benefits {
+
     grid-template-columns: 1fr;
+
   }
+
 }
+
+
 
 @media (max-width: 850px) {
+
   .bu-details-content {
+
     min-height: auto;
+
     padding: 28px 22px 24px;
+
     overflow: visible;
+
   }
+
+
 
   .bu-details-tabs {
+
     margin-bottom: 16px;
+
   }
 
+
+
   .bu-details-tab-panel {
+
     padding: 20px;
+
   }
+
 }
+
+
 
 @media (max-width: 620px) {
+
   .bu-details-content {
+
     padding: 24px 15px 18px;
+
   }
+
+
 
   .bu-details-tabs {
+
     gap: 7px;
+
     padding: 5px 0 14px;
+
     margin-bottom: 15px;
+
   }
+
+
 
   .bu-details-tabs button {
+
     min-height: 38px;
+
     padding: 9px 12px;
+
     border-radius: 10px;
+
     font-size: 11px;
+
   }
+
+
 
   .bu-details-tab-panel {
+
     padding: 17px 14px;
+
     border-radius: 15px;
+
   }
+
+
 
   .bu-details-content h3 {
+
     font-size: 16px;
+
   }
+
+
 
   .bu-detail-benefits {
+
     grid-template-columns: 1fr;
+
     gap: 9px;
+
   }
+
+
 
   .bu-detail-benefits li {
+
     padding: 11px;
+
     font-size: 12px;
+
   }
+
+
 
   .bu-details-tab-panel > div > p,
+
   .bu-details-tab-panel p {
+
     font-size: 12px;
+
   }
+
+
 
   .bu-details-tab-panel summary {
+
     font-size: 12px;
+
   }
+
 }
+
+
 
 @media (prefers-reduced-motion: reduce) {
+
   .bu-details-content *,
+
   .bu-details-content *::before,
+
   .bu-details-content *::after {
+
     transition: none !important;
+
   }
+
 }
+
 .bu-card-offers {
+
   margin-top: 14px;
+
   padding-top: 12px;
+
   border-top: 1px solid rgba(128, 128, 128, 0.2);
+
 }
+
+
 
 .bu-card-offers-title {
+
   margin: 0 0 10px;
+
   font-size: 12px;
+
   font-weight: 600;
+
   opacity: 0.8;
+
 }
+
+
 
 .bu-card-offers-grid {
+
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 8px;
+
 }
 
+
+
 .bu-card-offer {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 5px;
+
   padding: 10px;
+
   border-radius: 10px;
+
   background: rgba(128, 128, 128, 0.08);
+
 }
+
+
 
 .bu-card-offer span {
+
   font-size: 11px;
+
   opacity: 0.75;
+
 }
+
+
 
 .bu-card-offer strong {
+
   font-size: 13px;
+
   overflow-wrap: anywhere;
+
 }
+
 .bu-card-main {
+
   display: flex;
+
   flex-direction: column;
+
   align-items: stretch;
+
   width: 100%;
+
   padding: 0;
+
   border: 0;
+
   background: transparent;
+
   color: inherit;
+
   font: inherit;
+
   text-align: left;
+
   cursor: pointer;
+
 }
+
+
 
 .bu-card-main:focus-visible,
+
 .bu-card-offer:focus-visible,
+
 .bu-see-benefits-button:focus-visible {
+
   outline: 3px solid #4389ff;
+
   outline-offset: 3px;
+
 }
+
+
 
 .bu-card-offer {
+
   width: 100%;
+
   min-width: 0;
+
   border: 1px solid transparent;
+
   color: inherit;
+
   font: inherit;
+
   text-align: left;
+
   cursor: pointer;
+
   transition: border-color 0.2s ease, transform 0.2s ease;
+
 }
+
+
 
 .bu-card-offer:not(:disabled):hover {
+
   transform: translateY(-2px);
+
   border-color: #4389ff;
+
 }
+
+
 
 .bu-card-offer.is-selected {
+
   border-color: #1cc7ad;
+
   background: #e5faf4;
+
   box-shadow: 0 0 0 1px #1cc7ad;
+
 }
+
+
 
 .bu-card-offer small {
+
   display: block;
+
   margin-top: 5px;
+
   font-size: 11px;
+
   color: #07866e;
+
 }
+
+
 
 .bu-card-offer:disabled {
+
   cursor: not-allowed;
+
   opacity: 0.55;
+
 }
 
+
+
 .bu-see-benefits-button {
+
   display: inline-flex;
+
   align-items: center;
+
   gap: 8px;
+
   align-self: flex-start;
+
   padding: 0;
+
   border: 0;
+
   background: transparent;
+
   color: inherit;
+
   font: inherit;
+
   cursor: pointer;
+
 }
+
+
+
 
 
 /* Updated Excel-based duration pricing */
 
+
+
 .bu-offer-pricing {
+
   display: flex;
+
   flex-direction: column;
+
   align-items: flex-start;
+
   gap: 3px;
+
   margin-top: 3px;
+
 }
+
+
 
 .bu-offer-pricing del {
+
   color: #94a3b8;
+
   font-size: 10px;
+
   font-weight: 500;
+
 }
+
+
 
 .bu-offer-pricing .bu-offer-sale-price {
+
   color: #16896e;
+
   font-size: 15px;
+
   font-weight: 800;
+
   line-height: 1.4;
+
 }
+
+
 
 .bu-offer-pricing .bu-offer-saving {
+
   display: inline-block;
+
   padding: 3px 7px;
+
   border-radius: 6px;
+
   background: #e5faf2;
+
   color: #16896e;
+
   font-size: 9px;
+
   font-weight: 800;
+
 }
+
+
 
 /* Mobile pricing adjustments */
+
 @media (max-width: 620px) {
+
   .bu-offer-pricing .bu-offer-sale-price {
+
     font-size: 13px;
+
   }
+
+
 
   .bu-offer-pricing del {
+
     font-size: 9px;
+
   }
+
+
 
   .bu-offer-pricing .bu-offer-saving {
+
     font-size: 8px;
-  }
-}
-/* =========================================
-   PRODUCT DETAILS MODAL - SCROLL FIX
-========================================= */
 
-.bu-details-backdrop {
-  position: fixed;
-  inset: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.bu-details-modal {
-  width: min(1150px, 100%);
-  max-height: calc(100vh - 40px);
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  overflow: hidden;
-}
-
-.bu-details-product {
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.bu-details-right {
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-gutter: stable;
-}
-
-.bu-detail-panel {
-  min-width: 0;
-}
-
-/* Mobile */
-@media (max-width: 850px) {
-  .bu-details-backdrop {
-    align-items: flex-start;
-    padding: 12px;
   }
 
-  .bu-details-modal {
-    grid-template-columns: 1fr;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .bu-details-product {
-    overflow: visible;
-  }
-
-  .bu-details-right {
-    height: auto;
-    overflow: visible;
-  }
-}
-/* ==========================================
-   FIX: PRODUCT DETAILS MODAL SCROLLING
-========================================== */
-
-.bu-details-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  overflow-y: auto;
 }
 
-.bu-details-modal {
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  width: min(1150px, 100%);
-  height: min(850px, calc(100dvh - 40px));
-  max-height: calc(100dvh - 40px);
-  min-height: 0;
-  overflow: hidden;
-}
 
-.bu-details-product {
-  min-height: 0;
-  overflow-y: auto;
-}
 
-.bu-details-content {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  overscroll-behavior-y: contain;
-  scrollbar-width: thin;
-  scrollbar-color: #b8cde5 transparent;
-}
 
-.bu-details-tabs {
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: #fff;
-}
 
-.bu-details-tab-panel {
-  flex-shrink: 0;
-  min-height: min-content;
-  /* overflow: visible; */
-}
 
-/* Scrollbar for Chrome and Edge */
-.bu-details-content::-webkit-scrollbar {
-  width: 7px;
-}
-
-.bu-details-content::-webkit-scrollbar-thumb {
-  background: #c4d5e9;
-  border-radius: 10px;
-}
-
-.bu-details-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Mobile */
-@media (max-width: 850px) {
-  .bu-details-backdrop {
-    align-items: flex-start;
-    padding: 10px;
-  }
-
-  .bu-details-modal {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .bu-details-product {
-    overflow: visible;
-  }
-
-  .bu-details-content {
-    height: auto;
-    max-height: 70vh;
-    overflow-y: auto !important;
-  }
-}
-
-/* PRODUCT MODAL SCROLL FIX */
-.bu-details-modal {
-  height: calc(100dvh - 40px);
-  max-height: calc(100dvh - 40px);
-  min-height: 0;
-}
-
-.bu-details-right {
-  min-height: 0;
-  height: 100%;
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-}
-
-.bu-detail-panel {
-  flex-shrink: 0;
-}
 
 /* =========================================
+
    PREMIUM ABOUT TAB DESIGN
-========================================= */
+
+\========================================= */
+
+
 
 .bu-detail-panel {
+
   padding: 30px !important;
+
   border: 1px solid #e3edf9;
+
   border-radius: 22px;
+
   background: linear-gradient(145deg, #ffffff, #f4f9ff);
+
 }
+
+
 
 .bu-detail-panel h3 {
+
   font-size: 23px !important;
+
   font-weight: 800;
+
   letter-spacing: -0.7px;
+
   color: #182643;
+
   margin-bottom: 18px !important;
+
 }
+
+
 
 .bu-about-details {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 18px;
+
 }
+
+
 
 .bu-about-details p {
+
   color: #7185a3;
+
   font-size: 13px;
+
   line-height: 1.9;
+
   margin: 0;
+
 }
 
+
+
 .bu-about-details h4 {
+
   color: #1c2e4d;
+
   font-size: 16px;
+
   font-weight: 800;
+
   margin: 12px 0 0;
+
 }
+
+
 
 /* Plan information */
 
+
+
 .bu-about-details p strong {
+
   color: #334b6d;
+
   font-weight: 800;
+
 }
+
+
 
 /* Provider link */
 
+
+
 .bu-about-details a {
+
   color: #2789ed;
+
   font-weight: 700;
+
   text-decoration: none;
+
   border-bottom: 1px solid #b8dcff;
+
   padding-bottom: 2px;
+
   transition: .2s ease;
+
 }
 
+
+
 .bu-about-details a:hover {
+
   color: #16ad9c;
+
   border-color: #16ad9c;
+
 }
+
+
 
 /* Bundle pricing options */
 
+
+
 .bu-detail-price-options {
+
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 12px;
+
   margin-top: 5px;
+
 }
+
+
 
 .bu-detail-price-options > div {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 9px;
+
   padding: 17px 19px;
+
   border: 1px solid #e1ebf8;
+
   border-radius: 15px;
+
   background: #fff;
+
   transition: transform .2s ease, border-color .2s ease,
+
     box-shadow .2s ease;
+
 }
+
+
 
 .bu-detail-price-options > div:hover {
+
   transform: translateY(-3px);
+
   border-color: #8bc9f7;
+
   box-shadow: 0 9px 24px #368bd51a;
+
 }
+
+
 
 .bu-detail-price-options > div strong {
+
   color: #8091a9;
+
   font-size: 11px;
+
   font-weight: 700;
+
 }
 
+
+
 .bu-detail-price-options > div span {
+
   color: #2789ed;
+
   font-family: "Sora", sans-serif;
+
   font-size: 21px;
+
   font-weight: 800;
+
 }
+
+
 
 /* Mobile */
 
+
+
 @media (max-width: 620px) {
+
   .bu-detail-panel {
+
     padding: 20px 16px !important;
+
   }
+
+
 
   .bu-detail-price-options {
+
     grid-template-columns: 1fr;
+
   }
 
+
+
   .bu-detail-price-options > div {
+
     padding: 15px;
+
   }
+
+}/* =====================================================
+   FINAL RESPONSIVE PRODUCT DETAILS MODAL
+   Desktop: internal details panel scrolls
+   Mobile: the entire modal scrolls as one page
+===================================================== */
+
+.bu-details-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  overflow: hidden;
+  background: rgba(28, 42, 70, .53);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
 }
-/* =========================================
-   MODAL CLOSE BUTTON FIX
-========================================= */
 
 .bu-details-modal {
   position: relative;
-  isolation: isolate;
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  width: min(1160px, 100%);
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow: hidden;
+  border: 1px solid #eef2f8;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 38px 110px #162a4740;
+}
+
+.bu-details-right {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 .bu-details-close {
-  position: absolute !important;
-  top: 16px !important;
-  right: 16px !important;
-  z-index: 100 !important;
-
-  width: 43px !important;
-  height: 43px !important;
-  min-width: 43px !important;
-
-  display: grid !important;
-  place-items: center !important;
-
-  padding: 0 !important;
-  margin: 0 !important;
-
-  border: 1px solid #e2ebf5 !important;
-  border-radius: 13px !important;
-
-  background: #f1f7fd !important;
-  color: #263c5b !important;
-
-  box-shadow: 0 4px 14px rgba(35, 75, 115, .08);
-  opacity: 1 !important;
-
-  transition: all .2s ease;
+  position: absolute;
+  z-index: 100;
+  top: 17px;
+  right: 17px;
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border: 0;
+  border-radius: 11px;
+  background: #f1f7fc;
+  color: #243755;
+  cursor: pointer;
 }
 
-.bu-details-close:hover {
-  background: #e3f1ff !important;
-  border-color: #b8d9f7 !important;
-  color: #168bdc !important;
-  transform: rotate(90deg);
+@media (max-width: 850px) {
+  /* The backdrop is the ONLY vertical scroll container on mobile. */
+  .bu-details-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+  }
+
+  .bu-details-modal {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+  }
+
+  .bu-details-product {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 30px 18px 25px !important;
+    overflow: visible !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #e6eef5 !important;
+  }
+
+  .bu-details-product .bu-logo-large {
+    width: 76px !important;
+    height: 76px !important;
+  }
+
+  .bu-details-product .bu-logo-large img {
+    width: 55px !important;
+    height: 55px !important;
+  }
+
+  .bu-details-product h2 {
+    margin: 14px 0 8px !important;
+    font-size: 24px !important;
+  }
+
+  .bu-details-price {
+    margin-top: 12px !important;
+    font-size: 25px !important;
+  }
+
+  .bu-details-intro {
+    margin: 10px 0 16px !important;
+  }
+
+  /* Do not make a nested scroll area inside the modal. */
+  .bu-details-right {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 22px 16px 35px !important;
+    overflow: visible !important;
+    -webkit-overflow-scrolling: auto !important;
+    overscroll-behavior: auto !important;
+    touch-action: pan-y !important;
+  }
+
+  .bu-details-topline {
+    display: block !important;
+    padding-right: 42px !important;
+  }
+
+  .bu-detail-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    gap: 8px !important;
+    padding: 12px 0 16px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bu-detail-tabs button {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    padding: 11px 13px !important;
+  }
+
+  .bu-detail-panel {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 18px 14px !important;
+    overflow: visible !important;
+  }
+
+  .bu-benefit-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .bu-benefit {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+  }
+
+  .bu-about-details dl {
+    grid-template-columns: 1fr !important;
+  }
+
+  .bu-detail-bottom {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 12px !important;
+  }
+
+  .bu-detail-bottom .bu-modal-add,
+  .bu-modal-add {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .bu-details-close {
+    position: fixed !important;
+    top: 12px !important;
+    right: 12px !important;
+    margin: 0 !important;
+    z-index: 100000 !important;
+  }
 }
 
-.bu-details-close svg {
-  width: 21px;
-  height: 21px;
-  display: block;
-  stroke: currentColor;
-  background: transparent;
+@media (max-width: 380px) {
+  .bu-details-product {
+    padding: 26px 14px 22px !important;
+  }
+
+  .bu-details-right {
+    padding: 20px 12px 30px !important;
+  }
+
+  .bu-detail-panel {
+    padding: 15px 11px !important;
+  }
+}
+/* =========================================
+   MOBILE APP-STYLE PRODUCT DETAILS
+========================================= */
+
+@media (max-width: 600px) {
+
+  .bu-details-backdrop {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .bu-details-modal {
+    width: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    border-radius: 0 !important;
+  }
+
+  /* Compact product header */
+  .bu-details-product {
+    padding: 18px 14px 14px !important;
+    gap: 5px !important;
+  }
+
+  .bu-details-product .bu-logo-large {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    margin: 3px auto !important;
+  }
+
+  .bu-details-product h2 {
+    font-size: 20px !important;
+    margin: 3px 0 !important;
+  }
+
+  .bu-details-price {
+    font-size: 25px !important;
+    margin: 5px 0 !important;
+  }
+
+  .bu-details-price-note,
+  .bu-details-intro {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    margin: 3px 0 !important;
+  }
+
+  .bu-detail-side-btn {
+    min-height: 38px !important;
+    padding: 9px 18px !important;
+    font-size: 12px !important;
+    margin-top: 5px !important;
+  }
+
+  /* Details section */
+  .bu-details-right {
+    padding: 12px !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .bu-detail-tabs {
+    padding: 5px 0 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .bu-detail-tabs button {
+    padding: 9px 12px !important;
+    font-size: 11px !important;
+  }
+
+  /* Compact benefit panel */
+  .bu-detail-panel {
+    padding: 13px !important;
+  }
+
+  .bu-detail-panel h2,
+  .bu-detail-panel h3 {
+    font-size: 18px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .bu-benefit-grid {
+    gap: 8px !important;
+  }
+
+  .bu-benefit {
+    padding: 12px !important;
+    min-height: 0 !important;
+  }
+
+  .bu-benefit strong {
+    font-size: 12px !important;
+  }
+
+  .bu-benefit p {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    margin-top: 4px !important;
+  }
 }
