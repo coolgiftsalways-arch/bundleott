@@ -211,28 +211,6 @@ const footerNavigation = [
       },
     ],
   },
-
-  {
-    title: "Explore",
-    links: [
-      {
-        name: "OTT Subscriptions",
-        path: "/our-plans",
-      },
-      {
-        name: "AI Subscriptions",
-        path: "/our-plans",
-      },
-      {
-        name: "Combo Plans",
-        path: "/our-plans",
-      },
-      {
-        name: "Build Your Bundle",
-        path: "/our-plans",
-      },
-    ],
-  },
 ];
 
 /* ==========================================
@@ -499,6 +477,32 @@ export default function Footer() {
                 <ArrowIcon size={16} />
               </Link>
             </div>
+            
+{/* LEGAL COLUMN */}
+<div className="sf-footer-column sf-legal-column">
+  <h3>Legal</h3>
+
+  <nav className="sf-footer-links" aria-label="Legal links">
+    <a
+      href="/legal/privacy-policy.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Privacy Policy
+      <ArrowUpRight size={14} />
+    </a>
+
+    <a
+      href="/legal/terms-and-conditions.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Terms & Conditions
+      <ArrowUpRight size={14} />
+    </a>
+  </nav>
+</div>
+
           </div>
 
           {/* =====================================
@@ -527,6 +531,7 @@ export default function Footer() {
             </button>
           </div>
 
+ 
           <div className="sf-footer-disclaimer">
             Subscription availability, pricing and activation depend on
             applicable provider terms and confirmation.

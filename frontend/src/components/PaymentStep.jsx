@@ -59,6 +59,21 @@ export default function PaymentStep({ customer, plans, total }) {
 
   const safePlans = Array.isArray(plans) ? plans : [];
 
+  useEffect(() => {
+  if (!orderData?.qrCode) return;
+
+  const timer = setTimeout(() => {
+    const qrScanner = document.querySelector(".bup-payment-qr");
+
+    qrScanner?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [orderData?.qrCode]);
+
 const selections = safePlans
   .filter((p) => p?.id)
   .map((p) => ({

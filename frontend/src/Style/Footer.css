@@ -1404,3 +1404,44 @@
      outline: 3px solid #408fff;
      outline-offset: 4px;
 }
+
+
+/* LEGAL LINKS */
+.sf-footer-legal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.sf-footer-legal a {
+  color: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.sf-footer-legal a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.sf-legal-separator {
+  opacity: 0.5;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .sf-footer-legal {
+    padding: 16px 0;
+    gap: 10px;
+  }
+
+  .sf-footer-legal a {
+    font-size: 11px;
+  }
+}

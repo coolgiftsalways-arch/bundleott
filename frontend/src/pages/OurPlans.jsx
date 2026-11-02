@@ -1,1701 +1,5607 @@
+
+
+
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
+
+
+
 import { createPortal } from "react-dom";
+
+
+
 import { useSearchParams } from "react-router-dom";
+
+
+
 import gsap from "gsap";
+
+
+
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+
+
 import "../Style/OurPlans.css";
+
+
+
 import PaymentStep from "../components/PaymentStep";
+
+
+
 import { SUBSCRIPTION_CATALOGUE } from "../data/subscriptionCatalogue";
-import {
-  getInrProductDetails,
-} from "../data/bundleottInrProductDetails";
 
-import {
-  EFFECTIVE_PRICE_OVERRIDES,
-} from "../data/BundleUpOTT_effectivePrices.js";
 
+
+import { getInrProductDetails } from "../data/bundleottInrProductDetails";
+
+
+
+import { EFFECTIVE_PRICE_OVERRIDES } from "../data/BundleUpOTT_effectivePrices.js";
+
+
+
+import logo3D1 from "../assets/LOGO/logos/a_glossy_high_contrast_3d_style_circular_app_icon.png";
+import logo3D2 from "../assets/LOGO/logos/a_glossy_high_contrast_3d_style_icon_on_a_black_b.png";
+import logo3D3 from "../assets/LOGO/logos/a_glossy_high_contrast_app_style_icon_on_a_black.png";
+import logo3D4 from "../assets/LOGO/logos/a_glossy_high_contrast_icon_on_a_black_background.png";
+import logo3D5 from "../assets/LOGO/logos/a_glossy_high_contrast_neon_3d_icon_a_circular.png";
+import logo3D6 from "../assets/LOGO/logos/a_glossy_high_detail_3d_neon_app_icon_style_logo.png";
+import logo3D7 from "../assets/LOGO/logos/a_glossy_neon_3d_style_app_icon_a_circular_badge.png";
+import logo3D8 from "../assets/LOGO/logos/a_glossy_neon_glow_3d_style_spotify_like_logo_a.png";
+import logo3D9 from "../assets/LOGO/logos/a_high_contrast_glossy_3d_app_icon_a_circular_gl.png";
+import logo3D10 from "../assets/LOGO/logos/a_high_contrast_glossy_3d_icon_on_a_transparent_ch.png";
+import logo3D11 from "../assets/LOGO/logos/a_high_detail_glossy_neon_app_icon_a_circular_bla.png";
+import logo3D12 from "../assets/LOGO/logos/a_high_gloss_ultra_detailed_3d_style_circular_bad.png";
+import logo3D13 from "../assets/LOGO/logos/a_highly_polished_glossy_3d_icon_in_the_same_style.png";
 gsap.registerPlugin(ScrollTrigger);
 
+
+
 const INR = new Intl.NumberFormat("en-IN", {
+
+
+
   style: "currency",
+
+
+
   currency: "INR",
+
+
+
   maximumFractionDigits: 0,
+
+
+
 });
+
+
 
 const OFFER_MONTHS = ["1", "3", "6", "12"];
 
-const PRICED_SUBSCRIPTION_CATALOGUE =
-  SUBSCRIPTION_CATALOGUE.filter((plan) => {
-    const pricing = EFFECTIVE_PRICE_OVERRIDES[String(plan.id)];
 
-    if (
-      pricing?.pricingType !== "subscription" ||
-      pricing.currency !== "INR"
-    ) {
-      return false;
-    }
-
-    return OFFER_MONTHS.every((month) => {
-      const price = pricing.effectivePrices?.[month];
-
-      return (
-        typeof price === "number" &&
-        Number.isFinite(price) &&
-        price > 0
-      );
-    });
-  });
-
-const BY_ID = new Map(
-  PRICED_SUBSCRIPTION_CATALOGUE.map((plan) => [
-    String(plan.id),
-    plan,
-  ]),
-);
-
-const CATEGORIES = [
-  ...new Set(
-    PRICED_SUBSCRIPTION_CATALOGUE.map((plan) => plan.category)
-  ),
-];
-
-const TABS = [
-  { id: "all", label: "All" },
-  { id: "ott", label: "OTT" },
-  { id: "ai", label: "AI" },
-  { id: "creator", label: "Creators & Design" },
-  { id: "other", label: "Other Services" },
-];
 
 const PAGE_SIZE = 24;
-const USD_INR_REFERENCE = 94.9601;
+
+
 
 const CLOUD_OFFER = {
+
+
+
   id: "bundleupott-cloud-250gb",
-  name: "250 GB Cloud Storage",
+
+
+
+  name: "250 GB Google Drive Cloud Storage",
+
+
+
   storageGB: 250,
+
+
+
   price: 149,
+
+
+
   originalPrice: 499,
+
+
+
   billing: "Monthly",
+
+
+
 };
 
-// IDs must match the backend catalogue in backend/catalog.js.
-const PAYMENT_PLAN_IDS = {
-  netflix: "netflix",
-  "amazon prime": "prime",
-  prime: "prime",
-  jiohotstar: "jiohotstar",
-  sonyliv: "sonyliv",
-  zee5: "zee5",
-  "sun nxt": "sunnxt",
-  sunnxt: "sunnxt",
-  aha: "aha",
-  hoichoi: "hoichoi",
-  shemaroome: "shemaroome",
-  "lionsgate play": "lionsgate",
-  lionsgate: "lionsgate",
-  "discovery+": "discovery",
-  discovery: "discovery",
-  fancode: "fancode",
-  chaupal: "chaupal",
-  "etv win": "etvwin",
-  etvwin: "etvwin",
-  "planet marathi": "planetmarathi",
-  planetmarathi: "planetmarathi",
-  manoramamax: "manoramamax",
-  "eros now": "erosnow",
-  erosnow: "erosnow",
-  youtube: "youtube",
-  chatgpt: "chatgpt",
-  gemini: "gemini",
-  claude: "claude",
-  perplexity: "perplexity",
-  copilot: "copilot",
-  grok: "grok",
-  midjourney: "midjourney",
-  canva: "canva",
-  notion: "notion",
-  firefly: "firefly",
-  elevenlabs: "elevenlabs",
-  runway: "runway",
-  spotify: "spotify_platinum",
-};
+
+
+const PRICED_SUBSCRIPTION_CATALOGUE = SUBSCRIPTION_CATALOGUE.filter((plan) => {
+
+
+
+  const pricing = EFFECTIVE_PRICE_OVERRIDES[String(plan.id)];
+
+
+
+  return (
+
+
+
+    pricing?.pricingType === "subscription" &&
+
+
+
+    pricing.currency === "INR" &&
+
+
+
+    OFFER_MONTHS.every((month) => {
+
+
+
+      const price = pricing.effectivePrices?.[month];
+
+
+
+      return typeof price === "number" && Number.isFinite(price) && price > 0;
+
+
+
+    })
+
+
+
+  );
+
+
+
+});
+
+
+
+const BY_ID = new Map(
+
+
+
+  PRICED_SUBSCRIPTION_CATALOGUE.map((plan) => [String(plan.id), plan])
+
+
+
+);
+
+
 
 function groupOf(plan) {
+
+
+
   if (plan.category === "OTT, films & TV") return "ott";
-  if (plan.category.startsWith("AI ")) return "ai";
+
+
+
+  if (String(plan.category || "").startsWith("AI ")) return "ai";
+
+
 
   if (
+
+
+
     [
+
+
+
       "YouTube & creator tools",
+
+
+
       "Photo, video & design software",
+
+
+
       "Stock assets, templates & licensing",
+
+
+
     ].includes(plan.category)
+
+
+
   ) {
-    return "creator";
+
+
+
+    return "other";
+
+
+
   }
 
+
+
   return "other";
+
+
+
 }
 
+
+
+const CATEGORIES = [
+
+
+
+  ...new Set(PRICED_SUBSCRIPTION_CATALOGUE.map((plan) => plan.category)),
+
+
+
+];
+
+
+
+const TABS = [
+
+
+
+  { id: "ott", label: "OTT" },
+
+
+
+  { id: "ai", label: "AI" },
+
+
+
+  { id: "other", label: "Other Plans" },
+
+
+
+];
+
+
+
 const COUNTS = PRICED_SUBSCRIPTION_CATALOGUE.reduce(
+
+
+
   (acc, plan) => {
-    acc.all++;
-    acc[groupOf(plan)]++;
+
+
+
+    acc.all += 1;
+
+
+
+    acc[groupOf(plan)] += 1;
+
+
+
     return acc;
+
+
+
   },
-  { all: 0, ott: 0, ai: 0, creator: 0, other: 0 },
+
+
+
+  { all: 0, ott: 0, ai: 0, creator: 0, other: 0 }
+
+
+
 );
+
+
+
 
 
 function getOriginalMonthlyPrice(plan) {
   const pricing = EFFECTIVE_PRICE_OVERRIDES[String(plan.id)];
+  const raw = String(pricing?.monthlyReference ?? "");
 
-  const match = String(pricing?.monthlyReference ?? "").match(
-    /₹\s*([\d,]+(?:\.\d{1,2})?)/
-  );
+  const match = raw.match(/([\d,]+(?:\.\d{1,2})?)/);
 
   if (!match) return null;
 
   const amount = Number(match[1].replaceAll(",", ""));
 
-  return Number.isFinite(amount) && amount > 0
-    ? amount
-    : null;
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
 }
+
+
 
 function getPriceInfo(plan) {
+
+
+
   const amount = getOriginalMonthlyPrice(plan);
 
+
+
   return {
+
+
+
     amount,
-    display:
-      amount === null
-        ? "Price unavailable"
-        : `${INR.format(amount)}/month`,
+
+
+
+    display: amount === null ? "Price unavailable" : `${INR.format(amount)}/month`,
+
+
+
     estimated: false,
+
+
+
     note: "Original monthly reference price",
+
+
+
   };
+
+
+
 }
 
+
+
 function getOfferPriceInfo(plan, months) {
+
+
+
   const pricing = EFFECTIVE_PRICE_OVERRIDES[String(plan.id)];
+
+
 
   const key = String(months);
 
+
+
   const amount = pricing?.effectivePrices?.[key];
+
+
 
   const monthlyReference = getOriginalMonthlyPrice(plan);
 
+
+
   if (
+
+
+
     typeof amount !== "number" ||
+
+
+
     !Number.isFinite(amount) ||
+
+
+
     amount <= 0 ||
+
+
+
     monthlyReference === null
+
+
+
   ) {
+
+
+
     return {
+
+
+
       amount: null,
+
+
+
       originalAmount: null,
+
+
+
       approximate: false,
+
+
+
       savingsPercent: null,
+
+
+
     };
+
+
+
   }
+
+
 
   const originalAmount = monthlyReference * Number(key);
 
+
+
   return {
+
+
+
     amount,
+
+
+
     originalAmount,
+
+
+
     approximate: false,
+
+
+
     savingsPercent: Math.round(
+
+
+
       ((originalAmount - amount) / originalAmount) * 100
+
+
+
     ),
+
+
+
   };
+
+
+
 }
 
+
+
 function getOfferAmount(plan, months) {
+
+
+
   return getOfferPriceInfo(plan, months).amount;
+
+
+
 }
+
 
 
 function Icon({ name = "spark", size = 20 }) {
+
+
+
   const paths = {
+
+
+
     arrow: (
+
+
+
       <>
+
+
+
         <path d="M5 12h14" />
+
+
+
         <path d="m13 6 6 6-6 6" />
+
+
+
       </>
+
+
+
     ),
+
+
+
+    "arrow-up": (
+
+
+
+      <>
+
+
+
+        <path d="M12 19V5" />
+
+
+
+        <path d="m5 12 7-7 7 7" />
+
+
+
+      </>
+
+
+
+    ),
+
+
+
+    "arrow-down": (
+
+
+
+      <>
+
+
+
+        <path d="M12 5v14" />
+
+
+
+        <path d="m19 12-7 7-7-7" />
+
+
+
+      </>
+
+
+
+    ),
+
+
+
     close: (
+
+
+
       <>
+
+
+
         <path d="M6 6l12 12" />
+
+
+
         <path d="M18 6 6 18" />
+
+
+
       </>
+
+
+
     ),
+
+
+
     check: <path d="m5 12 4 4L19 6" />,
+
+
+
     search: (
+
+
+
       <>
+
+
+
         <circle cx="11" cy="11" r="7" />
+
+
+
         <path d="m20 20-4-4" />
+
+
+
       </>
+
+
+
     ),
+
+
+
     spark: (
+
+
+
       <path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5Z" />
+
+
+
     ),
+
+
+
     layer: (
+
+
+
       <>
+
+
+
         <path d="m12 2 9 5-9 5-9-5 9-5Z" />
+
+
+
         <path d="m3 12 9 5 9-5M3 17l9 5 9-5" />
+
+
+
       </>
+
+
+
     ),
+
+
+
     eye: (
+
+
+
       <>
+
+
+
         <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" />
+
+
+
         <circle cx="12" cy="12" r="3" />
+
+
+
       </>
+
+
+
     ),
-    info: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 11v5M12 8h.01" />
-      </>
-    ),
-    device: (
-      <>
-        <rect x="3" y="4" width="18" height="13" rx="2" />
-        <path d="M8 21h8m-4-4v4" />
-      </>
-    ),
-    bolt: <path d="m13 2-9 11h7l-1 9 10-12h-7l0-8Z" />,
-    link: <path d="M7 17 17 7M8 7h9v9" />,
+
+
+
     cloud: (
+
+
+
       <path d="M20 17.5a4 4 0 0 0-1.2-7.8 7 7 0 0 0-13.4 1.8A3.9 3.9 0 0 0 6 19h13a4 4 0 0 0 1-1.5Z" />
+
+
+
     ),
+
+
+
   };
 
+
+
   return (
+
+
+
     <svg
+
+
+
       width={size}
+
+
+
       height={size}
+
+
+
       viewBox="0 0 24 24"
+
+
+
       fill="none"
+
+
+
       stroke="currentColor"
+
+
+
       strokeWidth="1.8"
+
+
+
       strokeLinecap="round"
+
+
+
       strokeLinejoin="round"
+
+
+
       aria-hidden="true"
+
+
+
     >
+
+
+
       {paths[name] || paths.spark}
+
+
+
     </svg>
+
+
+
   );
+
+
+
 }
 
-function domainOf(plan) {
-  const raw =
-    plan?.domain ||
-    plan?.websiteDomain ||
-    plan?.website ||
-    "";
 
-  if (typeof raw !== "string" || !raw.trim()) {
-    return null;
-  }
+
+function domainOf(plan) {
+
+  const raw = plan?.domain || plan?.websiteDomain || plan?.website || "";
+
+  if (typeof raw !== "string" || !raw.trim()) return null;
 
   try {
-    const url = /^[a-z][a-z\d+.-]*:\/\//i.test(raw)
-      ? raw
-      : `https://${raw}`;
+
+    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 
     return new URL(url).hostname.replace(/^www\./i, "");
+
   } catch {
+
     return null;
+
   }
+
+}
+
+
+
+
+const CUSTOM_3D_LOGOS = [
+  // Match against provider name, product name and website/domain where available.
+  { match: ["canva", "ca"], src: logo3D1 },
+  { match: ["google one", "google drive", "google storage", "google", "go"], src: logo3D2 },
+  { match: ["icloud", "apple icloud", "ic"], src: logo3D13 },
+  { match: ["playstation", "ps plus", "psn", "play station", "pl"], src: logo3D4 },
+  { match: ["youtube", "you tube", "yt", "yo"], src: logo3D5 },
+  { match: ["microsoft copilot", "copilot", "microsoft 365", "office 365", "microsoft", "mi"], src: logo3D6 },
+  { match: ["spotify", "sp"], src: logo3D8 },
+  { match: ["instagram", "insta", "in"], src: logo3D9 },
+  { match: ["apple creator studio", "creator studio"], src: logo3D12 },
+  { match: ["picsart", "pi"], src: logo3D11 },
+  { match: ["wix"], src: logo3D3 },
+  { match: ["youtube music"], src: logo3D5 },
+  { match: ["capcut"], src: logo3D10 },
+];
+
+function getCustomLogo(plan) {
+  const searchText = [
+    plan?.brand,
+    plan?.name,
+    plan?.website,
+    plan?.websiteDomain,
+    plan?.domain,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  const initials = String(plan?.brand || "").trim().slice(0, 2).toLowerCase();
+  return CUSTOM_3D_LOGOS.find((entry) =>
+    entry.match.some((keyword) => {
+      if (keyword.length <= 2) return initials === keyword;
+      return searchText.includes(keyword);
+    })
+  )?.src || null;
 }
 
 function Logo({ plan, large = false }) {
+
+
+
   const [error, setError] = useState(false);
+
+
+
   const domain = domainOf(plan);
+  const customLogo = getCustomLogo(plan);
+
+
 
   return (
-    <span
-      className={`bu-logo bu-logo-${groupOf(plan)} ${large ? "bu-logo-large" : ""}`}
-    >
-      {domain && !error ? (
+
+
+
+    <span className={`bu-logo bu-logo-${groupOf(plan)} ${large ? "bu-logo-large" : ""}`}>
+
+
+
+      {customLogo ? (
+        <img src={customLogo} alt={`${plan.brand} logo`} loading="lazy" />
+      ) : domain && !error ? (
+
+
+
         <img
+
+
+
           src={`https://www.google.com/s2/favicons?domain=${domain}&sz=128`}
+
+
+
           alt=""
+
+
+
           onError={() => setError(true)}
+
+
+
           loading="lazy"
+
+
+
         />
+
+
+
       ) : (
-        <b>{plan.brand.slice(0, 2).toUpperCase()}</b>
+
+
+
+        <b>{String(plan.brand || "?").slice(0, 2).toUpperCase()}</b>
+
+
+
       )}
+
+
+
     </span>
+
+
+
   );
+
+
+
 }
+
+
+
 function benefitsFor(plan, detail) {
+
+
+
   if (detail) {
+
+
+
     return [
+
+
+
       ...(detail.whatYouGet || []).map((text, index) => ({
-        title: index === 0
-          ? "What this tier includes"
-          : "More included benefits",
+
+
+
+        title: index === 0 ? "What this tier includes" : "More included benefits",
+
+
+
         text,
+
+
+
       })),
+
+
 
       ...(detail.limitations || []).map((text) => ({
+
+
+
         title: "Usage and limitations",
+
+
+
         text,
+
+
+
       })),
+
+
 
       ...(detail.deviceAccess || []).map((text) => ({
+
+
+
         title: "Devices and account access",
+
+
+
         text,
+
+
+
       })),
+
+
 
       ...(detail.importantNotes || []).map((text) => ({
+
+
+
         title: "Important plan notes",
+
+
+
         text,
+
+
+
       })),
+
+
+
     ];
+
+
+
   }
 
-  // Keep the existing catalogue information as fallback.
+
+
   return [
-    ...(String(plan.features || "")
+
+
+
+    ...String(plan.features || "")
+
+
+
       .split(/\s*;\s*/)
+
+
+
       .filter(Boolean)
-      .map((text) => ({ title: "Included benefits", text }))),
+
+
+
+      .map((text) => ({ title: "Included benefits", text })),
+
+
 
     ...(plan.limits ? [{ title: "Usage and limitations", text: plan.limits }] : []),
+
+
+
     ...(plan.devices ? [{ title: "Device access", text: plan.devices }] : []),
+
+
+
     ...(plan.useCase ? [{ title: "Ideal for", text: plan.useCase }] : []),
+
+
+
     ...(plan.note ? [{ title: "Important notes", text: plan.note }] : []),
+
+
+
   ];
+
+
+
 }
 
-function SubscriptionCard({
-  plan,
-  selected,
-  selectedDuration,
-  onOpen,
-  onToggle,
-  onSelectOffer,
-}) {
-  const price = getPriceInfo(plan);
 
-  const durations = [
-    { months: "1", label: "1 Month" },
-    { months: "3", label: "3 Months" },
-    { months: "6", label: "6 Months" },
-    { months: "12", label: "12 Months" },
-  ];
+
+function SubscriptionCard({ plan, selected, onOpen }) {
+
+  const summary = String(plan.useCase || plan.features || "")
+
+    .split(/\s*;\s*/)[0]
+
+    .trim();
+
+  const tierName = String(plan.tier || "Standard").trim();
+
+  const tierKey = tierName.toLowerCase();
+
+  const mark = tierKey.includes("mobile") ? "M"
+
+    : tierKey.includes("basic") ? "B"
+
+    : tierKey.includes("standard") ? "HD"
+
+    : tierKey.includes("premium") ? "4K"
+
+    : tierKey.includes("fan") ? "✦" : "✧";
+
+
 
   return (
-    <article
-      className={`bu-plan-card ${
-        selected ? "bu-card-selected" : ""
-      }`}
+
+    <button
+
+      type="button"
+
+      className={`bu-tier-option bu-tier-bubble ${selected ? "is-selected" : ""}`}
+
+      data-plan-id={String(plan.id)}
+
+      onClick={() => onOpen(plan)}
+
+      aria-label={`View ${plan.brand} ${tierName} benefits and pricing`}
+
+      aria-pressed={selected}
+
     >
-      <div className="bu-card-content">
-        {/* Separate button for viewing the subscription details */}
-        <button
-          type="button"
-          className="bu-card-main"
-          onClick={() => onOpen(plan)}
-          aria-label={`View ${plan.brand} ${plan.tier} details`}
-        >
-          <div className="bu-card-top">
-            <Logo plan={plan} />
-            <span className="bu-card-group">
-              {groupOf(plan).toUpperCase()}
-            </span>
-          </div>
 
-          <h3>{plan.brand}</h3>
-          <span className="bu-tier-name">{plan.tier}</span>
+      <span className="bu-tier-bubble-glow" aria-hidden="true" />
 
-          <strong className="bu-card-price">
-            {price.display}
-          </strong>
+      <span className="bu-tier-bubble-mark" aria-hidden="true"><Logo plan={plan} /></span>
 
-          <small className="bu-card-billing">
-            {price.note} · {plan.billing}
-          </small>
-        </button>
+      <span className="bu-tier-option-copy">
 
-        {/* These are real, independent buttons */}
-        <div className="bu-card-offers">
-          <p className="bu-card-offers-title">
-            Choose a duration
-          </p>
+        <strong>{tierName}</strong>
 
-          <div className="bu-card-offers-grid">
-            {durations.map(({ months, label }) => {
-              const offerPrice = getOfferPriceInfo(plan, months);
-const amount = offerPrice.amount;
+        {summary && <small>{summary}</small>}
 
-              const isChosen =
-                selected &&
-                String(selectedDuration || "1") === months;
+      </span>
 
-              return (
-                <button
-                  key={months}
-                  type="button"
-                  className={`bu-card-offer ${
-                    isChosen ? "is-selected" : ""
-                  }`}
-                  disabled={amount === null}
-                  aria-pressed={isChosen}
-                  title={
-                    amount === null
-                      ? "This price needs confirmation"
-                      : `Add ${plan.brand} for ${label}`
-                  }
-                  onClick={() => onSelectOffer(plan.id, months)}
-                >
-                  <span>{label}</span>
+      {selected && <span className="bu-tier-option-selected">In bundle</span>}
 
-                  <div className="bu-offer-pricing">
-  {amount === null ? (
-    <strong>Unavailable</strong>
-  ) : (
-    <>
-      <del>
-        {INR.format(offerPrice.originalAmount)}
-      </del>
+      <span className="bu-tier-option-arrow" aria-hidden="true">
 
-      <strong className="bu-offer-sale-price">
-        {INR.format(offerPrice.amount)}
-      </strong>
+        <Icon name="arrow" size={18} />
 
-      <small className="bu-offer-saving">
-        Save {offerPrice.savingsPercent}%
-      </small>
-    </>
-  )}
-</div>
+      </span>
 
-                  <small>
-                    {amount === null
-                      ? "Unavailable"
-                      : isChosen
-                        ? "✓ Selected"
-                        : "Tap to add"}
-                  </small>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+    </button>
 
-        <p className="bu-card-summary">{plan.features}</p>
-
-        <button
-          type="button"
-          className="bu-see-benefits bu-see-benefits-button"
-          onClick={() => onOpen(plan)}
-        >
-          <Icon name="eye" size={15} />
-          See what you'll get
-          <Icon name="arrow" size={14} />
-        </button>
-      </div>
-
-      <button
-        type="button"
-        className={`bu-add-btn ${
-          selected ? "bu-add-selected" : ""
-        }`}
-        onClick={() => onToggle(plan.id)}
-      >
-        <Icon name={selected ? "check" : "layer"} size={16} />
-
-        {selected ? "Added · Remove" : "+ Add 1 month"}
-      </button>
-    </article>
   );
+
 }
+
+
+
 function CloudStorageOffer({ onAdd, onDismiss }) {
+
+
+
   return (
-    <section
-      className="bu-cloud-offer"
-      aria-label="Optional 250 GB cloud storage offer"
-    >
+
+
+
+    <section className="bu-cloud-offer" aria-label="Optional 250 GB cloud storage offer">
+
+
+
       <div className="bu-cloud-offer-tags">
+
+
+
         <span className="bu-cloud-limited">LIMITED-TIME OFFER</span>
-        <span className="bu-cloud-days">Special ₹149 rate</span>
+
+
+
+        <span className="bu-cloud-days">OUR BEST PRICE</span>
+
+
+
       </div>
+
+
 
       <div className="bu-cloud-offer-heading">
+
+
+
         <span className="bu-cloud-art">
+
+
+
           <Icon name="cloud" size={43} />
+
+
+
         </span>
+
+
+
         <div>
-          <h4>250 GB Cloud Storage</h4>
+
+
+
+          <h4>250 GB Google Drive Cloud Storage</h4>
+
+
+
           <p>Optional add-on to your custom bundle</p>
+
+
+
         </div>
+
+
+
       </div>
 
-      <div className="bu-cloud-price-row">
-        <strong>
-          {INR.format(CLOUD_OFFER.price)}
-          <small>/month</small>
-        </strong>
-        <del>{INR.format(CLOUD_OFFER.originalPrice)}/month</del>
+
+
+      <div className="bu-cloud-price-block">
+
+
+
+        <span className="bu-cloud-price-caption">Our best price</span>
+
+
+
+        <div className="bu-cloud-price-row">
+
+
+
+          <strong>
+
+
+
+            {INR.format(CLOUD_OFFER.price)}
+
+
+
+            <small>/month</small>
+
+
+
+          </strong>
+
+
+
+          <span className="bu-cloud-regular-price">
+
+
+
+            <small>Regular price</small>
+
+
+
+            <del>{INR.format(CLOUD_OFFER.originalPrice)}/month</del>
+
+
+
+          </span>
+
+
+
+        </div>
+
+
+
       </div>
+
+
 
       <p className="bu-cloud-save">
-        Save{" "}
-        {INR.format(CLOUD_OFFER.originalPrice - CLOUD_OFFER.price)} on the
-        stated regular price
+
+
+
+        Save {INR.format(CLOUD_OFFER.originalPrice - CLOUD_OFFER.price)} on the stated regular price
+
+
+
       </p>
 
+
+
       <ul className="bu-cloud-benefits">
-        <li>
-          <Icon name="check" size={16} />
-          250 GB storage allowance
-        </li>
-        <li>
-          <Icon name="check" size={16} />
-          Space for photos, documents and videos
-        </li>
-        <li>
-          <Icon name="check" size={16} />
-          Access and backup features depend on provider
-        </li>
+
+
+
+        <li><Icon name="check" size={16} />250 GB storage allowance</li>
+
+
+
+        <li><Icon name="check" size={16} />Space for photos, documents and videos</li>
+
+
+
+        <li><Icon name="check" size={16} />Access and backup features depend on provider</li>
+
+
+
       </ul>
 
+
+
       <div className="bu-cloud-actions">
-        <button
-          type="button"
-          className="bu-cloud-cancel"
-          onClick={onDismiss}
-        >
-          Cancel
+
+
+
+        <button type="button" className="bu-cloud-cancel" onClick={onDismiss}>
+
+
+
+          No thanks
+
+
+
         </button>
-        <button
-          type="button"
-          className="bu-cloud-add"
-          onClick={onAdd}
-        >
+
+
+
+        <button type="button" className="bu-cloud-add" onClick={onAdd}>
+
+
+
           + Add for ₹149
+
+
+
         </button>
+
+
+
       </div>
 
+
+
       <small>
-        Offer planned for limited days. Confirm provider, dates and terms before
-        selling.
+
+
+
+        Confirm provider, dates and terms before offering this storage service for sale.
+
+
+
       </small>
+
+
+
     </section>
+
+
+
   );
+
+
+
 }
 
+
+
 function useModalLock(onClose) {
+
+
+
   useEffect(() => {
+
+
+
     const oldOverflow = document.body.style.overflow;
+
+
+
     document.body.style.overflow = "hidden";
+
+
+
     window.lenis?.stop?.();
 
+
+
     const onKey = (event) => {
+
+
+
       if (event.key === "Escape") onClose();
+
+
+
     };
+
+
 
     window.addEventListener("keydown", onKey);
 
+
+
     return () => {
+
+
+
       document.body.style.overflow = oldOverflow;
+
+
+
       window.lenis?.start?.();
+
+
+
       window.removeEventListener("keydown", onKey);
+
+
+
     };
+
+
+
   }, [onClose]);
+
+
+
 }
 
-function DetailsModal({ plan, selected, onClose, onToggle }) {
+
+
+function DetailsModal({
+
+  plan,
+
+  selected,
+
+  selectedDuration,
+
+  onClose,
+
+  onToggle,
+
+  onSelectOffer,
+
+  onViewNextPlan,
+
+}) {
+
   const [tab, setTab] = useState("benefits");
+
+  const [mobileView, setMobileView] = useState("ott");
+
+  const [duration, setDuration] = useState(String(selectedDuration || "1"));
+
   const closeRef = useRef(null);
 
+  const modalScrollRef = useRef(null);
+
+  const exploreSectionRef = useRef(null);
+
   useModalLock(onClose);
+
+
+
   useEffect(() => closeRef.current?.focus(), []);
 
- const detail = getInrProductDetails(plan.id);
-const benefits = benefitsFor(plan, detail);
+  useEffect(() => {
 
-  const tabs = [
-    ["benefits", "What you will get"],
-    ["about", "About"],
-    
+    setDuration(String(selectedDuration || "1"));
+
+    setMobileView("ott");
+
+  }, [plan.id, selectedDuration]);
+
+
+
+  const navigateMobileSection = (section) => {
+
+    setMobileView(section);
+
+
+
+    window.requestAnimationFrame(() => {
+
+      window.requestAnimationFrame(() => {
+
+        const scroller = modalScrollRef.current;
+
+        if (!scroller) return;
+
+
+
+        if (section === "explore") {
+
+          const target = exploreSectionRef.current;
+
+          if (!target) return;
+
+
+
+          const scrollerTop = scroller.getBoundingClientRect().top;
+
+          const targetTop = target.getBoundingClientRect().top;
+
+          const nextTop = scroller.scrollTop + targetTop - scrollerTop;
+
+
+
+          scroller.scrollTo({
+
+            top: Math.max(0, nextTop),
+
+            behavior: "smooth",
+
+          });
+
+        } else {
+
+          scroller.scrollTo({ top: 0, behavior: "smooth" });
+
+        }
+
+      });
+
+    });
+
+  };
+
+
+
+  const detail = getInrProductDetails(plan.id);
+
+  const benefits = benefitsFor(plan, detail);
+
+  const durations = [
+
+    { months: "1", label: "1 Month" },
+
+    { months: "3", label: "3 Months" },
+
+    { months: "6", label: "6 Months" },
+
+    { months: "12", label: "12 Months" },
+
   ];
 
+  const chosenOffer = getOfferPriceInfo(plan, duration);
+
+  const tabs = [
+
+    ["benefits", "What you will get"],
+
+    ["about", "About this plan"],
+
+  ];
+
+
+
+  const scrollPlanDetails = (direction) => {
+
+    const scroller = modalScrollRef.current;
+
+    if (!scroller) return;
+
+
+
+    const step = Math.max(220, Math.round(scroller.clientHeight * 0.65));
+
+    const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+
+    const nextScroll = direction === "up"
+
+      ? Math.max(0, scroller.scrollTop - step)
+
+      : Math.min(maxScroll, scroller.scrollTop + step);
+
+
+
+    scroller.scrollTo({
+
+      top: nextScroll,
+
+      behavior: "smooth",
+
+    });
+
+  };
+
+
+
   return createPortal(
+
     <div
-      className="bu-details-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+
+      ref={modalScrollRef}
+
+      className="bu-details-backdrop bu-tier-details-backdrop"
+
+      onMouseDown={(event) => {
+
+        if (event.target === event.currentTarget) onClose();
+
       }}
+
     >
+
       <div
-        className="bu-details-modal"
+
+        className={`bu-details-modal bu-tier-details-modal bu-mobile-view-${mobileView}`}
+
         role="dialog"
+
         aria-modal="true"
+
         aria-labelledby="bu-details-title"
+
       >
+
         <button
+
           type="button"
+
           ref={closeRef}
+
           className="bu-details-close"
-          aria-label="Close subscription details"
+
+          aria-label="Close plan details and return to plan list"
+
           onClick={onClose}
+
         >
+
           <Icon name="close" />
+
         </button>
 
-        <aside className="bu-details-product">
-          <span className="bu-mini-pill">
-            {groupOf(plan).toUpperCase()} SUBSCRIPTION
-          </span>
+
+
+        <aside className="bu-details-product bu-tier-details-product">
+
+          <span className="bu-mini-pill">{groupOf(plan).toUpperCase()} PLAN</span>
 
           <Logo plan={plan} large />
 
           <h2 id="bu-details-title">{plan.brand}</h2>
+
           <span className="bu-detail-tier">{plan.tier}</span>
 
-          <strong className="bu-details-price">
-            {getPriceInfo(plan).display}
-          </strong>
 
-          <p className="bu-details-price-note">
-            {getPriceInfo(plan).note}
-            <br />
-            {plan.billing} · {plan.priceBasis}
-          </p>
 
-          <p className="bu-details-intro">
-            {plan.useCase || plan.features}
-          </p>
+          <div className="bu-mobile-detail-switch" role="tablist" aria-label="Plan sections">
 
-          <button
-            type="button"
-            className={`bu-primary-btn ${selected ? "is-selected" : ""}`}
-            onClick={() => onToggle(plan)}
-          >
-            {selected ? "Remove from bundle" : "Add to bundle"}
-          </button>
-        </aside>
+            <button
 
-        <div className="bu-details-content">
-          <div className="bu-details-tabs" role="tablist">
-            {tabs.map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={tab === id}
-                className={tab === id ? "active" : ""}
-                onClick={() => setTab(id)}
-              >
-                {label}
-              </button>
-            ))}
+              type="button"
+
+              role="tab"
+
+              aria-selected={mobileView === "ott"}
+
+              className={mobileView === "ott" ? "is-active" : ""}
+
+              onClick={() => navigateMobileSection("ott")}
+
+            >
+
+              <Icon name="arrow-up" size={16} /> OTT PLAN
+
+            </button>
+
+            <button
+
+              type="button"
+
+              role="tab"
+
+              aria-selected={mobileView === "explore"}
+
+              className={mobileView === "explore" ? "is-active" : ""}
+
+              onClick={() => navigateMobileSection("explore")}
+
+            >
+
+              <Icon name="arrow-down" size={16} /> EXPLORE YOUR PLAN
+
+            </button>
+
           </div>
 
-          <div className="bu-details-tab-panel">
+
+
+          <strong className="bu-details-price">{getPriceInfo(plan).display}</strong>
+
+          <p className="bu-details-price-note">
+
+            {getPriceInfo(plan).note}<br />
+
+            {plan.billing} · {plan.priceBasis}
+
+          </p>
+
+          <p className="bu-details-intro">{plan.useCase || plan.features}</p>
+
+
+
+          <div className="bu-modal-duration">
+
+            <div className="bu-modal-duration-heading">
+
+              <strong>Choose duration</strong>
+
+              <span>Best available offer</span>
+
+            </div>
+
+            <div className="bu-modal-duration-grid">
+
+              {durations.map(({ months, label }) => {
+
+                const offer = getOfferPriceInfo(plan, months);
+
+                const active = duration === months;
+
+                return (
+
+                  <button
+
+                    key={months}
+
+                    type="button"
+
+                    className={`bu-modal-duration-option ${active ? "is-active" : ""}`}
+
+                    disabled={offer.amount === null}
+
+                    aria-pressed={active}
+
+                    onClick={() => setDuration(months)}
+
+                  >
+
+                    <span>{label}</span>
+
+                    {offer.amount === null ? (
+
+                      <strong>Unavailable</strong>
+
+                    ) : (
+
+                      <>
+
+                        <del>{INR.format(offer.originalAmount)}</del>
+
+                        <strong>{INR.format(offer.amount)}</strong>
+
+                        <small>Save {offer.savingsPercent}%</small>
+
+                      </>
+
+                    )}
+
+                  </button>
+
+                );
+
+              })}
+
+            </div>
+
+          </div>
+
+
+
+          {chosenOffer.amount !== null && (
+
+            <div className="bu-modal-selected-price">
+
+              <span>Your selected price</span>
+
+              <strong>{INR.format(chosenOffer.amount)}</strong>
+
+              <small>for {duration} {duration === "1" ? "month" : "months"}</small>
+
+            </div>
+
+          )}
+
+
+
+          <button
+
+            type="button"
+
+            className={`bu-primary-btn bu-tier-details-cta ${selected ? "is-selected" : ""}`}
+
+            disabled={chosenOffer.amount === null}
+
+            onClick={() => onSelectOffer(plan.id, duration)}
+
+          >
+
+            <Icon name={selected ? "check" : "layer"} />
+
+            {selected ? "Update bundle" : "Add to bundle"}
+
+          </button>
+
+          {selected && (
+
+            <button
+
+              type="button"
+
+              className="bu-tier-remove-link"
+
+              onClick={() => onToggle(plan.id)}
+
+            >
+
+              Remove this plan from bundle
+
+            </button>
+
+          )}
+
+        </aside>
+
+
+
+        <section ref={exploreSectionRef} className="bu-details-content bu-tier-details-content" id="bu-explore-plan-section">
+
+          <button
+
+            type="button"
+
+            className="bu-explore-back-button"
+
+            onClick={() => navigateMobileSection("ott")}
+
+            aria-label="Go back to OTT plan"
+
+          >
+
+            <Icon name="arrow-left" size={17} />
+
+            <span>Back to OTT Plan</span>
+
+          </button>
+
+
+
+          <div className="bu-tier-details-heading">
+
+            <span className="bu-eyebrow">EXPLORE YOUR PLAN</span>
+
+            <h2>{plan.tier}</h2>
+
+            <p>{plan.useCase || `Discover what is included with ${plan.brand} ${plan.tier}.`}</p>
+
+          </div>
+
+          <div className="bu-detail-tabs-row">
+
+            <div className="bu-detail-tabs" role="tablist" aria-label="Plan information">
+
+              {tabs.map(([id, label]) => (
+
+                <button
+
+                  key={id}
+
+                  type="button"
+
+                  role="tab"
+
+                  aria-selected={tab === id}
+
+                  className={tab === id ? "bu-detail-tab-active" : ""}
+
+                  onClick={() => setTab(id)}
+
+                >
+
+                  {label}
+
+                </button>
+
+              ))}
+
+            </div>
+
+            <div className="bu-plan-scroll-arrows" aria-label="Scroll plan details">
+
+              <button
+
+                type="button"
+
+                className="bu-plan-scroll-arrow"
+
+                onClick={() => scrollPlanDetails("up")}
+
+                aria-label="Scroll up"
+
+                title="Scroll up"
+
+              >
+
+                <Icon name="arrow-up" size={17} />
+
+              </button>
+
+              <button
+
+                type="button"
+
+                className="bu-plan-scroll-arrow"
+
+                onClick={() => scrollPlanDetails("down")}
+
+                aria-label="Scroll down"
+
+                title="Scroll down"
+
+              >
+
+                <Icon name="arrow-down" size={17} />
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+
+          <div className="bu-tier-detail-panel" role="tabpanel">
+
             {tab === "benefits" && (
-              <div>
-                <h3>Included benefits</h3>
-                <ul className="bu-detail-benefits">
-  {benefits.map((benefit, index) => (
-    <li key={`${benefit.title}-${index}`}>
-      <Icon name="check" size={17} />
 
-      <div>
-        <strong>{benefit.title}</strong>
-        <p>{benefit.text}</p>
-      </div>
-    </li>
-  ))}
-</ul>
+              <>
 
-                {plan.features && (
-                  <p className="bu-details-description">
-                    {plan.features}
-                  </p>
+                <h3>What you get with {plan.tier}</h3>
+
+                <p className="bu-tier-detail-caption">
+
+                  Benefits and plan information listed for this specific tier in the catalogue.
+
+                </p>
+
+                {benefits.length ? (
+
+                  <ul className="bu-detail-benefits">
+
+                    {benefits.map((benefit, index) => (
+
+                      <li key={`${benefit.title}-${index}`}>
+
+                        <Icon name="check" size={17} />
+
+                        <div>
+
+                          <strong>{benefit.title}</strong>
+
+                          <p>{benefit.text}</p>
+
+                        </div>
+
+                      </li>
+
+                    ))}
+
+                  </ul>
+
+                ) : (
+
+                  <div className="bu-tier-no-benefits">
+
+                    Detailed benefits have not been added to this catalogue entry yet.
+
+                  </div>
+
                 )}
-              </div>
+
+                {plan.features && <p className="bu-details-description">{plan.features}</p>}
+
+                {plan.limits && <p className="bu-tier-limits"><strong>Usage limits:</strong> {plan.limits}</p>}
+
+                {plan.devices && <p className="bu-tier-limits"><strong>Device access:</strong> {plan.devices}</p>}
+
+                {plan.note && <p className="bu-tier-limits"><strong>Note:</strong> {plan.note}</p>}
+
+              </>
+
             )}
 
+
+
             {tab === "about" && (
-  <div>
-    <h3>About {plan.brand}</h3>
 
-    <p>
-      {detail?.about ||
-        plan.description ||
-        plan.useCase ||
-        plan.features}
-    </p>
+              <div className="bu-about-details">
 
-    {detail && (
-      <>
-        <h4>Plan information</h4>
+                <h3>About {plan.brand} {plan.tier}</h3>
 
-        <p><strong>Plan:</strong> {detail.title}</p>
-        <p><strong>Billing:</strong> {detail.billing}</p>
-        <p><strong>Reference price:</strong> {detail.advertisedRealPrice}</p>
-        <p><strong>Monthly reference:</strong> {detail.monthlyReference}</p>
+                <p>{detail?.about || plan.description || plan.useCase || plan.features || "Plan description is not available in the catalogue."}</p>
 
-        {detail.source && (
-          <p>
-            <strong>Source:</strong>{" "}
-            <a href={detail.source} target="_blank" rel="noreferrer">
-              View provider information
-            </a>
-          </p>
-        )}
+                <dl>
 
-        {Object.keys(detail.offers || {}).length > 0 && (
-          <>
-            <h4>Bundle price options</h4>
+                  <div><dt>Provider</dt><dd>{plan.brand}</dd></div>
 
-            <div className="bu-detail-price-options">
-              {Object.entries(detail.offers).map(([months, price]) => (
-                <div key={months}>
-                  <strong>{months} month(s)</strong>
-                  <span>{price}</span>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </>
-    )}
-  </div>
-)}         </div>
-        </div>
+                  <div><dt>Plan</dt><dd>{plan.tier}</dd></div>
+
+                  <div><dt>Category</dt><dd>{plan.category}</dd></div>
+
+                  <div><dt>Billing</dt><dd>{plan.billing}</dd></div>
+
+                  <div><dt>Reference price</dt><dd>{getPriceInfo(plan).display}</dd></div>
+
+                  <div><dt>Price basis</dt><dd>{plan.priceBasis || "Catalogue reference"}</dd></div>
+
+                </dl>
+
+                {detail?.source && (
+
+                  <a href={detail.source} target="_blank" rel="noreferrer">
+
+                    View provider information <Icon name="arrow" size={13} />
+
+                  </a>
+
+                )}
+
+              </div>
+
+            )}
+
+          </div>
+
+
+
+        </section>
+
       </div>
+
     </div>,
-    document.body
+
+    document.body,
+
   );
+
 }
 
+
+
 function CustomerForm({
+
+
+
   selected,
+
+
+
   amount,
+
+
+
   hasUnknownPrices,
+
+
+
   cloudAdded,
+
+
+
   onClose,
+
+
+
   onSave,
+
+
+
   checkoutError,
+
+
+
 }) {
+
+
+
   const [form, setForm] = useState({
+
+
+
     fullName: "",
+
+
+
     email: "",
+
+
+
     phone: "",
+
+
+
     consent: false,
+
+
+
   });
 
+
+
   const [error, setError] = useState("");
+
+
+
   const [done, setDone] = useState(false);
+
+
 
   useModalLock(onClose);
 
-  const submit = (e) => {
-    e.preventDefault();
+
+
+  const submit = (event) => {
+
+
+
+    event.preventDefault();
+
+
+
     setError("");
 
+
+
     if (form.fullName.trim().length < 2) {
+
+
+
       setError("Enter your full name.");
+
+
+
       return;
+
+
+
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+
+
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+
+
       setError("Enter a valid email address.");
+
+
+
       return;
+
+
+
     }
+
+
 
     if (!/^[6-9]\d{9}$/.test(form.phone)) {
+
+
+
       setError("Enter a valid 10-digit Indian mobile number.");
+
+
+
       return;
+
+
+
     }
+
+
 
     if (!form.consent) {
+
+
+
       setError("Please agree to be contacted about your bundle.");
+
+
+
       return;
+
+
+
     }
+
+
 
     const saved = onSave({
+
+
+
       fullName: form.fullName.trim(),
+
+
+
       email: form.email.trim(),
+
+
+
       phone: form.phone,
+
+
+
     });
 
+
+
     if (saved !== true) {
+
+
+
       setError(
+
+
+
         "Checkout could not start. Please review your selected plans and try again."
+
+
+
       );
+
+
+
       return;
+
+
+
     }
 
+
+
     setDone(false);
+
+
+
   };
 
+
+
   return createPortal(
+
+
+
     <div
+
+
+
       className="bu-details-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+
+
+
+      onMouseDown={(event) => {
+
+
+
+        if (event.target === event.currentTarget) onClose();
+
+
+
       }}
+
+
+
     >
+
+
+
       <div
+
+
+
         className="bu-customer-modal"
+
+
+
         role="dialog"
+
+
+
         aria-modal="true"
+
+
+
         aria-labelledby="bu-customer-title"
+
+
+
       >
+
+
+
         <button
+
+
+
           type="button"
+
+
+
           className="bu-details-close"
+
+
+
           aria-label="Close form"
+
+
+
           onClick={onClose}
+
+
+
         >
+
+
+
           <Icon name="close" />
+
+
+
         </button>
 
+
+
         {done ? (
+
+
+
           <div className="bu-form-done">
+
+
+
             <Icon name="check" size={42} />
+
+
+
             <h2 id="bu-customer-title">Details saved</h2>
+
+
+
             <p>
+
+
+
               Saved in this browser session only. No payment or real order has
+
+
+
               been created.
+
+
+
             </p>
+
+
+
             <button
+
+
+
               className="bu-primary-btn"
+
+
+
               onClick={onClose}
+
+
+
               type="button"
+
+
+
             >
+
+
+
               Done
+
+
+
             </button>
+
+
+
           </div>
+
+
+
         ) : (
+
+
+
           <>
+
+
+
             <span className="bu-eyebrow">NO LOGIN REQUIRED</span>
+
+
 
             <h2 id="bu-customer-title">Your details, then checkout</h2>
 
+
+
             <p className="bu-form-intro">
+
+
+
               {selected.length} selected subscription(s)
+
+
+
               {cloudAdded ? " + 250 GB Cloud Storage" : ""} ·{" "}
+
+
+
               {amount === null
+
+
+
                 ? "Price needs confirmation"
+
+
+
                 : `${INR.format(Math.round(amount))} estimated monthly equivalent`}
+
+
+
               {hasUnknownPrices ? " · excludes unconfirmed items" : ""}
+
+
+
             </p>
 
+
+
             <form onSubmit={submit} noValidate>
+
+
+
               <label>
+
+
+
                 Full name
+
+
+
                 <input
+
+
+
                   autoFocus
+
+
+
                   autoComplete="name"
+
+
+
                   value={form.fullName}
-                  onChange={(e) =>
-                    setForm({ ...form, fullName: e.target.value })
+
+
+
+                  onChange={(event) =>
+
+
+
+                    setForm({ ...form, fullName: event.target.value })
+
+
+
                   }
+
+
+
                   placeholder="Enter full name"
+
+
+
                 />
+
+
+
               </label>
 
+
+
               <label>
+
+
+
                 Email address
+
+
+
                 <input
+
+
+
                   type="email"
+
+
+
                   autoComplete="email"
+
+
+
                   value={form.email}
-                  onChange={(e) =>
-                    setForm({ ...form, email: e.target.value })
+
+
+
+                  onChange={(event) =>
+
+
+
+                    setForm({ ...form, email: event.target.value })
+
+
+
                   }
-                  placeholder="you@example.com"
+
+
+
+                  placeholder="you\\@example.com"
+
+
+
                 />
+
+
+
               </label>
 
+
+
               <label>
+
+
+
                 Mobile number (+91)
+
+
+
                 <input
+
+
+
                   type="tel"
+
+
+
                   inputMode="numeric"
+
+
+
                   maxLength={10}
+
+
+
                   value={form.phone}
-                  onChange={(e) =>
+
+
+
+                  onChange={(event) =>
+
+
+
                     setForm({
+
+
+
                       ...form,
-                      phone: e.target.value.replace(/\D/g, "").slice(0, 10),
+
+
+
+                      phone: event.target.value.replace(/\D/g, "").slice(0, 10),
+
+
+
                     })
+
+
+
                   }
+
+
+
                   placeholder="10-digit number"
+
+
+
                 />
+
+
+
               </label>
+
+
 
               <label className="bu-checkbox">
+
+
+
                 <input
+
+
+
                   type="checkbox"
+
+
+
                   checked={form.consent}
-                  onChange={(e) =>
-                    setForm({ ...form, consent: e.target.checked })
+
+
+
+                  onChange={(event) =>
+
+
+
+                    setForm({ ...form, consent: event.target.checked })
+
+
+
                   }
+
+
+
                 />
-                I agree to be contacted about my selected subscriptions.
+
+
+
+                I agree to be contacted about my selected subscriptions and
+
+
+
+                accept BundleUpOtt’s Terms and Conditions.
+
+
+
               </label>
 
-              {(checkoutError || error) && (
-  <p className="bu-form-error" role="alert">
-    {checkoutError || error}
-  </p>
-)}
 
-              <button
-                type="submit"
-                className="bu-primary-btn bu-submit"
-              >
+
+              {(checkoutError || error) && (
+
+
+
+                <p className="bu-form-error" role="alert">
+
+
+
+                  {checkoutError || error}
+
+
+
+                </p>
+
+
+
+              )}
+
+
+
+              <button type="submit" className="bu-primary-btn bu-submit">
+
+
+
                 Save Details & Continue <Icon name="arrow" />
+
+
+
               </button>
+
+
+
             </form>
 
+
+
             <small>
+
+
+
               Your details will be used to create a checkout order. The server
+
+
+
               confirms the payable amount.
+
+
+
             </small>
+
+
+
           </>
+
+
+
         )}
+
+
+
       </div>
+
+
+
     </div>,
+
+
+
     document.body
+
+
+
   );
+
+
+
 }
+
+
+
 export default function OurPlans() {
+
+
+
   const rootRef = useRef(null);
+
+
+
   const [searchParams] = useSearchParams();
 
-  const [group, setGroup] = useState("all");
+
+
+  const [group, setGroup] = useState("ott");
+
+
+
   const [category, setCategory] = useState("all");
+
+
+
   const [query, setQuery] = useState("");
+
+
+
   const [limit, setLimit] = useState(PAGE_SIZE);
+
+
+
   const [activePlan, setActivePlan] = useState(null);
+
+
+
+  const viewNextPlan = () => {
+
+    if (!activePlan) return;
+
+
+
+    const currentId = String(activePlan.id);
+
+    const cards = Array.from(document.querySelectorAll("[data-plan-id]"));
+
+    const currentIndex = cards.findIndex(
+
+      (card) => card.getAttribute("data-plan-id") === currentId
+
+    );
+
+    const nextCard = currentIndex >= 0 ? cards[currentIndex + 1] : null;
+
+
+
+    setActivePlan(null);
+
+
+
+    if (nextCard) {
+
+      window.setTimeout(() => {
+
+        nextCard.scrollIntoView({
+
+          behavior: "smooth",
+
+          block: "center",
+
+          inline: "nearest",
+
+        });
+
+      }, 120);
+
+    } else {
+
+      window.setTimeout(() => {
+
+        document.getElementById("bu-catalogue")?.scrollIntoView({
+
+          behavior: "smooth",
+
+          block: "start",
+
+        });
+
+      }, 120);
+
+    }
+
+  };
+
+
+
+  const [activeBrand, setActiveBrand] = useState(null);
+
+
+
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+
+
+
+    typeof window !== "undefined" &&
+
+
+
+    window.matchMedia("(max-width: 760px)").matches
+
+
+
+  );
+
+
+
+  useEffect(() => {
+
+
+
+    const media = window.matchMedia("(max-width: 760px)");
+
+
+
+    const updateViewport = () => setIsMobileViewport(media.matches);
+
+
+
+    updateViewport();
+
+
+
+    if (media.addEventListener) {
+
+
+
+      media.addEventListener("change", updateViewport);
+
+
+
+      return () => media.removeEventListener("change", updateViewport);
+
+
+
+    }
+
+
+
+    media.addListener(updateViewport);
+
+
+
+    return () => media.removeListener(updateViewport);
+
+
+
+  }, []);
+
+
+
+  // Lock the page behind the mobile plan sheet without allowing iOS Safari
+
+
+
+  // to continue scrolling the document. The portal sheet remains independently scrollable.
+
+
+
+  useEffect(() => {
+
+
+
+    if (!activeBrand || !isMobileViewport) return undefined;
+
+
+
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+
+
+
+    const body = document.body;
+
+
+
+    const html = document.documentElement;
+
+
+
+    const previousBodyStyles = {
+
+
+
+      position: body.style.position,
+
+
+
+      top: body.style.top,
+
+
+
+      left: body.style.left,
+
+
+
+      right: body.style.right,
+
+
+
+      width: body.style.width,
+
+
+
+      overflow: body.style.overflow,
+
+
+
+      touchAction: body.style.touchAction,
+
+
+
+    };
+
+
+
+    const previousHtmlStyles = {
+
+
+
+      overflow: html.style.overflow,
+
+
+
+      overscrollBehavior: html.style.overscrollBehavior,
+
+
+
+    };
+
+
+
+    body.style.position = "fixed";
+
+
+
+    body.style.top = `-${scrollY}px`;
+
+
+
+    body.style.left = "0";
+
+
+
+    body.style.right = "0";
+
+
+
+    body.style.width = "100%";
+
+
+
+    body.style.overflow = "hidden";
+
+
+
+    body.style.touchAction = "none";
+
+
+
+    html.style.overflow = "hidden";
+
+
+
+    html.style.overscrollBehavior = "none";
+
+
+
+    return () => {
+
+
+
+      Object.assign(body.style, previousBodyStyles);
+
+
+
+      Object.assign(html.style, previousHtmlStyles);
+
+
+
+      window.scrollTo(0, scrollY);
+
+
+
+    };
+
+
+
+  }, [activeBrand, isMobileViewport]);
+
+
+
   const [formOpen, setFormOpen] = useState(false);
+
+
+
   const [cloudAdded, setCloudAdded] = useState(false);
-  const [checkoutCustomer, setCheckoutCustomer] = useState(null);
-  const [checkoutPlans, setCheckoutPlans] = useState([]);
-  const [checkoutError, setCheckoutError] = useState("");
+
+
+
   const [cloudDismissed, setCloudDismissed] = useState(false);
+
+
+
+  const [checkoutCustomer, setCheckoutCustomer] = useState(null);
+
+
+
+  const [checkoutPlans, setCheckoutPlans] = useState([]);
+
+
+
+  const [checkoutError, setCheckoutError] = useState("");
+
+
+
   const [selectedDurations, setSelectedDurations] = useState({});
 
 
+
   const [selectedIds, setSelectedIds] = useState(() => {
+
+
+
     const oldIds = {
+
+
+
       netflix: "39",
+
+
+
       prime: "44",
+
+
+
       chatgpt: "1",
+
+
+
       gemini: "4",
+
+
+
       jiohotstar: "48",
+
+
+
     };
 
+
+
     return [
+
+
+
       ...new Set(
+
+
+
         (searchParams.get("items") || "")
+
+
+
           .split(",")
+
+
+
           .map((id) => (BY_ID.has(id) ? id : oldIds[id]))
+
+
+
           .filter((id) => BY_ID.has(id))
+
+
+
       ),
+
+
+
     ];
+
+
+
   });
 
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".bu-hero-copy > *",
-        { autoAlpha: 0, y: 22 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          stagger: 0.1,
-          duration: 0.65,
-          ease: "power3.out",
-        }
-      );
-    }, rootRef);
-
-    return () => ctx.revert();
-  }, []);
 
   useEffect(() => {
-    setLimit(PAGE_SIZE);
-  }, [group, category, query]);
 
-  useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      window.lenis?.resize?.();
-      ScrollTrigger.refresh();
+
+
+    window.history.scrollRestoration = "manual";
+
+
+
+    window.scrollTo({
+
+
+
+      top: 0,
+
+
+
+      left: 0,
+
+
+
+      behavior: "instant",
+
+
+
     });
 
+
+
+  }, []);
+
+
+
+  useEffect(() => {
+
+
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+
+
+
+      return;
+
+
+
+    }
+
+
+
+    const ctx = gsap.context(() => {
+
+
+
+      gsap.fromTo(
+
+
+
+        ".bu-hero-copy > *",
+
+
+
+        { autoAlpha: 0, y: 22 },
+
+
+
+        {
+
+
+
+          autoAlpha: 1,
+
+
+
+          y: 0,
+
+
+
+          stagger: 0.1,
+
+
+
+          duration: 0.65,
+
+
+
+          ease: "power3.out",
+
+
+
+        }
+
+
+
+      );
+
+
+
+    }, rootRef);
+
+
+
+    return () => ctx.revert();
+
+
+
+  }, []);
+
+
+
+  useEffect(() => {
+
+
+
+    setLimit(PAGE_SIZE);
+
+
+
+  }, [group, category, query]);
+
+
+
+  useEffect(() => {
+
+
+
+    const id = requestAnimationFrame(() => {
+
+
+
+      window.lenis?.resize?.();
+
+
+
+      ScrollTrigger.refresh();
+
+
+
+    });
+
+
+
     return () => cancelAnimationFrame(id);
+
+
+
   }, [limit, selectedIds.length, group]);
 
+
+
   const selected = useMemo(
+
+
+
     () => selectedIds.map((id) => BY_ID.get(id)).filter(Boolean),
+
+
+
     [selectedIds]
+
+
+
   );
 
-  const priceInfo = selected.map((plan) => ({
-  plan,
-  months: selectedDurations[String(plan.id)] || "1",
-  amount: getOfferAmount(
-    plan,
-    selectedDurations[String(plan.id)] || "1"
-  ),
-}));
 
-const knownBaseAmount = priceInfo.reduce(
-  (total, item) => total + (item.amount ?? 0),
-  0
-);
 
-const unknownCount = priceInfo.filter(
-  (item) => item.amount === null
-).length;
+  const priceInfo = selected.map((plan) => {
 
-const amount =
-  selected.length && (knownBaseAmount > 0 || cloudAdded)
+
+
+    const months = selectedDurations[String(plan.id)] || "1";
+
+
+
+    const offer = getOfferPriceInfo(plan, months);
+
+
+
+    return {
+
+
+
+      plan,
+
+
+
+      months,
+
+
+
+      amount: offer.amount,
+
+
+
+      originalAmount: offer.originalAmount,
+
+
+
+      savingsPercent: offer.savingsPercent,
+
+
+
+    };
+
+
+
+  });
+
+
+
+  const knownBaseAmount = priceInfo.reduce(
+
+
+
+    (total, item) => total + (item.amount ?? 0),
+
+
+
+    0
+
+
+
+  );
+
+
+
+  const regularBaseAmount = priceInfo.reduce(
+
+
+
+    (total, item) => total + (item.originalAmount ?? 0),
+
+
+
+    0
+
+
+
+  );
+
+
+
+  const unknownCount = priceInfo.filter(
+
+
+
+    (item) => item.amount === null || item.originalAmount === null
+
+
+
+  ).length;
+
+
+
+  // Show a final total only when every selected plan has a known price.
+
+
+
+  const amount = selected.length && unknownCount === 0
+
+
+
     ? knownBaseAmount + (cloudAdded ? CLOUD_OFFER.price : 0)
+
+
+
     : null;
 
-const isEstimated = true;
 
-  const removeAll = () => {
-    setSelectedIds([]);
-    setCloudAdded(false);
-    setCloudDismissed(false);
-  };
+
+  const regularAmount = selected.length && unknownCount === 0
+
+
+
+    ? regularBaseAmount + (cloudAdded ? CLOUD_OFFER.originalPrice : 0)
+
+
+
+    : null;
+
+
 
   const ottSelected = selected.filter(
+
+
+
     (plan) => groupOf(plan) === "ott"
+
+
+
   ).length;
+
+
 
   const aiSelected = selected.filter(
+
+
+
     (plan) => groupOf(plan) === "ai"
+
+
+
   ).length;
 
+
+
   const results = useMemo(
+
+
+
     () =>
+
+
+
       PRICED_SUBSCRIPTION_CATALOGUE.filter((plan) => {
-        if (group !== "all" && groupOf(plan) !== group) return false;
+
+
+
+        if (groupOf(plan) !== group) return false;
+
+
+
         if (category !== "all" && plan.category !== category) return false;
+
+
 
         const term = query.trim().toLowerCase();
 
+
+
         return (
+
+
+
           !term ||
+
+
+
           [
+
+
+
             plan.brand,
+
+
+
             plan.tier,
+
+
+
             plan.category,
+
+
+
             plan.useCase,
+
+
+
             plan.features,
+
+
+
           ].some((value) =>
+
+
+
             String(value || "").toLowerCase().includes(term)
+
+
+
           )
+
+
+
         );
+
+
+
       }),
+
+
+
     [group, category, query]
+
+
+
   );
 
-  function togglePlan(id) {
-    const key = String(id);
 
-    setSelectedIds((prev) => {
-      if (prev.includes(key)) {
-        return prev.filter((item) => item !== key);
+
+  const services = useMemo(() => {
+
+
+
+    const grouped = new Map();
+
+
+
+    results.forEach((plan) => {
+
+
+
+      const key = String(plan.brand || "").trim().toLowerCase();
+
+
+
+      if (!key) return;
+
+
+
+      if (!grouped.has(key)) {
+
+
+
+        grouped.set(key, { key, brand: plan.brand, representative: plan, plans: [] });
+
+
+
       }
 
-      const incoming = BY_ID.get(key);
-      if (!incoming) return prev;
 
-      return [
-        ...prev.filter((item) => {
-          const other = BY_ID.get(item);
 
-          return (
-            !other ||
-            other.brand !== incoming.brand ||
-            other.category !== incoming.category
-          );
-        }),
-        key,
-      ];
-    });
-  }
+      grouped.get(key).plans.push(plan);
 
-  function selectOffer(id, months) {
-  const key = String(id);
-  const incoming = BY_ID.get(key);
 
-  if (!incoming) return;
 
-  // Add the subscription, or replace its previously selected tier.
-  setSelectedIds((prev) => [
-    ...prev.filter((item) => {
-      const other = BY_ID.get(item);
-
-      return (
-        item !== key &&
-        (!other ||
-          other.brand !== incoming.brand ||
-          other.category !== incoming.category)
-      );
-    }),
-    key,
-  ]);
-
-  // Save the chosen duration for this subscription.
-  setSelectedDurations((prev) => {
-    const next = { ...prev };
-
-    Object.keys(next).forEach((item) => {
-      const other = BY_ID.get(item);
-
-      if (
-        item === key ||
-        (other &&
-          other.brand === incoming.brand &&
-          other.category === incoming.category)
-      ) {
-        delete next[item];
-      }
     });
 
-    next[key] = String(months);
-    return next;
-  });
 
-  setCloudAdded(false);
-}
 
-  function saveCustomer(customer) {
-    setCheckoutError("");
+    return Array.from(grouped.values()).sort((a, b) => a.brand.localeCompare(b.brand));
 
-    if (!selected.length) {
-      setCheckoutError(
-        "Please select at least one subscription before checkout."
-      );
-      return false;
-    }
 
-    if (cloudAdded) {
-  setCloudAdded(false);
-  setCheckoutError("");
-}
 
-    // Automatically map each frontend catalogue entry to the backend.
-const unpricedPlans = selected.filter((plan) => {
-  const months = selectedDurations[String(plan.id)] || "1";
-  return getOfferPriceInfo(plan, months).amount === null;
-});
+  }, [results]);
 
-if (unpricedPlans.length > 0) {
-  const names = unpricedPlans
-    .map((plan) => `${plan.brand} — ${plan.tier}`)
-    .join(", ");
 
-  setCheckoutError(
-    `These services need a fixed price before checkout: ${names}`
-  );
 
-  return false;
-}
+  const activeService = services.find((service) => service.key === activeBrand) || null;
 
-const mappedPlans = selected.map((plan) => ({
-  id: `sub_${String(plan.id)}`,
-  name: `${plan.brand} ${plan.tier}`,
-  months: Number(selectedDurations[String(plan.id)] || "1"),
-}));
 
-const uniquePlans = [
-  ...new Map(
-    mappedPlans.map((plan) => [plan.id, plan])
-  ).values(),
-];
-
-    sessionStorage.setItem(
-      "bundleupott_checkout_draft",
-      JSON.stringify({
-        customer,
-        planIds: uniquePlans.map((plan) => plan.id),
-        paymentStatus: "checkout_started",
-        createdAt: new Date().toISOString(),
-      })
-    );
-
-    setCheckoutPlans(uniquePlans);
-    setCheckoutCustomer(customer);
-    setFormOpen(false);
-
-    return true;
-  }
 
   useEffect(() => {
-    if (!selectedIds.length) {
-      setCloudAdded(false);
-      setCloudDismissed(false);
+
+
+
+    if (!activeBrand) return undefined;
+
+
+
+    const closeOnEscape = (event) => {
+
+
+
+      if (event.key === "Escape") setActiveBrand(null);
+
+
+
+    };
+
+
+
+    window.addEventListener("keydown", closeOnEscape);
+
+
+
+    return () => window.removeEventListener("keydown", closeOnEscape);
+
+
+
+  }, [activeBrand]);
+
+
+
+  function togglePlan(id) {
+
+
+
+    const key = String(id);
+
+
+
+    if (selectedIds.includes(key)) {
+
+      setSelectedDurations((previous) => {
+
+        const next = { ...previous };
+
+        delete next[key];
+
+        return next;
+
+      });
+
     }
+
+
+
+    setSelectedIds((previous) => {
+
+
+
+      if (previous.includes(key)) {
+
+
+
+        return previous.filter((item) => item !== key);
+
+
+
+      }
+
+
+
+      const incoming = BY_ID.get(key);
+
+
+
+      if (!incoming) return previous;
+
+
+
+      return [
+
+
+
+        ...previous.filter((item) => {
+
+
+
+          const other = BY_ID.get(item);
+
+
+
+          return (
+
+
+
+            !other ||
+
+
+
+            other.brand !== incoming.brand ||
+
+
+
+            other.category !== incoming.category
+
+
+
+          );
+
+
+
+        }),
+
+
+
+        key,
+
+
+
+      ];
+
+
+
+    });
+
+
+
+  }
+
+
+
+  function selectOffer(id, months) {
+
+
+
+    const key = String(id);
+
+
+
+    const incoming = BY_ID.get(key);
+
+
+
+    if (!incoming) return;
+
+
+
+    setSelectedIds((previous) => [
+
+
+
+      ...previous.filter((item) => {
+
+
+
+        const other = BY_ID.get(item);
+
+
+
+        return (
+
+
+
+          item !== key &&
+
+
+
+          (!other ||
+
+
+
+            other.brand !== incoming.brand ||
+
+
+
+            other.category !== incoming.category)
+
+
+
+        );
+
+
+
+      }),
+
+
+
+      key,
+
+
+
+    ]);
+
+
+
+    setSelectedDurations((previous) => {
+
+
+
+      const next = { ...previous };
+
+
+
+      Object.keys(next).forEach((item) => {
+
+
+
+        const other = BY_ID.get(item);
+
+
+
+        if (
+
+
+
+          item === key ||
+
+
+
+          (other &&
+
+
+
+            other.brand === incoming.brand &&
+
+
+
+            other.category === incoming.category)
+
+
+
+        ) {
+
+
+
+          delete next[item];
+
+
+
+        }
+
+
+
+      });
+
+
+
+      next[key] = String(months);
+
+
+
+      return next;
+
+
+
+    });
+
+
+
+    setCloudAdded(false);
+
+
+
+  }
+
+
+
+  function removeAll() {
+
+
+
+    setSelectedIds([]);
+
+
+
+    setCloudAdded(false);
+
+
+
+    setCloudDismissed(false);
+
+
+
+    setSelectedDurations({});
+
+
+
+  }
+
+
+
+  function saveCustomer(customer) {
+
+
+
+    setCheckoutError("");
+
+
+
+    if (!selected.length) {
+
+
+
+      setCheckoutError(
+
+
+
+        "Please select at least one subscription before checkout."
+
+
+
+      );
+
+
+
+      return false;
+
+
+
+    }
+
+
+
+    if (cloudAdded) {
+
+
+
+      setCloudAdded(false);
+
+
+
+      setCheckoutError("");
+
+
+
+    }
+
+
+
+    const unpricedPlans = selected.filter((plan) => {
+
+
+
+      const months = selectedDurations[String(plan.id)] || "1";
+
+
+
+      return getOfferPriceInfo(plan, months).amount === null;
+
+
+
+    });
+
+
+
+    if (unpricedPlans.length > 0) {
+
+
+
+      const names = unpricedPlans
+
+
+
+        .map((plan) => `${plan.brand} — ${plan.tier}`)
+
+
+
+        .join(", ");
+
+
+
+      setCheckoutError(
+
+
+
+        `These services need a fixed price before checkout: ${names}`
+
+
+
+      );
+
+
+
+      return false;
+
+
+
+    }
+
+
+
+    const mappedPlans = selected.map((plan) => ({
+
+
+
+      id: `sub_${String(plan.id)}`,
+
+
+
+      name: `${plan.brand} ${plan.tier}`,
+
+
+
+      months: Number(selectedDurations[String(plan.id)] || "1"),
+
+
+
+    }));
+
+
+
+    const uniquePlans = [
+
+
+
+      ...new Map(mappedPlans.map((plan) => [plan.id, plan])).values(),
+
+
+
+    ];
+
+
+
+    sessionStorage.setItem(
+
+
+
+      "bundleupott_checkout_draft",
+
+
+
+      JSON.stringify({
+
+
+
+        customer,
+
+
+
+        planIds: uniquePlans.map((plan) => plan.id),
+
+
+
+        paymentStatus: "checkout_started",
+
+
+
+        createdAt: new Date().toISOString(),
+
+
+
+      })
+
+
+
+    );
+
+
+
+    setCheckoutPlans(uniquePlans);
+
+
+
+    setCheckoutCustomer(customer);
+
+
+
+    setFormOpen(false);
+
+
+
+    return true;
+
+
+
+  }
+
+
+
+  useEffect(() => {
+
+
+
+    if (!selectedIds.length) {
+
+
+
+      setCloudAdded(false);
+
+
+
+      setCloudDismissed(false);
+
+
+
+    }
+
+
+
   }, [selectedIds.length]);
 
+
+
   function scrollToPlans() {
+
+
+
     const element = document.getElementById("bu-catalogue");
 
+
+
     if (window.lenis?.scrollTo) {
+
+
+
       window.lenis.scrollTo(element, {
+
+
+
         offset: -85,
+
+
+
         duration: 0.8,
+
+
+
       });
+
+
+
     } else {
+
+
+
       element?.scrollIntoView({ behavior: "smooth" });
+
+
+
     }
+
+
+
   }
 
-  // Checkout view: customer details are passed to PaymentStep.
+
+
+  // Checkout view
+
+
+
   if (checkoutCustomer) {
+
+
+
     return (
+
+
+
       <main ref={rootRef} className="bu-plans-page">
+
+
+
         <section className="bu-catalogue">
+
+
+
           <div className="bu-shell">
+
+
+
             <div className="bu-section-heading">
+
+
+
               <span className="bu-eyebrow">SECURE CHECKOUT</span>
+
+
+
               <h1>Complete your checkout</h1>
 
-              <p>
-                Customer: {checkoutCustomer.fullName} ·{" "}
-                {checkoutCustomer.email}
-              </p>
+
 
               <p>
-                The amount returned by the server is authoritative. Catalogue
-                prices shown on the previous page are reference estimates only.
+
+
+
+                Customer: {checkoutCustomer.fullName} · {checkoutCustomer.email}
+
+
+
               </p>
+
+
+
+              <p>
+
+
+
+                The amount returned by the server is authoritative. Catalogue
+
+
+
+                prices shown on the previous page are reference estimates only.
+
+
+
+              </p>
+
+
 
               {checkoutError && (
+
+
+
                 <p className="bu-form-error" role="alert">
+
+
+
                   {checkoutError}
+
+
+
                 </p>
+
+
+
               )}
+
+
+
             </div>
+
+
 
             <button
+
+
+
               type="button"
+
+
+
               className="bu-primary-btn"
+
+
+
               onClick={() => {
+
+
+
                 setCheckoutCustomer(null);
+
+
+
                 setCheckoutPlans([]);
+
+
+
                 setCheckoutError("");
+
+
+
               }}
+
+
+
             >
+
+
+
               Back to plans
+
+
+
             </button>
+
+
 
             <PaymentStep
+
+
+
               customer={checkoutCustomer}
+
+
+
               plans={checkoutPlans}
+
+
+
               total={null}
+
+
+
             />
+
+
+
           </div>
+
+
+
         </section>
+
+
+
       </main>
+
+
+
     );
+
+
+
   }
+
+
+
+  const servicePanelContent = activeService ? (
+
+
+
+    <section
+
+
+
+      key={activeService.key}
+
+
+
+      className="bu-service-panel"
+
+
+
+      aria-label={`${activeService.brand} plans`}
+
+
+
+      aria-live="polite"
+
+
+
+    >
+
+
+
+      <div className="bu-service-panel-head">
+
+
+
+        <div className="bu-service-panel-brand">
+
+
+
+          <Logo plan={activeService.representative} large />
+
+
+
+          <div>
+
+
+
+            <h3>{activeService.brand}</h3>
+
+
+
+            <span>{activeService.plans.length} {activeService.plans.length === 1 ? "Plan" : "Plans"} Available</span>
+
+
+
+          </div>
+
+
+
+        </div>
+
+
+
+        <button
+
+
+
+          type="button"
+
+
+
+          className="bu-service-panel-close"
+
+
+
+          onClick={() => setActiveBrand(null)}
+
+
+
+          aria-label={`Close ${activeService.brand} plans`}
+
+
+
+        >
+
+
+
+          <Icon name="close" size={19} />
+
+
+
+        </button>
+
+
+
+      </div>
+
+
+
+      <div className="bu-service-plan-grid">
+
+
+
+        {activeService.plans.map((plan) => (
+
+
+
+          <SubscriptionCard
+
+
+
+            key={plan.id}
+
+
+
+            plan={plan}
+
+
+
+            selected={selectedIds.includes(String(plan.id))}
+
+
+
+            onOpen={setActivePlan}
+
+
+
+          />
+
+
+
+        ))}
+
+
+
+      </div>
+
+
+
+    </section>
+
+
+
+  ) : null;
+
+
 
   return (
+
+
+
     <main ref={rootRef} className="bu-plans-page">
+
+
+
+      {/* HERO */}
+
+
+
       <section className="bu-hero">
+
+
+
         <div className="bu-shell bu-hero-grid">
+
+
+
           <div className="bu-hero-copy">
+
+
+
             <span className="bu-pill">
-              <Icon name="spark" size={16} /> YOUR CHOICE. YOUR BUNDLE.
+
+
+
+              <Icon name="spark" size={16} />
+
+
+
+              YOUR CHOICE. YOUR BUNDLE.
+
+
+
             </span>
+
+
 
             <h1>
-              All your subscriptions. <span>Your own bundle.</span>
+
+
+
+              Explore <span>subscriptions</span>
+
+
+
             </h1>
 
+
+
             <p>
-              Explore OTT, AI, creative tools, music, games and more. Open any
-              plan to see exactly what the listed tier includes, then build a
-              bundle your way.
+
+
+
+              Browse your favourite OTT, AI and other subscriptions in one place.
+
+
+
             </p>
 
-            <button className="bu-primary-btn" onClick={scrollToPlans}>
-              Explore subscriptions <Icon name="arrow" />
-            </button>
 
-            <small>
-              Catalogue reference · Prices and availability require provider
-              confirmation.
-            </small>
+
           </div>
 
-          <div className="bu-hero-art" aria-hidden="true">
-            <div className="bu-hero-ring ring-one" />
-            <div className="bu-hero-ring ring-two" />
 
-            <div className="bu-hero-center">
-              <Icon name="layer" size={52} />
-              <strong>bundleupott</strong>
-              <span>CUSTOM BUNDLES</span>
-            </div>
 
-            <span className="bu-floating bu-floating-one">OTT + AI</span>
-            <span className="bu-floating bu-floating-two">✦ Your way</span>
-          </div>
         </div>
 
-        <div className="bu-shell bu-metrics">
-          <span>
-            <strong>{COUNTS.all}</strong> plan / tier entries
-          </span>
-          <span>
-            <strong>{CATEGORIES.length}</strong> categories
-          </span>
-          <span>
-            <strong>{COUNTS.ott}</strong> OTT tiers
-          </span>
-          <span>
-            <strong>{COUNTS.ai}</strong> AI tiers
-          </span>
-        </div>
+
+
       </section>
+
+
+
+      {/* SUBSCRIPTION CATALOGUE */}
+
+
 
       <section className="bu-catalogue" id="bu-catalogue">
+
+
+
         <div className="bu-shell">
+
+
+
           <div className="bu-section-heading">
+
+
+
             <span className="bu-eyebrow">
+
+
+
               COMPLETE SUBSCRIPTION CATALOGUE
+
+
+
             </span>
 
+
+
             <h2>
-              Find your favourites. <span>Build your bundle.</span>
+
+
+
+              Choose a service. <span>Explore its plans.</span>
+
+
+
             </h2>
 
+
+
             <p>
-              Click any subscription card to view its benefits, features, usage
-              limits, device information and more. Switch tiers any time.
+
+
+
+              Select a floating logo to reveal its available plans. Select the same logo again or close the panel to return to the bubbles.
+
+
+
             </p>
 
-            <div className="bu-refund-note">
-              <Icon name="check" size={18} />
-              <span>
-                <strong>Refund assurance:</strong> If a verified payment cannot
-                be fulfilled because a provider cannot activate the selected
-                subscription, the affected amount will be refunded under the
-                published refund policy. Payments are not enabled in this demo.
-              </span>
-            </div>
+
+
           </div>
 
-          <div className="bu-toolbar">
-            <div
-              className="bu-tabs"
-              role="group"
-              aria-label="Subscription categories"
-            >
-              {TABS.map(({ id, label }) => (
-                <button
-                  type="button"
-                  key={id}
-                  className={group === id ? "is-active" : ""}
-                  aria-pressed={group === id}
-                  onClick={() => {
-                    setGroup(id);
-                    setCategory("all");
-                  }}
-                >
-                  <span>{label}</span>
-                  <b>{COUNTS[id]}</b>
-                </button>
-              ))}
-            </div>
 
-            <div className="bu-filter-controls">
-              <label className="bu-search">
-                <Icon name="search" />
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search ChatGPT, Netflix, Canva..."
-                />
-              </label>
 
-              <label className="bu-category-picker">
-                Category
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="all">All categories</option>
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
+          <div className="bu-layout bu-bubble-layout">
+
+
+
+            <div className="bu-list bu-bubble-list">
+
+
+
+              {/* Category tabs stay with the bubble catalogue on the left. */}
+
+
+
+              <div className="bu-bubble-toolbar">
+
+
+
+                <div className="bu-bubble-tabs" role="tablist" aria-label="Subscription categories">
+
+
+
+                  {TABS.map(({ id, label }) => (
+
+
+
+                    <button
+
+
+
+                      type="button"
+
+
+
+                      key={id}
+
+
+
+                      role="tab"
+
+
+
+                      aria-selected={group === id}
+
+
+
+                      className={`bu-bubble-tab bu-tab-${id} ${group === id ? "is-active" : ""}`}
+
+
+
+                      onClick={() => {
+
+
+
+                        setGroup(id);
+
+
+
+                        setCategory("all");
+
+
+
+                        setQuery("");
+
+
+
+                        setActiveBrand(null);
+
+
+
+                      }}
+
+
+
+                    >
+
+
+
+                      <span className="bu-bubble-tab-symbol">{id === "ott" ? "▷" : id === "ai" ? "✧" : "▱"}</span>
+
+
+
+                      <strong>{label}</strong>
+
+
+
+                      <b>{id === "ott" ? COUNTS.ott : id === "ai" ? COUNTS.ai : COUNTS.other}</b>
+
+
+
+                    </button>
+
+
+
                   ))}
-                </select>
-              </label>
-            </div>
-          </div>
 
-          <div className="bu-layout">
-            <div className="bu-list">
-              <div className="bu-result-line">
-                <strong>{results.length} matching plans</strong>
-                <span>Tap any card to see full benefits</span>
-              </div>
 
-              <div className="bu-card-grid">
-                {results.slice(0, limit).map((plan) => (
-                  <SubscriptionCard
-  key={plan.id}
-  plan={plan}
-  selected={selectedIds.includes(String(plan.id))}
-  selectedDuration={
-    selectedDurations[String(plan.id)] || "1"
-  }
-  onOpen={setActivePlan}
-  onToggle={togglePlan}
-  onSelectOffer={selectOffer}
-/>
-                ))}
-              </div>
 
-              {!results.length && (
-                <div className="bu-empty">
-                  <h3>No matching subscriptions</h3>
-                  <p>Try another term or select All categories.</p>
-
-                  <button
-                    onClick={() => {
-                      setGroup("all");
-                      setCategory("all");
-                      setQuery("");
-                    }}
-                  >
-                    Clear filters
-                  </button>
                 </div>
-              )}
 
-              {results.length > limit && (
-                <button
-                  className="bu-more"
-                  onClick={() => setLimit((n) => n + PAGE_SIZE)}
-                >
-                  Show more plans · {results.length - limit} remaining{" "}
-                  <Icon name="arrow" size={16} />
-                </button>
-              )}
+
+
+              </div>
+
+
+
+              <div className={`bu-bubble-stage ${activeService ? "is-showing-plans" : ""}`} data-active-service={activeService?.key || ""}>
+
+
+
+                <span className="bu-stage-orb bu-stage-orb-one" />
+
+
+
+                <span className="bu-stage-orb bu-stage-orb-two" />
+
+
+
+                <span className="bu-stage-orb bu-stage-orb-three" />
+
+
+
+                <div className="bu-floating-bubbles" aria-label={`${group} subscription services`}>
+
+
+
+                  {services.map((service, index) => (
+
+
+
+                    <button
+
+
+
+                      type="button"
+
+
+
+                      key={service.key}
+
+
+
+                      className={`bu-service-bubble bu-service-bubble-${index % 8} ${activeBrand === service.key ? "is-open" : ""}`}
+
+
+
+                      style={{ "--bubble-index": index, "--bubble-delay": `${(index % 9) * -0.55}s` }}
+
+
+
+                      onClick={() => setActiveBrand((current) => current === service.key ? null : service.key)}
+
+
+
+                      aria-expanded={activeBrand === service.key}
+
+
+
+                      aria-label={`${service.brand}, ${service.plans.length} plans. ${activeBrand === service.key ? "Close plans" : "View plans"}`}
+
+
+
+                      title={`${service.brand} · ${service.plans.length} plans`}
+
+
+
+                    >
+
+
+
+                      <span className="bu-service-bubble-shine" />
+
+
+
+                      <span className="bu-service-bubble-logo"><Logo plan={service.representative} /></span>
+
+
+
+                      <span className="bu-service-count">{service.plans.length} {service.plans.length === 1 ? "plan" : "plans"}</span>
+
+
+
+                    </button>
+
+
+
+                  ))}
+
+
+
+                </div>
+
+
+
+                {activeService && (
+
+
+
+                  isMobileViewport
+
+
+
+                    ? createPortal(
+
+
+
+                        <>
+
+
+
+                          <button
+
+
+
+                            type="button"
+
+
+
+                            className="bu-mobile-service-backdrop"
+
+
+
+                            aria-label="Close subscription plans"
+
+
+
+                            onClick={() => setActiveBrand(null)}
+
+
+
+                          />
+
+
+
+                          {servicePanelContent}
+
+
+
+                        </>,
+
+
+
+                        document.body
+
+
+
+                      )
+
+
+
+                    : servicePanelContent
+
+
+
+                )}
+
+
+
+                {!services.length && (
+
+
+
+                  <div className="bu-bubble-empty">
+
+
+
+                    <strong>No subscriptions found</strong>
+
+
+
+                    <span>Try another category.</span>
+
+
+
+                  </div>
+
+
+
+                )}
+
+
+
+                <div className="bu-bubble-stage-footer">
+
+
+
+                  <span><b>{services.length}</b> services · <b>{results.length}</b> plans available</span>
+
+
+
+                  <span>{activeService ? `Viewing ${activeService.brand}` : "Click a logo to view plans"}</span>
+
+
+
+                </div>
+
+
+
+              </div>
+
+
 
               <p className="bu-disclaimer">
-                These are research references, not confirmed bundleupott
-                reseller inventory. Features, plan terms, India availability and
-                prices must be verified with providers.
+
+
+
+                Catalogue reference only. Features, plan terms, India availability and prices must be verified with providers.
+
+
+
               </p>
+
+
+
             </div>
 
+
+
+            {/* BUNDLE SUMMARY */}
+
+
+
             <aside className="bu-summary">
+
+
+
               <span className="bu-eyebrow">YOUR BUNDLE</span>
+
+
+
               <h3>Your Custom Bundle</h3>
 
+
+
               <p>
+
+
+
                 Choose any services. Switch a provider's tier without adding a
+
+
+
                 duplicate.
+
+
+
               </p>
+
+
 
               <div className="bu-summary-numbers">
+
+
+
                 <span>
+
+
+
                   <b>{ottSelected}</b>OTT
+
+
+
                 </span>
+
+
+
                 <span>
+
+
+
                   <b>{aiSelected}</b>AI
+
+
+
                 </span>
+
+
+
                 <span>
+
+
+
                   <b>{selected.length + (cloudAdded ? 1 : 0)}</b>Total
+
+
+
                 </span>
+
+
+
               </div>
+
+
 
               <div className="bu-selected-list">
-                {selected.length ? (
-                  selected.map((plan) => (
-                    <div key={plan.id} className="bu-selected-row">
-                      <Logo plan={plan} />
 
-                      <div>
-                        <strong>{plan.brand}</strong>
-                        <small>
-  {plan.tier} ·{" "}
-  {selectedDurations[String(plan.id)] || "1"} month(s) ·{" "}
-  {getOfferAmount(
-    plan,
-    selectedDurations[String(plan.id)] || "1"
-  ) === null
-    ? "Price to confirm"
-    : INR.format(
-        getOfferAmount(
-          plan,
-          selectedDurations[String(plan.id)] || "1"
-        )
-      )}
-</small>
+
+
+                {selected.length ? (
+
+
+
+                  selected.map((plan) => {
+
+
+
+                    const months =
+
+
+
+                      selectedDurations[String(plan.id)] || "1";
+
+
+
+                    const selectedOffer = getOfferPriceInfo(plan, months);
+
+
+
+                    const selectedPrice = selectedOffer.amount;
+
+
+
+                    return (
+
+
+
+                      <div key={plan.id} className="bu-selected-row">
+
+
+
+                        <Logo plan={plan} />
+
+
+
+                        <div>
+
+
+
+                          <strong>{plan.brand}</strong>
+
+
+
+                          <small className="bu-selected-plan-meta">
+
+
+
+                            {plan.tier} · {months} month(s)
+
+
+
+                          </small>
+
+
+
+                          <span className="bu-selected-price-line">
+
+
+
+                            {selectedPrice === null ? (
+
+
+
+                              <strong className="bu-selected-best-price">Price to confirm</strong>
+
+
+
+                            ) : (
+
+
+
+                              <>
+
+
+
+                                {selectedOffer.originalAmount !== null && (
+
+
+
+                                  <del>{INR.format(selectedOffer.originalAmount)}</del>
+
+
+
+                                )}
+
+
+
+                                <strong className="bu-selected-best-price">
+
+
+
+                                  Our best price {INR.format(selectedPrice)}
+
+
+
+                                </strong>
+
+
+
+                              </>
+
+
+
+                            )}
+
+
+
+                          </span>
+
+
+
+                        </div>
+
+
+
+                        <button
+
+
+
+                          type="button"
+
+
+
+                          aria-label={`Remove ${plan.brand}`}
+
+
+
+                          onClick={() => togglePlan(plan.id)}
+
+
+
+                        >
+
+
+
+                          <Icon name="close" size={17} />
+
+
+
+                        </button>
+
+
+
                       </div>
 
-                      <button
-                        type="button"
-                        aria-label={`Remove ${plan.brand}`}
-                        onClick={() => togglePlan(plan.id)}
-                      >
-                        <Icon name="close" size={17} />
-                      </button>
-                    </div>
-                  ))
+
+
+                    );
+
+
+
+                  })
+
+
+
                 ) : (
+
+
+
                   <div className="bu-no-selection">
+
+
+
                     <Icon name="layer" size={29} />
+
+
+
                     <strong>No plans added yet</strong>
+
+
+
                     <span>Select any subscription to start building.</span>
+
+
+
                   </div>
+
+
+
                 )}
+
+
+
               </div>
+
+
 
               {selected.length > 0 && cloudAdded && (
+
+
+
                 <div className="bu-cloud-selected">
+
+
+
                   <span className="bu-cloud-selected-icon">
+
+
+
                     <Icon name="cloud" size={25} />
+
+
+
                   </span>
 
+
+
                   <div>
+
+
+
                     <strong>250 GB Cloud Storage</strong>
-                    <small>Offer add-on · ₹149/month</small>
+
+
+
+                    <small className="bu-selected-plan-meta">250 GB · Monthly</small>
+
+
+
+                    <span className="bu-selected-price-line">
+
+
+
+                      <del>{INR.format(CLOUD_OFFER.originalPrice)}</del>
+
+
+
+                      <strong className="bu-selected-best-price">
+
+
+
+                        Our best price {INR.format(CLOUD_OFFER.price)}/month
+
+
+
+                      </strong>
+
+
+
+                    </span>
+
+
+
                   </div>
 
+
+
                   <button
+
+
+
                     type="button"
+
+
+
                     aria-label="Remove cloud storage"
+
+
+
                     onClick={() => setCloudAdded(false)}
+
+
+
                   >
+
+
+
                     <Icon name="close" size={17} />
+
+
+
                   </button>
+
+
+
                 </div>
+
+
+
               )}
+
+
 
               {selected.length > 0 && !cloudAdded && !cloudDismissed && (
+
+
+
                 <CloudStorageOffer
+
+
+
                   onAdd={() => setCloudAdded(true)}
+
+
+
                   onDismiss={() => setCloudDismissed(true)}
+
+
+
                 />
+
+
+
               )}
+
+
 
               {selected.length > 0 && cloudDismissed && !cloudAdded && (
+
+
+
                 <button
+
+
+
                   type="button"
+
+
+
                   className="bu-cloud-reopen"
+
+
+
                   onClick={() => setCloudDismissed(false)}
+
+
+
                 >
-                  <Icon name="cloud" size={17} /> View 250 GB cloud offer (₹149)
+
+
+
+                  <Icon name="cloud" size={17} />
+
+
+
+                  View 250 GB cloud offer (₹149)
+
+
+
                 </button>
+
+
+
               )}
 
+
+
               <div className="bu-total">
-                <span>Reference monthly equivalent (₹)</span>
 
-                <strong>
-                  {amount === null
-                    ? selected.length
-                      ? "Quote required"
-                      : "—"
-                    : `${isEstimated ? "≈" : ""}${INR.format(Math.round(amount))}`}
-                </strong>
 
-                <small>
-                  {unknownCount > 0
-                    ? `${unknownCount} plan(s) need a price quote and are excluded from this estimate.`
-                    : isEstimated
-                      ? "Approximate INR / monthly equivalent only. USD conversions, annual billing and provider taxes may change actual prices."
-                      : "Reference INR monthly prices. Final eligible pricing must be verified."}
+
+                <div className="bu-total-label-row">
+
+
+
+                  <span>OUR BEST BUNDLE PRICE</span>
+
+
+
+                  {amount !== null && regularAmount !== null && regularAmount > amount && (
+
+
+
+                    <small className="bu-total-savings">
+
+
+
+                      You Save {INR.format(regularAmount - amount)}
+
+
+
+                    </small>
+
+
+
+                  )}
+
+
+
+                </div>
+
+
+
+                <div className="bu-total-price-row">
+
+
+
+                  {amount !== null && regularAmount !== null && regularAmount > amount && (
+
+
+
+                    <del>{INR.format(Math.round(regularAmount))}</del>
+
+
+
+                  )}
+
+
+
+                  <strong>
+
+
+
+                    {amount === null
+
+
+
+                      ? selected.length
+
+
+
+                        ? "Price to confirm"
+
+
+
+                        : "—"
+
+
+
+                      : INR.format(Math.round(amount))}
+
+
+
+                  </strong>
+
+
+
+                </div>
+
+
+
+                <small className="bu-total-note">
+
+
+
+                  Total for the durations selected above, including any added offer.
+
+
+
                 </small>
+
+
+
               </div>
 
-              <button
-                className="bu-primary-btn bu-continue"
-                disabled={!selected.length}
-                onClick={() => setFormOpen(true)}
-              >
-                Continue to Details <Icon name="arrow" />
-              </button>
+
 
               <button
-                className="bu-clear"
+
+
+
+                type="button"
+
+
+
+                className="bu-primary-btn bu-continue"
+
+
+
                 disabled={!selected.length}
-                onClick={removeAll}
+
+
+
+                onClick={() => setFormOpen(true)}
+
+
+
               >
-                Clear bundle
+
+
+
+                Continue to Details <Icon name="arrow" />
+
+
+
               </button>
+
+
+
+              <button
+
+
+
+                type="button"
+
+
+
+                className="bu-clear"
+
+
+
+                disabled={!selected.length}
+
+
+
+                onClick={removeAll}
+
+
+
+              >
+
+
+
+                Clear bundle
+
+
+
+              </button>
+
+
 
               <p className="bu-summary-foot">
-                No login required · No payment taken yet
+
+
+
+                No login required
+
+
+
               </p>
+
+
+
             </aside>
+
+
+
           </div>
+
+
+
         </div>
+
+
+
       </section>
+
+
+
+      {/* OUTRO */}
+
+
 
       <section className="bu-outro">
+
+
+
         <div className="bu-shell bu-outro-inner">
+
+
+
           <div>
+
+
+
             <span className="bu-eyebrow">YOUR BUNDLE, YOUR WAY</span>
+
+
+
             <h2>
+
+
+
               Every subscription is <span>your choice.</span>
+
+
+
             </h2>
+
+
+
             <p>
+
+
+
               Explore the details, compare tiers and create your combination.
+
+
+
             </p>
+
+
+
           </div>
 
-          <button className="bu-primary-btn" onClick={scrollToPlans}>
+
+
+          <button
+
+
+
+            type="button"
+
+
+
+            className="bu-primary-btn"
+
+
+
+            onClick={scrollToPlans}
+
+
+
+          >
+
+
+
             Browse all subscriptions <Icon name="arrow" />
+
+
+
           </button>
+
+
+
         </div>
+
+
+
       </section>
 
+
+
+      {/* SUBSCRIPTION DETAILS MODAL */}
+
+
+
       {activePlan && (
+
+
+
         <DetailsModal
+
+
+
           key={activePlan.id}
+
+
+
           plan={activePlan}
+
+
+
           selected={selectedIds.includes(String(activePlan.id))}
+
+
+
+          selectedDuration={selectedDurations[String(activePlan.id)] || "1"}
+
           onToggle={togglePlan}
+
+          onSelectOffer={(id, months) => {
+
+            selectOffer(id, months);
+
+            setActivePlan(null);
+
+          }}
+
+          onViewNextPlan={viewNextPlan}
+
           onClose={() => setActivePlan(null)}
+
+
+
         />
+
+
+
       )}
 
+
+
+      {/* CUSTOMER DETAILS MODAL */}
+
+
+
       {formOpen && (
+
+
+
         <CustomerForm
+
+
+
           selected={selected}
+
+
+
           amount={amount}
+
+
+
           hasUnknownPrices={unknownCount > 0}
+
+
+
           cloudAdded={cloudAdded}
+
+
+
           onSave={saveCustomer}
+
+
+
           checkoutError={checkoutError}
+
+
+
           onClose={() => setFormOpen(false)}
+
+
+
         />
+
+
+
       )}
+
+
+
     </main>
+
+
+
   );
+
+
+
 }

@@ -1,10 +1,10 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import "../Style/Navbar.css";
 
 const navLinks = [
-  { name: "Home", path: "/" },
   { name: "Our Plans", path: "/our-plans" },
   { name: "About", path: "/about" },
 ];
@@ -18,6 +18,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".sa-navbar-inner",
@@ -28,8 +29,9 @@ export default function Navbar() {
           duration: 0.9,
           ease: "power3.out",
           clearProps: "all",
-        },
+        }
       );
+
       gsap.fromTo(
         ".sa-nav-animate",
         { opacity: 0, y: -12 },
@@ -41,9 +43,10 @@ export default function Navbar() {
           delay: 0.2,
           ease: "power3.out",
           clearProps: "all",
-        },
+        }
       );
     }, navbarRef);
+
     return () => ctx.revert();
   }, []);
 
@@ -51,6 +54,7 @@ export default function Navbar() {
     const onKeyDown = (event) => {
       if (event.key === "Escape") setMenuOpen(false);
     };
+
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
@@ -59,9 +63,9 @@ export default function Navbar() {
     <header ref={navbarRef} className="sa-navbar">
       <div className="sa-navbar-inner">
         <NavLink
-          to="/"
+          to="/our-plans"
           className="sa-brand sa-nav-animate"
-          aria-label="bundleupott Home"
+          aria-label="bundleupott Our Plans"
         >
           <div className="sa-brand-icon">
             <svg
@@ -96,6 +100,7 @@ export default function Navbar() {
               />
             </svg>
           </div>
+
           <span className="sa-brand-text">
             bundle<span>upott</span>
           </span>
@@ -106,9 +111,11 @@ export default function Navbar() {
             <NavLink
               key={link.path}
               to={link.path}
-              end={link.path === "/"}
+              end
               className={({ isActive }) =>
-                `sa-nav-link sa-nav-animate ${isActive ? "sa-nav-active" : ""}`
+                `sa-nav-link sa-nav-animate ${
+                  isActive ? "sa-nav-active" : ""
+                }`
               }
             >
               {link.name}
@@ -116,9 +123,11 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* No login; customers give contact details only before checkout. */}
         <div className="sa-nav-actions">
-          <NavLink to="/our-plans" className="sa-getstarted-btn sa-nav-animate">
+          <NavLink
+            to="/our-plans"
+            className="sa-getstarted-btn sa-nav-animate"
+          >
             Get Started
             <svg
               width="16"
@@ -153,23 +162,28 @@ export default function Navbar() {
 
       <div
         id="bundleupott-mobile-menu"
-        className={`sa-mobile-menu ${menuOpen ? "sa-mobile-visible" : ""}`}
+        className={`sa-mobile-menu ${
+          menuOpen ? "sa-mobile-visible" : ""
+        }`}
       >
         <nav className="sa-mobile-links" aria-label="Mobile navigation">
           {navLinks.map((link) => (
             <NavLink
               key={link.path}
               to={link.path}
-              end={link.path === "/"}
+              end
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
-                `sa-mobile-link ${isActive ? "sa-mobile-active" : ""}`
+                `sa-mobile-link ${
+                  isActive ? "sa-mobile-active" : ""
+                }`
               }
             >
               {link.name}
             </NavLink>
           ))}
         </nav>
+
         <div className="sa-mobile-actions">
           <NavLink
             to="/our-plans"
