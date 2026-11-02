@@ -64,6 +64,7 @@ if (
 app.use(helmet());
 
 // CORS configuration
+
 const allowedOrigins = [
   "http://localhost:5000",
   "http://127.0.0.1:5000",
@@ -84,8 +85,11 @@ app.use(
       return callback(new Error("Origin not allowed by CORS"));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 app.use(express.json({ limit: "64kb" }));
 
