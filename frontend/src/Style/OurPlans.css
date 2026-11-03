@@ -13254,3 +13254,454 @@
     flex-basis: 66px !important;
   }
 }
+
+
+/* ================================================================
+   BUNDLEUP OTT — FINAL CROSS-DEVICE PLAN MODAL RESPONSIVE OVERRIDE
+   Keep this block at the VERY END of OurPlans.css.
+   Desktop keeps the existing two-column layout. Mobile uses one
+   naturally scrolling page, with no nested/fixed-height scroll areas.
+================================================================ */
+
+.bu-tier-details-modal,
+.bu-tier-details-modal * {
+  box-sizing: border-box;
+}
+
+.bu-tier-details-modal {
+  min-width: 0;
+}
+
+.bu-tier-details-product,
+.bu-tier-details-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.bu-modal-duration-heading {
+  align-items: center;
+}
+
+.bu-modal-duration-heading span {
+  white-space: normal;
+  text-align: right;
+}
+
+.bu-modal-duration-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+}
+
+.bu-modal-duration-option {
+  width: 100%;
+  min-width: 0;
+  min-height: 82px;
+  justify-content: center;
+}
+
+.bu-modal-duration-option strong,
+.bu-modal-duration-option span,
+.bu-modal-duration-option small,
+.bu-modal-duration-option del {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.bu-modal-selected-price {
+  min-width: 0;
+}
+
+.bu-tier-details-cta {
+  min-width: 0;
+  white-space: normal;
+}
+
+@media (min-width: 851px) and (max-width: 1100px) {
+  .bu-tier-details-modal {
+    grid-template-columns: minmax(270px, 320px) minmax(0, 1fr) !important;
+    width: min(100%, 1040px) !important;
+    max-height: min(92vh, 900px) !important;
+  }
+
+  .bu-tier-details-product {
+    padding: 28px 20px 24px !important;
+  }
+}
+
+@media (max-width: 850px) {
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-width: 0;
+    min-height: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .bu-details-backdrop.bu-tier-details-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483000 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+    background: rgba(20, 35, 58, .48) !important;
+  }
+
+  .bu-details-backdrop.bu-tier-details-backdrop>.bu-tier-details-modal {
+    position: relative !important;
+    inset: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 640px !important;
+    min-width: 0 !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+    padding: 0 0 max(24px, env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    transform: none !important;
+    touch-action: pan-y !important;
+  }
+
+  .bu-tier-details-modal .bu-details-close {
+    position: fixed !important;
+    top: max(12px, env(safe-area-inset-top)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    z-index: 2147483005 !important;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 0 !important;
+    border: 1px solid #e3ebf5 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, .96) !important;
+    box-shadow: 0 5px 18px rgba(25, 55, 90, .12) !important;
+  }
+
+  .bu-tier-details-modal .bu-tier-details-product {
+    position: relative !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: calc(max(28px, env(safe-area-inset-top)) + 28px) clamp(16px, 5vw, 28px) 24px !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e7eff7 !important;
+    background: linear-gradient(155deg, #f5faff 0%, #effcf8 100%) !important;
+    text-align: center !important;
+  }
+
+  .bu-tier-details-product .bu-mini-pill {
+    margin: 0 0 16px !important;
+    font-size: 10px !important;
+  }
+
+  .bu-tier-details-product .bu-logo-large {
+    flex: 0 0 76px !important;
+    width: 76px !important;
+    height: 76px !important;
+    min-width: 76px !important;
+    min-height: 76px !important;
+    border-radius: 20px !important;
+  }
+
+  .bu-tier-details-product .bu-logo-large img {
+    width: 56px !important;
+    height: 56px !important;
+    object-fit: contain !important;
+  }
+
+  .bu-tier-details-product h2 {
+    max-width: 100% !important;
+    margin: 16px 44px 8px !important;
+    font-size: clamp(22px, 6vw, 30px) !important;
+    line-height: 1.2 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .bu-tier-details-product .bu-detail-tier {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .bu-tier-details-product .bu-mobile-detail-switch {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) !important;
+    gap: 7px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 20px 0 16px !important;
+    padding: 5px !important;
+    border: 1px solid #dce9f8 !important;
+    border-radius: 15px !important;
+    background: #f0f6ff !important;
+  }
+
+  .bu-tier-details-product .bu-mobile-detail-switch button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 8px 6px !important;
+    border-radius: 11px !important;
+    font-size: clamp(9px, 2.8vw, 12px) !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    text-align: center !important;
+  }
+
+  .bu-tier-details-product .bu-mobile-detail-switch button svg {
+    flex: 0 0 15px !important;
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .bu-tier-details-product .bu-details-price {
+    display: block !important;
+    width: 100% !important;
+    margin: 2px 0 5px !important;
+    font-size: clamp(22px, 6vw, 27px) !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+  }
+
+  .bu-tier-details-product .bu-details-price-note {
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 1.65 !important;
+    text-align: center !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .bu-tier-details-product .bu-details-intro {
+    width: 100% !important;
+    max-width: 520px !important;
+    max-height: none !important;
+    margin: 14px 0 0 !important;
+    overflow: visible !important;
+    font-size: 12px !important;
+    line-height: 1.65 !important;
+    text-align: center !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration {
+    width: 100% !important;
+    max-width: 520px !important;
+    margin: 20px 0 10px !important;
+    text-align: left !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-heading {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    gap: 5px 10px !important;
+    margin: 0 0 10px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-heading strong {
+    font-size: 13px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-heading span {
+    max-width: 100% !important;
+    font-size: 10px !important;
+    text-align: left !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+    width: 100% !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-option {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 88px !important;
+    padding: 11px 12px !important;
+    border-radius: 15px !important;
+    text-align: left !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-option span {
+    font-size: 10px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-option del {
+    font-size: 9px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-option strong {
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-option small {
+    font-size: 10px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-selected-price {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: baseline !important;
+    gap: 5px 9px !important;
+    width: 100% !important;
+    max-width: 520px !important;
+    margin: 7px 0 12px !important;
+    padding: 13px 15px !important;
+    border-radius: 15px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-selected-price span {
+    flex: 0 0 100% !important;
+    font-size: 10px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-selected-price strong {
+    font-size: 24px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-selected-price small {
+    font-size: 11px !important;
+  }
+
+  .bu-tier-details-product .bu-tier-details-cta {
+    width: 100% !important;
+    max-width: 520px !important;
+    min-height: 52px !important;
+    margin: 3px 0 0 !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+  }
+
+  .bu-tier-details-product .bu-tier-remove-link {
+    width: 100% !important;
+    max-width: 520px !important;
+    min-height: 42px !important;
+  }
+
+  .bu-tier-details-modal .bu-tier-details-content {
+    position: relative !important;
+    display: block !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 24px clamp(16px, 5vw, 28px) calc(40px + env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+
+  .bu-tier-details-modal .bu-tier-details-content * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .bu-tier-details-content .bu-detail-tabs-row {
+    flex-wrap: wrap !important;
+    align-items: center !important;
+  }
+
+  .bu-tier-details-content .bu-detail-tabs {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .bu-tier-details-content .bu-view-next-plan-button {
+    position: static !important;
+    transform: none !important;
+    max-width: 100% !important;
+  }
+
+  .bu-tier-details-content .bu-detail-panel,
+  .bu-tier-details-content .bu-tier-detail-panel,
+  .bu-tier-details-content .bu-about-details {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .bu-tier-details-product {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-option {
+    min-height: 84px !important;
+    padding: 10px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-option strong {
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .bu-tier-details-product .bu-mobile-detail-switch button {
+    gap: 3px !important;
+    padding-right: 4px !important;
+    padding-left: 4px !important;
+    font-size: 9px !important;
+  }
+
+  .bu-tier-details-product .bu-modal-duration-grid {
+    gap: 7px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .bu-tier-details-modal *,
+  .bu-tier-details-modal *::before,
+  .bu-tier-details-modal *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
