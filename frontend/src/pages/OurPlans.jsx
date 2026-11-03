@@ -9,6 +9,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import "../Style/OurPlans.css";
+import diwaliSpecialOfferBanner from "../assets/LOGO/diwali-special-offer.png.png";
 
 import PaymentStep from "../components/PaymentStep";
 
@@ -2327,6 +2328,36 @@ export default function OurPlans() {
 
   return (
     <main ref={rootRef} className="bu-plans-page">
+      {/* DIWALI SPECIAL OFFER BANNER */}
+      <section className="bu-diwali-offer" aria-label="Diwali special offer">
+        <div className="bu-diwali-offer-inner">
+          <img
+            src={diwaliSpecialOfferBanner}
+            alt="Diwali Special Offer"
+            className="bu-diwali-offer-image"
+            fetchPriority="high"
+          />
+          <span
+            className="bu-diwali-spark bu-diwali-spark-one"
+            aria-hidden="true"
+          >
+            ✦
+          </span>
+          <span
+            className="bu-diwali-spark bu-diwali-spark-two"
+            aria-hidden="true"
+          >
+            ✧
+          </span>
+          <span
+            className="bu-diwali-spark bu-diwali-spark-three"
+            aria-hidden="true"
+          >
+            ✦
+          </span>
+        </div>
+      </section>
+
       {/* HERO */}
 
       <section className="bu-hero">

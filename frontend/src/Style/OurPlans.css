@@ -12970,3 +12970,287 @@
     }
   }
 }
+
+/* =========================================================
+   DIWALI SPECIAL OFFER BANNER
+   Added above the Our Plans hero. Scoped to avoid affecting
+   the existing catalogue, cards, filters or details modal.
+========================================================= */
+
+.bu-diwali-offer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 18px 4%;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 190, 70, .18), transparent 66%),
+    linear-gradient(110deg, #fffaf0 0%, #fff3df 50%, #fffaf0 100%);
+}
+
+.bu-diwali-offer::before,
+.bu-diwali-offer::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  filter: blur(75px);
+  opacity: .28;
+  pointer-events: none;
+}
+
+.bu-diwali-offer::before {
+  top: -130px;
+  left: 4%;
+  background: #ffad22;
+}
+
+.bu-diwali-offer::after {
+  right: 4%;
+  bottom: -145px;
+  background: #8c38d6;
+}
+
+.bu-diwali-offer-inner {
+  position: relative;
+  width: min(100%, 1500px);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #320044;
+  box-shadow:
+    0 15px 42px rgba(83, 28, 65, .16),
+    0 0 0 1px rgba(222, 164, 54, .2);
+  opacity: 0;
+  transform: translateY(22px) scale(.985);
+  animation: buDiwaliReveal .9s cubic-bezier(.2, .75, .25, 1) .08s forwards;
+}
+
+.bu-diwali-offer-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 390px;
+  object-fit: contain;
+  object-position: center;
+  transition: transform .65s cubic-bezier(.2, .7, .2, 1);
+}
+
+.bu-diwali-offer-inner:hover .bu-diwali-offer-image {
+  transform: scale(1.012);
+}
+
+.bu-diwali-spark {
+  position: absolute;
+  z-index: 2;
+  color: #ffe7a0;
+  text-shadow: 0 0 12px #ffb52e, 0 0 25px #ff8c00;
+  pointer-events: none;
+  animation: buDiwaliSparkle 2.4s ease-in-out infinite;
+}
+
+.bu-diwali-spark-one {
+  top: 13%;
+  left: 15%;
+  font-size: 19px;
+}
+
+.bu-diwali-spark-two {
+  top: 23%;
+  right: 13%;
+  font-size: 25px;
+  animation-delay: .8s;
+}
+
+.bu-diwali-spark-three {
+  bottom: 14%;
+  right: 28%;
+  font-size: 15px;
+  animation-delay: 1.4s;
+}
+
+@keyframes buDiwaliReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes buDiwaliSparkle {
+
+  0%,
+  100% {
+    opacity: .35;
+    transform: scale(.75) rotate(0deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(25deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .bu-diwali-offer {
+    padding: 10px 12px;
+  }
+
+  .bu-diwali-offer-inner {
+    border-radius: 13px;
+  }
+
+  .bu-diwali-offer-image {
+    max-height: none;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .bu-diwali-spark {
+    font-size: 12px;
+  }
+
+  .bu-diwali-spark-two {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bu-diwali-offer {
+    padding: 8px;
+  }
+
+  .bu-diwali-offer-inner {
+    border-radius: 9px;
+  }
+
+  .bu-diwali-spark-one {
+    left: 9%;
+  }
+
+  .bu-diwali-spark-two {
+    right: 8%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .bu-diwali-offer-inner,
+  .bu-diwali-spark {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  .bu-diwali-offer-image {
+    transition: none;
+  }
+}
+
+
+/* ==========================================
+   BUNDLEUPOTT - 2 COLUMN FLOATING BUBBLES
+   Two bubbles on top, two below
+========================================== */
+
+.bu-bubble-stage .bu-floating-bubbles {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  justify-items: center !important;
+  align-items: center !important;
+  gap: 30px 24px !important;
+  width: 100% !important;
+  max-width: 650px !important;
+  margin: 0 auto !important;
+  padding: 25px 15px !important;
+}
+
+.bu-bubble-stage .bu-floating-bubbles>.bu-service-bubble {
+  position: relative !important;
+  inset: auto !important;
+  transform: none;
+  width: 100% !important;
+  max-width: 240px !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+
+.bu-bubble-stage .bu-service-bubble-logo {
+  width: 110px !important;
+  height: 110px !important;
+  flex: 0 0 110px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+}
+
+.bu-bubble-stage .bu-service-name {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+/* TABLET */
+
+@media (max-width: 768px) {
+  .bu-bubble-stage .bu-floating-bubbles {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 24px 12px !important;
+    max-width: 480px !important;
+  }
+
+  .bu-bubble-stage .bu-service-bubble-logo {
+    width: 90px !important;
+    height: 90px !important;
+    flex-basis: 90px !important;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 480px) {
+  .bu-bubble-stage .bu-floating-bubbles {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 22px 8px !important;
+    padding: 15px 5px !important;
+  }
+
+  .bu-bubble-stage .bu-service-bubble {
+    max-width: 160px !important;
+  }
+
+  .bu-bubble-stage .bu-service-bubble-logo {
+    width: 76px !important;
+    height: 76px !important;
+    flex-basis: 76px !important;
+  }
+
+  .bu-bubble-stage .bu-service-name {
+    font-size: 11px !important;
+  }
+}
+
+/* SMALL IPHONES */
+
+@media (max-width: 360px) {
+  .bu-bubble-stage .bu-floating-bubbles {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 18px 5px !important;
+  }
+
+  .bu-bubble-stage .bu-service-bubble-logo {
+    width: 66px !important;
+    height: 66px !important;
+    flex-basis: 66px !important;
+  }
+}
