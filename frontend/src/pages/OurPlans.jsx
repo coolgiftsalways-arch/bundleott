@@ -1218,7 +1218,6 @@ function CustomerForm({
               <label>
                 Full name
                 <input
-                  autoFocus
                   autoComplete="name"
                   value={form.fullName}
                   onChange={(event) =>
