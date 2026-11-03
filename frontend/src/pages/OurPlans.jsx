@@ -320,7 +320,11 @@ const LOGO_MATCHES = [
   { keys: ["hoichoi", "hoi choi"], files: ["hoichoi"] },
   { keys: ["inshot"], files: ["inshotpro", "inshot"] },
   { keys: ["invideo ai", "invideo"], files: ["invideoai", "invideo"] },
-  { keys: ["jio cinema", "jio hotstar", "jio"], files: ["jio"] },
+  // JioHotstar and JioStar are separate services with separate logo files.
+  { keys: ["jiohotstar", "jio hotstar"], files: ["jiohotstar"] },
+  // The existing Jio.png asset is used for the JioStar brand mark.
+  { keys: ["jiostar", "jio cinema", "jiocinema", "jio"], files: ["jio"] },
+  { keys: ["zee5", "zee 5"], files: ["zee5"] },
   { keys: ["manorama max", "manorama"], files: ["manoramamax", "manorama"] },
   {
     keys: ["microsoft 365", "office 365", "microsoft"],
@@ -2000,16 +2004,25 @@ export default function OurPlans() {
     const grouped = new Map();
 
     results.forEach((plan) => {
-      const key = String(plan.brand || "")
-        .trim()
-        .toLowerCase();
+      const originalBrand = String(plan.brand || "").trim();
+      const normalizedBrand = originalBrand.toLowerCase().replace(/\\s+/g, "");
 
-      if (!key) return;
+      if (!originalBrand) return;
+
+      // Display the existing Jio catalogue group as JioStar.
+      // JioHotstar remains its own separate service.
+      const displayBrand = ["jio", "jiocinema", "jiocinema premium"].includes(
+        normalizedBrand,
+      )
+        ? "JioStar"
+        : originalBrand;
+
+      const key = displayBrand.toLowerCase();
 
       if (!grouped.has(key)) {
         grouped.set(key, {
           key,
-          brand: plan.brand,
+          brand: displayBrand,
           representative: plan,
           plans: [],
         });
@@ -2459,26 +2472,29 @@ export default function OurPlans() {
                     <button
                       type="button"
                       key={service.key}
-                      className={`bu-service-bubble bu-service-bubble-${index % 8} ${activeBrand === service.key ? "is-open" : ""}`}
+                      className={`bu-service-bubble bu-service-bubble-${index % 8} bu-service-${String(
+                        service.brand || service.key,
+                      )
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, "-")
+                        .replace(
+                          /^-|-$/g,
+                          "",
+                        )} ${activeBrand === service.key ? "is-open" : ""}`}
                       style={{
                         "--bubble-index": index,
                         "--bubble-delay": `${(index % 9) * -0.55}s`,
                       }}
                       onClick={() => toggleService(service.key)}
                       aria-expanded={activeBrand === service.key}
-                      aria-label={`${service.brand}, ${service.plans.length} plans. ${activeBrand === service.key ? "Close plans" : "View plans"}`}
-                      title={`${service.brand} · ${service.plans.length} plans`}
+                      aria-label={`View ${service.brand} plans`}
+                      title={`View ${service.brand} plans`}
                     >
-                      <span className="bu-service-bubble-shine" />
-
                       <span className="bu-service-bubble-logo">
                         <Logo plan={service.representative} />
                       </span>
 
-                      <span className="bu-service-count">
-                        {service.plans.length}{" "}
-                        {service.plans.length === 1 ? "plan" : "plans"}
-                      </span>
+                      <span className="bu-service-name">{service.brand}</span>
                     </button>
                   ))}
                 </div>

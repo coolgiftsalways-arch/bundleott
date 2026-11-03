@@ -1046,23 +1046,6 @@ export const SUBSCRIPTION_CATALOGUE = [
     source: "https://www.manoramamax.com/faq.html?lang=eng",
   },
   {
-    id: "63",
-    category: "OTT, films & TV",
-    brand: "ZEE5",
-    tier: "Premium",
-    useCase: "Indian films, originals and TV",
-    billing: "Monthly / annual",
-    price: "Dynamic; exact offer shown at official checkout",
-    priceBasis: "Official pricing page",
-    features:
-      "Indian language entertainment, originals, movies, TV catch-up and downloads where included.",
-    limits:
-      "Plans can differ by term, devices, video quality and content rights.",
-    devices: "Pricing/rights vary by promotional offer and platform.",
-    note: "Current exact price was not exposed consistently in available page text; verify at checkout.",
-    source: "https://www.zee5.com/",
-  },
-  {
     id: "64",
     category: "OTT, films & TV",
     brand: "Lionsgate Play",
@@ -2862,6 +2845,168 @@ export const SUBSCRIPTION_CATALOGUE = [
     note: "USD price; compare by editor seat and hours of transcription.",
     source: "https://www.descript.com/price",
   },
+
+  {
+    id: "171",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Premium All Access",
+    useCase: "Indian films, originals, TV shows and regional entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹299/month reference",
+    priceBasis: "ZEE5 Help Centre; India plan reference",
+    features:
+      "All Access catalogue across supported languages, movies, originals, TV catch-up and Kids content; video quality and audio features depend on the selected plan and device.",
+    limits:
+      "Content availability, concurrent screens, ads and streaming quality depend on the selected term and current ZEE5 plan conditions.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "172",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Hindi, Punjabi & Bhojpuri",
+    useCase: "Hindi, Punjabi and Bhojpuri movies and entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹199/month reference",
+    priceBasis: "ZEE5 Help Centre; India regional plan reference",
+    features:
+      "Regional catalogue focused on Hindi, Punjabi and Bhojpuri movies, shows and entertainment.",
+    limits:
+      "Access is limited to the language catalogue and benefits included in this regional plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "173",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Tamil",
+    useCase: "Tamil movies, shows and regional entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹129/month reference",
+    priceBasis: "ZEE5 Help Centre; India regional plan reference",
+    features:
+      "Tamil-language movies, shows and entertainment included in the regional subscription.",
+    limits:
+      "Access is limited to the language catalogue and benefits included in this regional plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "174",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Telugu",
+    useCase: "Telugu movies, shows and regional entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹129/month reference",
+    priceBasis: "ZEE5 Help Centre; India regional plan reference",
+    features:
+      "Telugu-language movies, shows and entertainment included in the regional subscription.",
+    limits:
+      "Access is limited to the language catalogue and benefits included in this regional plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "175",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Malayalam",
+    useCase: "Malayalam movies, shows and regional entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹129/month reference",
+    priceBasis: "ZEE5 Help Centre; India regional plan reference",
+    features:
+      "Malayalam-language movies, shows and entertainment included in the regional subscription.",
+    limits:
+      "Access is limited to the language catalogue and benefits included in this regional plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "176",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Kannada",
+    useCase: "Kannada movies, shows and regional entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹129/month reference",
+    priceBasis: "ZEE5 Help Centre; India regional plan reference",
+    features:
+      "Kannada-language movies, shows and entertainment included in the regional subscription.",
+    limits:
+      "Access is limited to the language catalogue and benefits included in this regional plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "177",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Marathi",
+    useCase: "Marathi movies, shows and regional entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹129/month reference",
+    priceBasis: "ZEE5 Help Centre; India regional plan reference",
+    features:
+      "Marathi-language movies, shows and entertainment included in the regional subscription.",
+    limits:
+      "Access is limited to the language catalogue and benefits included in this regional plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "178",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Bengali & Odia Combo",
+    useCase: "Bengali and Odia movies, shows and regional entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹129/month reference",
+    priceBasis: "ZEE5 Help Centre; India regional plan reference",
+    features:
+      "Bengali- and Odia-language movies, shows and entertainment included in the regional combo.",
+    limits:
+      "Access is limited to the language catalogues and benefits included in this regional plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
+  {
+    id: "179",
+    category: "OTT, films & TV",
+    brand: "ZEE5",
+    tier: "Kidz",
+    useCase: "Kids' movies, shows and family-friendly entertainment",
+    billing: "1 / 3 / 6 / 12 months",
+    price: "₹59/month reference",
+    priceBasis: "ZEE5 Help Centre; India Kidz plan reference",
+    features:
+      "Kids-focused movies and shows included in the ZEE5 Kidz subscription.",
+    limits: "Catalogue and viewing benefits are limited to the Kidz plan.",
+    devices:
+      "Device allowance varies by subscription duration and current ZEE5 terms.",
+    note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
+    source: "https://www.zee5.com/",
+  },
 ];
 
 /* 15 editable bundle archetypes from the uploaded workbook.
@@ -3059,7 +3204,7 @@ export function getSubscriptionProductDetails(productOrId) {
     typeof productOrId === "object" && productOrId !== null
       ? productOrId
       : SUBSCRIPTION_CATALOGUE.find(
-          (item) => String(item.id) === String(productOrId)
+          (item) => String(item.id) === String(productOrId),
         );
 
   if (!product) return null;
@@ -3097,28 +3242,34 @@ export function getSubscriptionProductDetails(productOrId) {
       "Select your preferred subscription.",
       "Choose an available subscription duration.",
       "Review the product details and complete checkout.",
-      "Follow the activation instructions provided after your order is confirmed."
+      "Follow the activation instructions provided after your order is confirmed.",
     ],
 
     faqs: [
       {
         question: "What benefits are included?",
-        answer: benefits.join(" ") || "Please check the provider's current plan details."
+        answer:
+          benefits.join(" ") ||
+          "Please check the provider's current plan details.",
       },
       {
         question: "Are there any limitations?",
-        answer: limitations.join(" ") || "Usage restrictions depend on the provider's plan."
+        answer:
+          limitations.join(" ") ||
+          "Usage restrictions depend on the provider's plan.",
       },
       {
         question: "Which devices are supported?",
-        answer: devices.join(" ") || "Device compatibility depends on the provider."
+        answer:
+          devices.join(" ") || "Device compatibility depends on the provider.",
       },
       {
         question: "How do I activate my subscription?",
-        answer: "Follow the product-specific activation instructions provided after your order is confirmed."
-      }
+        answer:
+          "Follow the product-specific activation instructions provided after your order is confirmed.",
+      },
     ],
 
-    source: product.source || ""
+    source: product.source || "",
   };
 }
