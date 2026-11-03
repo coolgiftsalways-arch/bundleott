@@ -821,6 +821,32 @@ function DetailsModal({
             </button>
           </div>
 
+          {/* Mobile scroll controls are also available in the OTT section. */}
+          <div
+            className="bu-plan-scroll-arrows bu-ott-scroll-controls"
+            aria-label="Scroll plan page"
+          >
+            <button
+              type="button"
+              className="bu-plan-scroll-arrow"
+              onClick={() => scrollPlanDetails("up")}
+              aria-label="Scroll up"
+              title="Scroll up"
+            >
+              <Icon name="arrow-up" size={17} />
+            </button>
+
+            <button
+              type="button"
+              className="bu-plan-scroll-arrow"
+              onClick={() => scrollPlanDetails("down")}
+              aria-label="Scroll down"
+              title="Scroll down"
+            >
+              <Icon name="arrow-down" size={17} />
+            </button>
+          </div>
+
           <strong className="bu-details-price">
             {getPriceInfo(plan).display}
           </strong>
