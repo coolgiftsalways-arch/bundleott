@@ -1,3 +1,5 @@
+/* BundleUpOTT discount targets: 1 month 50%, 3 months 60%, 6 months 70%, 12 months 80%.
+   These are BundleUpOTT offer targets calculated from each service reference price, not provider checkout prices. */
 /* Data transcribed from the user-provided India Digital Subscription Catalogue (snapshot 2026-10-22).
    Price strings are research references, not bundleupott selling prices.
    This does not imply reseller authorization or live payment availability. */
@@ -3006,6 +3008,295 @@ export const SUBSCRIPTION_CATALOGUE = [
       "Device allowance varies by subscription duration and current ZEE5 terms.",
     note: "BundleUpOTT offer prices are calculated using the requested 50% / 60% / 70% / 80% discount structure. They are not ZEE5's official checkout prices.",
     source: "https://www.zee5.com/",
+  },
+
+  // =========================
+  // ADDITIONAL SERVICES
+  // Added 2026-11-03. Provider prices are reference prices, not BundleUpOTT selling prices.
+  // Do not activate resale/payment unless the provider permits the intended distribution.
+  // =========================
+  {
+    id: "180",
+    category: "OTT, films & TV",
+    brand: "MUBI",
+    tier: "Monthly",
+    useCase: "Curated international and independent cinema streaming",
+    billing: "Monthly",
+    price: "₹499/month (India App Store listing; other offers may appear)",
+    priceBasis: "India App Store listing",
+    features: "Curated films and independent/world cinema catalogue.",
+    limits:
+      "Catalogue, simultaneous streams and download benefits depend on current plan terms.",
+    devices:
+      "Supported mobile, web and TV apps; check current device compatibility.",
+    note: "India App Store lists multiple MUBI in-app price points. Verify the exact checkout offer before displaying a fixed customer price.",
+    source:
+      "https://apps.apple.com/in/app/mubi-stream-great-cinema/id626148774",
+  },
+  {
+    id: "181",
+    category: "OTT, films & TV",
+    brand: "MUBI",
+    tier: "Annual",
+    useCase: "Curated international and independent cinema streaming",
+    billing: "Annual",
+    price: "₹3,599/year (India App Store listing; other offers may appear)",
+    priceBasis: "India App Store listing",
+    features: "Annual access to MUBI's curated film catalogue.",
+    limits:
+      "Catalogue, simultaneous streams and download benefits depend on current plan terms.",
+    devices:
+      "Supported mobile, web and TV apps; check current device compatibility.",
+    note: "Annual amount is an observed App Store price reference, not a guaranteed web checkout price.",
+    source:
+      "https://apps.apple.com/in/app/mubi-stream-great-cinema/id626148774",
+  },
+  {
+    id: "182",
+    category: "OTT, films & TV",
+    brand: "FanCode",
+    tier: "Monthly Pass",
+    useCase: "Live sports, match highlights and sports coverage",
+    billing: "Monthly",
+    price: "₹199/month standard reference; promotional offers may be lower",
+    priceBasis: "FanCode official subscription page",
+    features:
+      "Sports coverage across cricket, football, motorsport and other listed tours; live matches and highlights.",
+    limits:
+      "Sports and tour rights vary by event; some events may require separate passes.",
+    devices:
+      "Smartphones, tablets, laptops and supported Smart TVs; simultaneous-device rules apply.",
+    note: "The official page displayed a discounted ₹134 offer against ₹199 when checked on 2026-11-03. Verify live checkout before publishing a price.",
+    source: "https://www.fancode.com/content/subscribe",
+  },
+  {
+    id: "183",
+    category: "AI assistants & research",
+    brand: "Cursor",
+    tier: "Start (India)",
+    useCase: "AI coding editor and developer productivity",
+    billing: "Monthly",
+    price:
+      "₹649/month (India plan reference; tax inclusive as listed in Cursor documentation)",
+    priceBasis: "Cursor official pricing documentation",
+    features:
+      "AI-assisted code editing, agent workflows and coding assistance within Cursor.",
+    limits:
+      "Usage pool and model access depend on plan terms; third-party model usage may be billed separately.",
+    devices: "Desktop app for supported operating systems.",
+    note: "Cursor also lists Pro at US$20/month; the India-only Start plan is a separate offering. Confirm availability at checkout.",
+    source: "https://prod.cursor.com/help/account-and-billing/pricing",
+  },
+  {
+    id: "184",
+    category: "AI assistants & research",
+    brand: "GitHub Copilot",
+    tier: "Pro",
+    useCase: "AI coding assistant for developers",
+    billing: "Monthly",
+    price: "US$10/user/month",
+    priceBasis: "GitHub official pricing",
+    features:
+      "AI code completion, chat, model selection, cloud agent and code review features subject to plan terms.",
+    limits:
+      "Included AI credits and premium request allowances apply; extra usage may be billed.",
+    devices: "Supported IDEs, GitHub website, CLI and compatible apps.",
+    note: "Official USD list price. Taxes, currency conversion and regional billing may apply.",
+    source: "https://github.com/features/copilot/plans",
+  },
+
+  // Additional missing services from the user's requested service checklist.
+  // Reference prices are provider/app-store references; BundleUpOTT offers are calculated separately.
+  {
+    id: "185",
+    category: "OTT, films & TV",
+    brand: "Discovery+",
+    tier: "Premium Monthly",
+    useCase: "Documentaries, factual entertainment and lifestyle programming",
+    billing: "Monthly",
+    price: "₹199/month reference",
+    priceBasis: "India App Store listing; in-app purchase reference",
+    features:
+      "Premium Discovery, TLC, Animal Planet and factual entertainment catalogue; supported language and device features depend on the current plan.",
+    limits:
+      "Catalogue, ads, simultaneous streams and offers can vary by plan and platform.",
+    devices: "Supported mobile devices, connected TVs and web where available.",
+    note: "App Store prices can differ from website, telecom and promotional offers. BundleUpOTT duration prices are calculated from the reference price.",
+    source:
+      "https://apps.apple.com/in/app/discovery-stream-tv-shows/id1497257119",
+  },
+  {
+    id: "186",
+    category: "OTT, films & TV",
+    brand: "Apple TV+",
+    tier: "Monthly",
+    useCase: "Apple Originals films and series",
+    billing: "Monthly",
+    price: "₹99/month",
+    priceBasis: "Apple India official pricing page",
+    features:
+      "Apple Originals series, films and documentaries through the Apple TV app on supported devices.",
+    limits:
+      "Catalogue is limited to Apple TV+ content; availability can vary by country.",
+    devices:
+      "Apple devices, supported smart TVs, streaming devices, Android, Windows and web.",
+    note: "Apple TV+ may also be included with eligible Apple One or other Apple offers. Verify current eligibility and checkout terms.",
+    source: "https://www.apple.com/in/apple-tv/",
+  },
+  {
+    id: "187",
+    category: "Music & audio",
+    brand: "Gaana",
+    tier: "Gaana+ Monthly",
+    useCase: "Music streaming and podcasts",
+    billing: "Monthly",
+    price: "₹119/month reference",
+    priceBasis: "India App Store in-app purchase listing",
+    features:
+      "Premium music listening and ad-free playback benefits included in the active Gaana+ plan.",
+    limits:
+      "Features, downloads and catalogue access depend on the current Gaana+ offer and account region.",
+    devices: "Supported Gaana mobile apps and web experience.",
+    note: "App Store lists multiple Gaana+ offers; confirm the exact plan at checkout.",
+    source:
+      "https://apps.apple.com/in/app/gaana-music-songs-podcasts/id585270521",
+  },
+  {
+    id: "188",
+    category: "AI image, video & voice tools",
+    brand: "Gamma",
+    tier: "Plus",
+    useCase: "AI presentations, documents and simple websites",
+    billing: "Annual billing; monthly equivalent",
+    price: "US$9/seat/month equivalent (US$108 billed annually)",
+    priceBasis: "Official Gamma pricing page; annual billing reference",
+    features:
+      "AI presentation and document creation, up to 100 cards/slides per prompt, advanced AI image models and Gamma branding removal.",
+    limits:
+      "AI credits, fair-use limits and seat billing apply; paid plan prices can vary by billing cycle and region.",
+    devices: "Web-based service; browser and account access required.",
+    note: "Price is an annual-billing monthly equivalent, not a month-to-month quote. BundleUpOTT prices are illustrative calculations.",
+    source: "https://gamma.app/pricing",
+  },
+  {
+    id: "189",
+    category: "AI assistants & research",
+    brand: "Replit",
+    tier: "Core",
+    useCase: "AI-assisted software development and app deployment",
+    billing: "Monthly",
+    price: "US$20/month reference (annual billing may be lower)",
+    priceBasis: "Official Replit pricing page",
+    features:
+      "AI coding and agent tools, development workspaces, model usage allowance and project capabilities included in Core.",
+    limits:
+      "Agent/model usage, included credits and deployment resources are limited by plan; extra usage may cost more.",
+    devices:
+      "Browser-based development environment; supported desktop and mobile browsers.",
+    note: "Prices are in USD and may be subject to local taxes. Usage-based charges can apply.",
+    source: "https://replit.com/pricing",
+  },
+  {
+    id: "190",
+    category: "AI assistants & research",
+    brand: "Lovable",
+    tier: "Pro",
+    useCase: "AI website and web-app builder",
+    billing: "Monthly",
+    price: "US$25/month reference",
+    priceBasis: "Official Lovable pricing page",
+    features:
+      "100 monthly Pro credits, custom domains, private projects and team collaboration features listed for Pro.",
+    limits:
+      "Build credits and cloud usage are metered; additional usage may require top-ups.",
+    devices: "Web-based service; browser and account access required.",
+    note: "Prices are in USD and may be subject to local taxes. Credits are not unlimited.",
+    source: "https://lovable.dev/pricing",
+  },
+  {
+    id: "191",
+    category: "Photo, video & design software",
+    brand: "Adobe Lightroom",
+    tier: "Lightroom Plan",
+    useCase: "Photo editing, organisation and cloud photo workflow",
+    billing: "Annual plan, billed monthly",
+    price: "₹382.32/month incl. GST reference",
+    priceBasis: "Adobe India official pricing page",
+    features:
+      "Photo editing, organisation, cloud storage and Lightroom tools included in the selected plan.",
+    limits:
+      "Cloud storage and included features depend on the selected Lightroom plan and current Adobe terms.",
+    devices: "Supported desktop, web, iOS and Android devices.",
+    note: "Annual commitment billed monthly; cancellation terms and storage allowance should be checked before purchase.",
+    source: "https://www.adobe.com/in/creativecloud/plans.html",
+  },
+  {
+    id: "192",
+    category: "Photo, video & design software",
+    brand: "CapCut",
+    tier: "Pro",
+    useCase: "Video editing, templates and AI-assisted creator tools",
+    billing: "Monthly; regional checkout pricing",
+    price: "US$19.99/month reference (regional price varies)",
+    priceBasis: "Official CapCut pricing page; displayed reference price",
+    features:
+      "Premium templates and editing tools, AI credits, premium features and cloud storage as described for Pro.",
+    limits:
+      "AI credits, storage and available features depend on region, device and current plan.",
+    devices: "Supported web, desktop and mobile applications.",
+    note: "CapCut states that final pricing varies by region, device and promotion; verify the local checkout price before enabling payment.",
+    source: "https://www.capcut.com/pricing",
+  },
+  {
+    id: "193",
+    category: "Writing & productivity",
+    brand: "QuillBot",
+    tier: "Premium",
+    useCase: "Paraphrasing, grammar, summarising and writing assistance",
+    billing: "Annual billing; monthly equivalent",
+    price: "US$9.95/month equivalent (billed annually)",
+    priceBasis: "Official QuillBot Premium page",
+    features:
+      "Expanded paraphrasing modes, advanced grammar recommendations, summarising and other Premium writing tools.",
+    limits:
+      "Usage and feature limits apply; pricing varies by region and billing cycle.",
+    devices: "Web, browser extensions and supported mobile applications.",
+    note: "The published reference is a monthly equivalent billed annually; confirm local checkout pricing.",
+    source: "https://quillbot.com/premium",
+  },
+  {
+    id: "194",
+    category: "Cloud storage & productivity",
+    brand: "Evernote",
+    tier: "Starter",
+    useCase: "Notes, documents, tasks and personal knowledge management",
+    billing: "Annual billing; monthly equivalent",
+    price: "US$8.25/month equivalent (US$99 billed annually)",
+    priceBasis: "Official Evernote plans page",
+    features:
+      "Up to 1,000 notes, 20 notebooks, 1,000 attachments and sync across up to three devices on Starter.",
+    limits:
+      "Note, notebook, attachment and device limits apply; local pricing may differ.",
+    devices: "Supported web, Windows, Mac, iOS and Android apps.",
+    note: "Annual-billing monthly equivalent, not a month-to-month price. Confirm region and tax at checkout.",
+    source: "https://evernote.com/compare-plans",
+  },
+  {
+    id: "195",
+    category: "Cloud storage & productivity",
+    brand: "Todoist",
+    tier: "Pro",
+    useCase: "Personal task management and productivity",
+    billing: "Annual billing; monthly equivalent",
+    price: "US$5/user/month equivalent (US$60 billed annually)",
+    priceBasis: "Official Todoist pricing page",
+    features:
+      "Expanded project capacity, calendar layout, task duration, custom reminders, filters and reporting features.",
+    limits:
+      "Per-user billing and plan feature limits apply; regional prices may vary.",
+    devices: "Supported web, desktop, iOS and Android apps.",
+    note: "Annual-billing monthly equivalent; team/business seats have separate pricing.",
+    source: "https://www.todoist.com/pricing/",
   },
 ];
 

@@ -299,58 +299,70 @@ function domainOf(plan) {
 const LOGO_MATCHES = [
   {
     keys: ["adobe acrobat", "acrobat", "adobe"],
-    files: ["adobeacrobat", "acrobat"],
+    files: ["adobeacrobatpro", "adobeacrobat", "acrobat"],
   },
   { keys: ["amazon prime", "prime video", "amazon"], files: ["amazonprime"] },
+  { keys: ["antigravity"], files: ["antigravity"] },
   {
     keys: ["apple creator studio", "creator studio"],
-    files: ["applecreator", "applecreators"],
+    files: ["applecreatorstudio", "applecreator"],
   },
   { keys: ["apple music"], files: ["applemusic"] },
+  { keys: ["apple tv", "appletv"], files: ["appletv"] },
   { keys: ["audible"], files: ["audible"] },
   { keys: ["canva"], files: ["canva"] },
   { keys: ["chatgpt", "chat gpt", "openai"], files: ["chatgpt"] },
   { keys: ["claude", "anthropic"], files: ["claude"] },
+  { keys: ["cloud+", "cloud plus", "icloud"], files: ["cloud+"] },
   { keys: ["crunchyroll"], files: ["crunchyroll"] },
+  { keys: ["cursor"], files: ["cursor"] },
+  {
+    keys: ["discovery+", "discovery plus", "discovery"],
+    files: ["discovery+"],
+  },
+  { keys: ["fancode", "fan code"], files: ["fancode"] },
+  { keys: ["filmora"], files: ["filmora"] },
+  { keys: ["gaana", "gana"], files: ["gana"] },
   {
     keys: ["google one", "google drive", "google storage"],
     files: ["googleone"],
   },
-  { keys: ["icloud", "apple icloud", "cloud+"], files: ["cloud+"] },
-  { keys: ["filmora"], files: ["filmora"] },
   { keys: ["hoichoi", "hoi choi"], files: ["hoichoi"] },
   { keys: ["inshot"], files: ["inshotpro", "inshot"] },
   { keys: ["invideo ai", "invideo"], files: ["invideoai", "invideo"] },
-  // JioHotstar and JioStar are separate services with separate logo files.
+  // JioHotstar and JioStar use separate logo assets.
   { keys: ["jiohotstar", "jio hotstar"], files: ["jiohotstar"] },
-  // The existing Jio.png asset is used for the JioStar brand mark.
   { keys: ["jiostar", "jio cinema", "jiocinema", "jio"], files: ["jio"] },
-  { keys: ["zee5", "zee 5"], files: ["zee5"] },
-  { keys: ["manorama max", "manorama"], files: ["manoramamax", "manorama"] },
+  { keys: ["manorama max", "manoramamax", "manorama"], files: ["manoramamax"] },
   {
     keys: ["microsoft 365", "office 365", "microsoft"],
     files: ["microsoft365"],
   },
+  { keys: ["mubi"], files: ["mubi"] },
   { keys: ["netflix"], files: ["netflix"] },
   { keys: ["perplexity"], files: ["perplexity"] },
   { keys: ["picsart"], files: ["picsart"] },
   { keys: ["playstation", "ps plus", "psn"], files: ["playstationplus"] },
   { keys: ["sonyliv", "sony liv"], files: ["sonyliv"] },
-  { keys: ["spotify"], files: ["spotifypremium", "spotify"] },
+  { keys: ["spotify"], files: ["spotifypremium"] },
   {
     keys: ["tata play binge", "tataplay binge", "tataplaybinge"],
-    files: ["tataplaybinge", "tataplay"],
+    files: ["tataplaybinge"],
+  },
+  {
+    keys: ["tata play dth", "tataplay dth", "tataplaydth"],
+    files: ["tataplaydth"],
   },
   { keys: ["times prime", "timesprime"], files: ["timesprime"] },
   { keys: ["vidiq", "vid iq"], files: ["vidiq"] },
   { keys: ["youtube premium", "youtube"], files: ["youtubepremium"] },
+  { keys: ["zee5", "zee 5"], files: ["zee5"] },
 ];
-
 function normalizeLogoFilename(value) {
   return String(value || "")
     .toLowerCase()
     .replace(/\.[^.]+$/, "")
-    .replace(/[^a-z0-9+]/g, "");
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function findLogoAsset(fileKeys) {
@@ -361,28 +373,29 @@ function findLogoAsset(fileKeys) {
   if (!candidates.length) return null;
 
   const assets = Object.entries(LOGO_ASSETS).map(([path, asset]) => {
-    const filename = path
-      .split("/")
-      .pop()
-      .replace(/\.[^.]+$/, "");
+    const filename = path.split("/").pop();
     return {
+      filename,
       normalized: normalizeLogoFilename(filename),
       asset,
     };
   });
 
-  // Prefer an exact filename match, then a filename beginning with the key.
+  // Exact filename match first, so similar brands never steal one another's logo.
   for (const candidate of candidates) {
     const exact = assets.find((item) => item.normalized === candidate);
     if (exact) return exact.asset;
+  }
 
+  // Then allow longer asset filenames such as AdobeAcrobatPro.png.
+  for (const candidate of candidates) {
     const startsWith = assets.find((item) =>
       item.normalized.startsWith(candidate),
     );
     if (startsWith) return startsWith.asset;
   }
 
-  // Last fallback: allow a candidate to be contained in a longer filename.
+  // Finally allow a contained match for catalogue names with extra wording.
   for (const candidate of candidates) {
     const partial = assets.find((item) => item.normalized.includes(candidate));
     if (partial) return partial.asset;
@@ -412,7 +425,7 @@ function getCustomLogo(plan) {
     if (logo) return logo;
   }
 
-  // Automatically try the provider's own name if it has a matching PNG.
+  // Automatic fallback for any future logo added with the provider's filename.
   return findLogoAsset([plan?.brand, plan?.name]);
 }
 
