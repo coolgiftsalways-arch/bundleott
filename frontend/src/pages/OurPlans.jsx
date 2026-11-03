@@ -688,26 +688,23 @@ function DetailsModal({
   const navigateMobileSection = (section) => {
     setMobileView(section);
 
+    // The backdrop is the single mobile scroll container. Both sections stay
+    // in the document, so this works on iOS Safari and Android Chrome.
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         const scroller = modalScrollRef.current;
-
         if (!scroller) return;
 
         if (section === "explore") {
           const target = exploreSectionRef.current;
-
           if (!target) return;
 
           const scrollerTop = scroller.getBoundingClientRect().top;
-
           const targetTop = target.getBoundingClientRect().top;
-
           const nextTop = scroller.scrollTop + targetTop - scrollerTop;
 
           scroller.scrollTo({
             top: Math.max(0, nextTop),
-
             behavior: "smooth",
           });
         } else {
