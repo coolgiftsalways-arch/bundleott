@@ -53,6 +53,7 @@ export default function PaymentStep({ customer, plans, total }) {
   const [couponMessage, setCouponMessage] = useState("");
   const [couponError, setCouponError] = useState(false);
   const [couponBusy, setCouponBusy] = useState(false);
+  const [couponOpen, setCouponOpen] = useState(false);
 
   const autoCreateAttempted = useRef(false);
 
@@ -71,14 +72,14 @@ export default function PaymentStep({ customer, plans, total }) {
     .map((item) => `${item.id}:${item.months}`)
     .join("|");
 
-  // Scroll to payment QR after order creation.
+  // Bring the amount + "Pay with Razorpay" button into view after order creation.
   useEffect(() => {
     if (!orderData?.qrCode) return;
 
     const timer = setTimeout(() => {
-      document.querySelector(".bup-payment-qr")?.scrollIntoView({
+      document.querySelector(".bup-pay-head")?.scrollIntoView({
         behavior: "smooth",
-        block: "center",
+        block: "start",
       });
     }, 300);
 
@@ -110,6 +111,7 @@ export default function PaymentStep({ customer, plans, total }) {
     setCouponQuote(null);
     setCouponMessage("");
     setCouponError(false);
+    setCouponOpen(false);
     setError("");
 
     setOrderData(null);
@@ -423,44 +425,28 @@ export default function PaymentStep({ customer, plans, total }) {
 
       {orderData && (
         <>
-          <p>
-            <strong>Order:</strong> <code>{id}</code>
-          </p>
-
-          {orderData.order.couponCode && (
-            <>
-              <p>
-                <strong>Item subtotal:</strong>{" "}
-                {CURRENCY.format(Number(orderData.order.subtotal ?? 0))}
-              </p>
-
-              {Number(orderData.order.discount) > 0 && (
-                <p>
-                  <strong>Bundle discount:</strong> −
-                  {CURRENCY.format(Number(orderData.order.discount))}
-                </p>
+          {/* Amount + live status */}
+          <div className="bup-pay-head">
+            <div className="bup-pay-head-main">
+              <span className="bup-pay-label">Amount to pay</span>
+              <strong className="bup-pay-amount">
+                {CURRENCY.format(Number(orderData.order.amount))}
+              </strong>
+              {orderData.order.couponCode && (
+                <span className="bup-pay-saved">
+                  <s>{CURRENCY.format(Number(orderData.order.preCouponAmount))}</s>{" "}
+                  {orderData.order.couponCode} applied · you save{" "}
+                  {CURRENCY.format(Number(orderData.order.couponDiscount))}
+                </span>
               )}
+            </div>
+            <span className="bup-pay-live">
+              <i aria-hidden="true" /> Waiting for payment
+            </span>
+          </div>
 
-              <p>
-                <strong>Price before coupon:</strong>{" "}
-                {CURRENCY.format(Number(orderData.order.preCouponAmount))}
-              </p>
-
-              <p>
-                <strong>Coupon ({orderData.order.couponCode}) discount:</strong>{" "}
-                −{CURRENCY.format(Number(orderData.order.couponDiscount))}
-              </p>
-            </>
-          )}
-
-          <p>
-            <strong>Server amount:</strong>{" "}
-            {CURRENCY.format(Number(orderData.order.amount))}
-          </p>
-
-          <p>
-            <strong>Payment status:</strong>{" "}
-            Waiting for payment — this page updates automatically
+          <p className="bup-pay-order">
+            Order <code>{id}</code>
           </p>
 
           {!amountMatches && (
@@ -470,6 +456,53 @@ export default function PaymentStep({ customer, plans, total }) {
             </p>
           )}
 
+          {orderStatus === "pending" && amountMatches && (
+            <>
+              {/* Main action — visible without scrolling */}
+              {(orderData.paymentUrl || orderData.upiUrl) && (
+                <a
+                  className="bup-payment-upi"
+                  href={orderData.paymentUrl || orderData.upiUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Pay with Razorpay
+                  <span aria-hidden="true">→</span>
+                </a>
+              )}
+
+              <p className="bup-pay-secure">
+                <span aria-hidden="true">🔒</span> Secured by Razorpay · UPI,
+                cards &amp; netbanking
+              </p>
+
+              {/* Compact QR */}
+              {orderData.qrCode && (
+                <div className="bup-qr-compact">
+                  <div className="bup-qr-divider">
+                    <span>or scan with any UPI app</span>
+                  </div>
+
+                  <img
+                    id="bundleott-payment-qr"
+                    className="bup-payment-qr"
+                    src={orderData.qrCode}
+                    alt="BundleUpOTT payment QR code"
+                  />
+
+                  <a
+                    className="bup-download-qr"
+                    href={orderData.qrCode}
+                    download={`BundleUpOTT-QR-${id}.png`}
+                  >
+                    <span aria-hidden="true">↓</span> Download QR
+                  </a>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Coupon (collapsed until needed) */}
           {orderStatus === "pending" && (
             <div className="bup-coupon-box">
               {couponQuote ? (
@@ -485,11 +518,19 @@ export default function PaymentStep({ customer, plans, total }) {
                     Remove
                   </button>
                 </div>
+              ) : !couponOpen ? (
+                <button
+                  type="button"
+                  className="bup-coupon-toggle"
+                  onClick={() => setCouponOpen(true)}
+                >
+                  🎟️ Have a coupon code?
+                </button>
               ) : (
                 <form className="bup-coupon-form" onSubmit={applyCoupon}>
-                  <label htmlFor="bup-coupon">Have a coupon code?</label>
                   <input
                     id="bup-coupon"
+                    aria-label="Coupon code"
                     value={couponInput}
                     onChange={(event) =>
                       setCouponInput(event.target.value.toUpperCase())
@@ -497,6 +538,7 @@ export default function PaymentStep({ customer, plans, total }) {
                     placeholder="Enter coupon code"
                     autoComplete="off"
                     maxLength={30}
+                    autoFocus
                   />
                   <button type="submit" disabled={couponBusy || busy}>
                     {couponBusy || busy ? "Applying…" : "Apply"}
@@ -517,59 +559,15 @@ export default function PaymentStep({ customer, plans, total }) {
             </div>
           )}
 
+          {/* Manual UPI reference (fallback, collapsed) */}
           {orderStatus === "pending" && amountMatches && (
-            <>
-              {orderData.qrCode && (
-                <div className="bup-static-qr-section">
-                  <h3 className="bup-static-qr-title">BundleUpOTT</h3>
+            <details className="bup-utr-details">
+              <summary>Paid but this page didn't update?</summary>
 
-                  <p>
-                    Scan to pay{" "}
-                    <strong>
-                      {CURRENCY.format(Number(orderData.order.amount))}
-                    </strong>
-                  </p>
-
-                  <div className="bup-payment-qr-wrapper">
-                    <img
-                      id="bundleott-payment-qr"
-                      className="bup-payment-qr"
-                      src={orderData.qrCode}
-                      alt="BundleUpOTT payment QR code"
-                    />
-
-                    <a
-                      className="bup-download-qr"
-                      href={orderData.qrCode}
-                      download={`BundleUpOTT-QR-${id}.png`}
-                    >
-                      <span>↓</span>
-                      Download QR Code
-                    </a>
-                  </div>
-
-                  <p className="bup-static-qr-notice">
-                    Scan this QR to open your Razorpay payment page. The amount
-                    is fixed for this order. Verify it before paying.
-                  </p>
-
-                  {(orderData.paymentUrl || orderData.upiUrl) && (
-                    <a
-                      className="bup-payment-upi"
-                      href={orderData.paymentUrl || orderData.upiUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Pay fixed amount with Razorpay
-                    </a>
-                  )}
-                </div>
-              )}
-
-              {!referenceSent && (
-                <form onSubmit={submitReference}>
+              {!referenceSent ? (
+                <form className="bup-utr-form" onSubmit={submitReference}>
                   <label htmlFor="bup-utr">
-                    UPI reference (only after you genuinely paid)
+                    Enter your UPI reference (only after you genuinely paid)
                   </label>
 
                   <input
@@ -584,17 +582,15 @@ export default function PaymentStep({ customer, plans, total }) {
                   />
 
                   <button type="submit" disabled={busy}>
-                    Submit reference for review
+                    Submit for review
                   </button>
                 </form>
-              )}
-
-              {referenceSent && (
+              ) : (
                 <p className="bup-payment-ok">
                   Reference submitted for review, not yet verified.
                 </p>
               )}
-            </>
+            </details>
           )}
         </>
       )}
