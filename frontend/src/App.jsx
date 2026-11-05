@@ -17,6 +17,7 @@ import OurPlans from "./pages/OurPlans";
 import AdminDashboard from "./Admin/AdminDashboard";
 import AdminLogin from "./Admin/AdminLogin";
 import AdminProtectedRoute from "./Admin/AdminProtectedRoute";
+import OrderResult from "./pages/OrderResult";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -61,6 +62,7 @@ export default function App() {
             </AdminProtectedRoute>
           }
         />
+                <Route path="/order-result" element={<OrderResult />} />
 
         {/* Unknown URLs return to Our Plans */}
         <Route path="*" element={<Navigate to="/our-plans" replace />} />

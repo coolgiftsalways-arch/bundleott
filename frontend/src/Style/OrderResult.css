@@ -1,0 +1,98 @@
+.bup-result-page {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 120px 16px 60px;
+  background: #f6f9fd;
+}
+
+.bup-result {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  padding: 32px 26px;
+  border-radius: 22px;
+  background: #fff;
+  border: 1px solid #e6edf6;
+  box-shadow: 0 22px 60px rgba(20, 40, 80, 0.1);
+  text-align: center;
+  color: #182841;
+  animation: bup-result-in 0.35s ease;
+}
+
+@keyframes bup-result-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+}
+
+.bup-result-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.bup-result-icon svg { width: 36px; height: 36px; }
+
+.bup-result-paid .bup-result-icon { background: #e3f8ee; color: #16a34a; box-shadow: 0 0 0 8px #f1fcf6; }
+.bup-result-failed .bup-result-icon { background: #fde8e8; color: #dc2626; box-shadow: 0 0 0 8px #fef4f4; }
+.bup-result-pending .bup-result-icon { background: #eaf2ff; color: #2f6fd6; box-shadow: 0 0 0 8px #f4f8ff; }
+
+.bup-result-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #c9dcf8;
+  border-top-color: #2f6fd6;
+  border-radius: 50%;
+  animation: bup-result-spin 0.9s linear infinite;
+}
+
+@keyframes bup-result-spin { to { transform: rotate(360deg); } }
+
+.bup-result-eyebrow {
+  display: block;
+  color: #8490a4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.bup-result h2 { margin: 6px 0 10px; font-size: 24px; line-height: 1.25; }
+.bup-result-paid h2 { color: #15803d; }
+.bup-result-failed h2 { color: #b91c1c; }
+
+.bup-result-description { margin: 0 0 20px; color: #5b6b82; font-size: 14px; line-height: 1.65; }
+
+.bup-result-details {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px 14px;
+  margin: 0 0 22px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f7f9fc;
+  text-align: left;
+  font-size: 13px;
+}
+
+.bup-result-details dt { color: #8490a4; }
+.bup-result-details dd { margin: 0; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+.bup-result-details code { font-size: 11px; font-weight: 600; }
+
+.bup-result-button {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 180px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: #2f6fd6;
+  color: #fff !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bup-result-button:hover { background: #255bb4; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bup-result, .bup-result-spinner { animation: none; }
+}

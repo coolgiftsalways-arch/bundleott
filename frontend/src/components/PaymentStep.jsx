@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../Style/PaymentStep.css";
+import { OrderResultCard } from "../pages/OrderResult";
 
 const CURRENCY = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -37,9 +38,7 @@ async function jsonFetch(url, options = {}) {
 export default function PaymentStep({ customer, plans, total }) {
   const [orderData, setOrderData] = useState(null);
   const [orderStatus, setOrderStatus] = useState("pending");
-  const [qrExpired, setQrExpired] = useState(false);
-  const [qrExpiresAt, setQrExpiresAt] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(180);
+  const [paymentId, setPaymentId] = useState("");
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -115,10 +114,7 @@ export default function PaymentStep({ customer, plans, total }) {
 
     setOrderData(null);
     setOrderStatus("pending");
-
-    setQrExpired(false);
-    setQrExpiresAt(null);
-    setTimeLeft(180);
+    setPaymentId("");
 
     setReferenceSent(false);
     setUtr("");
@@ -158,6 +154,7 @@ export default function PaymentStep({ customer, plans, total }) {
           planIds,
           selections,
           couponCode: couponInput.trim(),
+          customerEmail: customer?.email || "",
         }),
       });
 
@@ -171,8 +168,12 @@ export default function PaymentStep({ customer, plans, total }) {
       setCouponMessage(
         `${data.quote.couponCode} applied. You save ${CURRENCY.format(
           Number(data.quote.couponDiscount),
-        )}.`,
+        )}. New total: ${CURRENCY.format(Number(data.quote.amount))}.`,
       );
+
+      // The old order/QR has the old price — create a fresh order with the coupon.
+      setOrderData(null);
+      await createOrder(data.quote.couponCode);
     } catch (err) {
       setCouponQuote(null);
       setCouponError(true);
@@ -182,8 +183,18 @@ export default function PaymentStep({ customer, plans, total }) {
     }
   }
 
-  // Create payment order.
-  async function createOrder() {
+  // Remove coupon and go back to the normal price.
+  async function removeCoupon() {
+    setCouponQuote(null);
+    setCouponInput("");
+    setCouponMessage("");
+    setCouponError(false);
+    setOrderData(null);
+    await createOrder("");
+  }
+
+  // Create payment order. Pass a coupon code to override the current one ("" = no coupon).
+  async function createOrder(couponOverride) {
     if (!customer?.fullName) {
       setError("Customer name is required.");
       return;
@@ -209,7 +220,10 @@ export default function PaymentStep({ customer, plans, total }) {
         customerMobile: customer.phone,
         planIds,
         selections,
-        couponCode: couponQuote?.couponCode || "",
+        couponCode:
+          couponOverride !== undefined
+            ? couponOverride
+            : couponQuote?.couponCode || "",
       };
 
       console.log("========== BUNDLEUP PAYMENT REQUEST ==========");
@@ -232,10 +246,7 @@ export default function PaymentStep({ customer, plans, total }) {
 
       setOrderData(data);
       setOrderStatus(data.order.status || "pending");
-
-      setQrExpired(false);
-      setQrExpiresAt(Date.now() + 3 * 60 * 1000);
-      setTimeLeft(180);
+      setPaymentId("");
 
       setReferenceSent(false);
       setUtr("");
@@ -269,39 +280,24 @@ export default function PaymentStep({ customer, plans, total }) {
   const id = orderData?.order?.orderId;
   const token = orderData?.accessToken;
 
-  // Three-minute QR countdown.
-  useEffect(() => {
-    if (!orderData?.qrCode || !qrExpiresAt || qrExpired) return;
-
-    const updateCountdown = () => {
-      const remainingSeconds = Math.max(
-        0,
-        Math.ceil((qrExpiresAt - Date.now()) / 1000),
-      );
-
-      setTimeLeft(remainingSeconds);
-
-      if (remainingSeconds === 0) {
-        setQrExpired(true);
-      }
-    };
-
-    updateCountdown();
-
-    const timer = setInterval(updateCountdown, 250);
-
-    return () => clearInterval(timer);
-  }, [id, orderData?.qrCode, qrExpiresAt, qrExpired]);
-
-  // Check payment status.
+  // Check payment status automatically (backend asks Razorpay directly).
   useEffect(() => {
     if (!id || !token || orderStatus !== "pending") {
       return;
     }
 
     let cancelled = false;
+    let inFlight = false;
+    const startedAt = Date.now();
+    const MAX_POLL_MS = 30 * 60 * 1000; // stop polling after 30 minutes
 
     const check = async () => {
+      if (inFlight || cancelled) return;
+      if (Date.now() - startedAt > MAX_POLL_MS) {
+        clearInterval(interval);
+        return;
+      }
+      inFlight = true;
       try {
         const data = await jsonFetch(
           `/api/payment/orders/${encodeURIComponent(id)}/status`,
@@ -315,6 +311,7 @@ export default function PaymentStep({ customer, plans, total }) {
 
         if (!cancelled) {
           setOrderStatus(data.order?.status || "pending");
+          if (data.order?.paymentId) setPaymentId(data.order.paymentId);
           setError("");
         }
       } catch (err) {
@@ -323,16 +320,27 @@ export default function PaymentStep({ customer, plans, total }) {
             `Status check: ${err?.message || "Unable to check order status."}`,
           );
         }
+      } finally {
+        inFlight = false;
       }
+    };
+
+    // Check immediately when the customer comes back from the Razorpay tab.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") check();
     };
 
     check();
 
-    const interval = setInterval(check, 8000);
+    const interval = setInterval(check, 5000);
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       cancelled = true;
       clearInterval(interval);
+      window.removeEventListener("focus", check);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [id, token, orderStatus]);
 
@@ -387,6 +395,22 @@ export default function PaymentStep({ customer, plans, total }) {
         Math.round(expectedAmount * 100)
     : true;
 
+  // Show the order result as soon as Razorpay confirms the payment.
+  if (orderData && (orderStatus === "paid" || orderStatus === "rejected")) {
+    return (
+      <section className="bup-payment-flow" aria-live="polite">
+        <OrderResultCard
+          status={orderStatus === "paid" ? "paid" : "failed"}
+          order={{
+            ...orderData.order,
+            customerName: customer?.fullName,
+            paymentId,
+          }}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="bup-payment-flow" aria-live="polite">
       {!orderData && (
@@ -436,11 +460,7 @@ export default function PaymentStep({ customer, plans, total }) {
 
           <p>
             <strong>Payment status:</strong>{" "}
-            {orderStatus === "paid"
-              ? "Bank verified — paid"
-              : orderStatus === "rejected"
-                ? "Rejected"
-                : "Pending bank verification"}
+            Waiting for payment — this page updates automatically
           </p>
 
           {!amountMatches && (
@@ -450,25 +470,56 @@ export default function PaymentStep({ customer, plans, total }) {
             </p>
           )}
 
-          {orderStatus === "paid" && (
-            <p className="bup-payment-ok" role="status">
-              Payment successful — independently verified by the admin.
-            </p>
+          {orderStatus === "pending" && (
+            <div className="bup-coupon-box">
+              {couponQuote ? (
+                <div className="bup-coupon-applied">
+                  <span>
+                    🎟️ <strong>{couponQuote.couponCode}</strong> applied
+                  </span>
+                  <button
+                    type="button"
+                    onClick={removeCoupon}
+                    disabled={busy || couponBusy}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <form className="bup-coupon-form" onSubmit={applyCoupon}>
+                  <label htmlFor="bup-coupon">Have a coupon code?</label>
+                  <input
+                    id="bup-coupon"
+                    value={couponInput}
+                    onChange={(event) =>
+                      setCouponInput(event.target.value.toUpperCase())
+                    }
+                    placeholder="Enter coupon code"
+                    autoComplete="off"
+                    maxLength={30}
+                  />
+                  <button type="submit" disabled={couponBusy || busy}>
+                    {couponBusy || busy ? "Applying…" : "Apply"}
+                  </button>
+                </form>
+              )}
+
+              {couponMessage && (
+                <p
+                  className={
+                    couponError ? "bup-coupon-msg bup-coupon-msg-error" : "bup-coupon-msg"
+                  }
+                  role={couponError ? "alert" : "status"}
+                >
+                  {couponMessage}
+                </p>
+              )}
+            </div>
           )}
 
           {orderStatus === "pending" && amountMatches && (
             <>
-              {orderData.qrCode && !qrExpired && (
-                <div className="bup-payment-countdown">
-                  <span>Complete your payment within</span>
-                  <strong>
-                    {String(Math.floor(timeLeft / 60)).padStart(2, "0")}:
-                    {String(timeLeft % 60).padStart(2, "0")}
-                  </strong>
-                </div>
-              )}
-
-              {orderData.qrCode && !qrExpired && (
+              {orderData.qrCode && (
                 <div className="bup-static-qr-section">
                   <h3 className="bup-static-qr-title">BundleUpOTT</h3>
 
@@ -515,73 +566,7 @@ export default function PaymentStep({ customer, plans, total }) {
                 </div>
               )}
 
-              {qrExpired && orderStatus !== "paid" && (
-                <div
-                  className="bup-processing-card"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <div className="bup-processing-icon" aria-hidden="true">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M20 7 10 17l-5-5" />
-                    </svg>
-                  </div>
-
-                  <span className="bup-processing-eyebrow">PAYMENT STATUS</span>
-
-                  <h2>We're processing your payment</h2>
-
-                  <p className="bup-processing-description">
-                    Thank you! If you've completed the payment, our team will
-                    verify the transaction before confirming it.
-                  </p>
-
-                  <div className="bup-processing-timeline">
-                    <div className="bup-timeline-icon" aria-hidden="true">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 7v5l3 2" />
-                      </svg>
-                    </div>
-
-                    <div>
-                      <strong>What happens next?</strong>
-                      <p>
-                        You'll receive an email within 2–3 hours after your
-                        payment has been verified.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bup-processing-note">
-                    <span aria-hidden="true">i</span>
-                    <p>
-                      If you haven't completed the payment, no payment is
-                      confirmed. Your order remains pending until verification.
-                    </p>
-                  </div>
-
-                  <p className="bup-processing-order">
-                    Order reference: <code>{id}</code>
-                  </p>
-                </div>
-              )}
-
-              {!qrExpired && !referenceSent && (
+              {!referenceSent && (
                 <form onSubmit={submitReference}>
                   <label htmlFor="bup-utr">
                     UPI reference (only after you genuinely paid)

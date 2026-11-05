@@ -86,3 +86,206 @@
   font-size: 11px;
   line-height: 1.6;
 }
+
+/* ===== Overview top row: 2 stat cards + order activity panel ===== */
+.bu-admin-app .bu-overview-top {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 17px;
+  margin-bottom: 22px;
+}
+
+.bu-admin-app .bu-period-panel {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+}
+
+.bu-period-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.bu-period-head h2 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.bu-period-head p {
+  margin: 0;
+  color: #9aa5b5;
+  font-size: 11px;
+}
+
+.bu-period-tabs {
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 11px;
+  background: #f3f6fb;
+}
+
+.bu-period-tab {
+  border: 0;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #7b8aa0;
+  font-size: 11px;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.bu-period-tab:hover {
+  color: #3e8ce4;
+}
+
+.bu-period-tab-active,
+.bu-period-tab-active:hover {
+  background: #fff;
+  color: #3e8ce4;
+  box-shadow: 0 2px 8px rgba(48, 80, 140, 0.1);
+}
+
+.bu-period-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 16px;
+}
+
+.bu-period-metrics > div {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f9fbfe;
+  border: 1px solid #eef2f8;
+}
+
+.bu-period-metrics span {
+  display: block;
+  color: #8a99ac;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.bu-period-metrics strong {
+  display: block;
+  margin-top: 6px;
+  font-family: "Sora", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.bu-period-paid {
+  color: #1baf89;
+}
+
+.bu-period-pending {
+  color: #d69a32;
+}
+
+.bu-period-chart {
+  flex: 1;
+  min-height: 80px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.bu-period-bar {
+  flex: 1;
+  min-width: 0;
+  border-radius: 4px 4px 2px 2px;
+  background: linear-gradient(0deg, #28c5b4, #64abff);
+  transition: height 0.3s;
+}
+
+.bu-period-bar-empty {
+  background: #eef2f8;
+}
+
+.bu-period-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: #a2acba;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 1200px) {
+  .bu-admin-app .bu-overview-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bu-admin-app .bu-period-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 580px) {
+  .bu-admin-app .bu-overview-top {
+    grid-template-columns: 1fr;
+  }
+
+  .bu-period-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.bu-admin-app .bu-revenue-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.bu-revenue-split {
+  margin-top: auto;
+  padding-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.bu-revenue-split > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f9fbfe;
+  border: 1px solid #eef2f8;
+  font-size: 11px;
+}
+
+.bu-revenue-split span {
+  flex: 1;
+  color: #77879b;
+  font-weight: 700;
+}
+
+.bu-revenue-split b {
+  color: #263d59;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.bu-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bu-dot-paid {
+  background: #1baf89;
+}
+
+.bu-dot-pending {
+  background: #d69a32;
+}

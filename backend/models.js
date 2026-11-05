@@ -44,6 +44,16 @@ const paymentOrderSchema = new mongoose.Schema(
     paymentEmailSentAt: { type: Date },
     paymentEmailMessageId: { type: String },
     paymentEmailError: { type: String, maxlength: 500 },
+        successEmailSentAt: { type: Date },
+    failureEmailSentAt: { type: Date },
+
+    // Razorpay auto-verification
+    razorpayPaymentLinkId: { type: String, index: true },
+    razorpayPaymentLinkUrl: { type: String },
+    razorpayPaymentId: { type: String, index: true },
+    razorpayPaymentMethod: { type: String },
+    paymentSource: { type: String },
+    paidAt: { type: Date },
   },
   { timestamps: true, collection: "paymentorders" }
 );

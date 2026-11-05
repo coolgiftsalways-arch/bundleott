@@ -1,13 +1,35 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, ArrowRight, CalendarDays, CheckCircle2, Clock3, CreditCard, IndianRupee, LockKeyhole, LogOut, Menu, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { AlertCircle, ArrowRight, CalendarDays, CheckCircle2, CreditCard, Eye, IndianRupee, LockKeyhole, LogOut, Menu, RefreshCw, ShieldCheck, X } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
+import OrderDetailsDrawer from "./OrderDetailsDrawer";
 import "../Admincss/AdminDashboard.css";
 import "./AdminDashboardLive.css";
+import "./OrderDetails.css";
 
 const ROOT = "/api/payment";
 const SESSION_KEY = "bundleupott_admin_token";
+const PERIODS = [
+  { key: "today", label: "Today", caption: "Orders placed today, by hour" },
+  { key: "weekly", label: "Weekly", caption: "Last 7 days, by day" },
+  { key: "monthly", label: "Monthly", caption: "Last 30 days, by day" },
+];
+// Paths match the routes that exist in backend/payment.js
+const EMAIL_KINDS = {
+  success: { status: "paid", sentField: "successEmailSentAt", single: "resend-status-email", bulk: null, noun: "payment-success", button: "Send success email" },
+  failure: { status: "rejected", sentField: "failureEmailSentAt", single: "failure-email", bulk: "/admin/failure-emails/bulk", noun: "payment-failure", button: "Send failure email" },
+};
+const kindOf = (order) => (order.status === "paid" ? "success" : order.status === "rejected" ? "failure" : null);
+// An email counts as sent if either the per-kind field or the shared paymentEmail* fields say so
+const emailSentAt = (order) => {
+  const kind = kindOf(order);
+  if (!kind) return null;
+  if (order[EMAIL_KINDS[kind].sentField]) return order[EMAIL_KINDS[kind].sentField];
+  if (order.paymentEmailStatus === "sent" && order.paymentEmailType === kind) return order.paymentEmailSentAt || true;
+  return null;
+};
 const money = (n) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number(n || 0));
 const dateLabel = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Date(v).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+const initials = (name) => String(name || "C").trim().split(/\s+/).slice(0, 2).map((p) => p[0] || "").join("").toUpperCase();
 
 async function readJson(response) {
   const data = await response.json().catch(() => ({}));
@@ -48,8 +70,10 @@ export default function AdminDashboard() {
   const [confirmedFromBank, setConfirmedFromBank] = useState(false);
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [selectedEmailOrders, setSelectedEmailOrders] = useState([]);
-const [emailBusy, setEmailBusy] = useState(false);
-const [statusBusyOrder, setStatusBusyOrder] = useState("");
+  const [emailBusy, setEmailBusy] = useState(false);
+  const [statusBusyOrder, setStatusBusyOrder] = useState("");
+  const [period, setPeriod] = useState("today");
+  const [detailId, setDetailId] = useState(null);
 
   const logout = useCallback((message = "") => {
     window.sessionStorage.removeItem(SESSION_KEY);
@@ -59,6 +83,7 @@ const [statusBusyOrder, setStatusBusyOrder] = useState("");
     setAlerts([]);
     setSelectedEmailOrders([]);
     setVerifyOrder(null);
+    setDetailId(null);
     setSuccess("");
     setError(message);
   }, []);
@@ -119,17 +144,96 @@ const [statusBusyOrder, setStatusBusyOrder] = useState("");
     }
   };
 
+  // The drawer always shows the freshest copy of the order (auto-refresh every 15s)
+  const detailOrder = detailId ? orders.find((o) => o.orderId === detailId) || null : null;
+  const closeDetails = useCallback(() => setDetailId(null), []);
+
   const query = search.trim().toLowerCase();
   const visibleOrders = useMemo(() => orders.filter((o) => {
     const statusMatches = statusFilter === "All" || String(o.status).toLowerCase() === statusFilter.toLowerCase();
-    const queryMatches = !query || [o.orderId, o.customerName, o.customerEmail, o.customerMobile, o.planName, o.status, o.bankReference, o.customerClaimedReference]
+    const queryMatches = !query || [o.orderId, o.customerName, o.customerEmail, o.customerMobile, o.planName, o.planId, o.status, o.bankReference, o.customerClaimedReference, o.couponCode, o.verifiedBy, String(o.amount ?? "")]
       .some((v) => String(v || "").toLowerCase().includes(query));
     return statusMatches && queryMatches;
   }), [orders, query, statusFilter]);
 
+  const statusCounts = useMemo(() => orders.reduce((acc, o) => {
+    acc[o.status] = (acc[o.status] || 0) + 1;
+    return acc;
+  }, {}), [orders]);
+
+  const periodStats = useMemo(() => {
+    const now = new Date();
+    const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const hourly = period === "today";
+    const size = hourly ? 24 : period === "weekly" ? 7 : 30;
+    const start = new Date(dayStart);
+    if (!hourly) start.setDate(start.getDate() - (size - 1));
+
+    const buckets = Array(size).fill(0);
+    let total = 0, paid = 0, pending = 0, failed = 0, revenue = 0;
+
+    orders.forEach((o) => {
+      const created = new Date(o.createdAt);
+      if (Number.isNaN(created.getTime()) || created < start || created > now) return;
+      const index = hourly ? created.getHours() : Math.floor((created - start) / 86400000);
+      if (index < 0 || index >= size) return;
+
+      buckets[index] += 1;
+      total += 1;
+      const status = String(o.status).toLowerCase();
+      if (status === "paid") { paid += 1; revenue += Number(o.amount || 0); }
+      else if (status === "pending") pending += 1;
+      else failed += 1;
+    });
+
+    const labels = buckets.map((_, i) => {
+      if (hourly) return `${String(i).padStart(2, "0")}:00`;
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+    });
+
+    return { buckets, labels, total, paid, pending, failed, revenue, max: Math.max(...buckets, 1) };
+  }, [orders, period]);
+
+  const revenueStats = useMemo(() => {
+    let paid = 0, pending = 0, paidCount = 0, pendingCount = 0;
+
+    orders.forEach((o) => {
+      const status = String(o.status).toLowerCase();
+      const amount = Number(o.amount || 0);
+      if (status === "paid") { paid += amount; paidCount += 1; }
+      else if (status === "pending") { pending += amount; pendingCount += 1; }
+    });
+
+    return {
+      paid: Number(summary?.verifiedRevenue ?? paid),
+      pending: Number(summary?.pendingRevenue ?? pending),
+      paidCount: summary?.paidOrders ?? paidCount,
+      pendingCount: summary?.pendingOrders ?? pendingCount,
+    };
+  }, [orders, summary]);
+
+  const totalRevenue = revenueStats.paid + revenueStats.pending;
+
+  // ---- Email selection helpers (success + failure) ----
+  const emailEligible = (o) => Boolean(kindOf(o)) && !emailSentAt(o);
+  const eligibleVisible = visibleOrders.filter(emailEligible);
+  const allVisibleSelected = eligibleVisible.length > 0 && eligibleVisible.every((o) => selectedEmailOrders.includes(o.orderId));
+  const selectedFor = (kind) => orders.filter((o) => selectedEmailOrders.includes(o.orderId) && kindOf(o) === kind && !emailSentAt(o));
+  const selectedSuccess = selectedFor("success");
+  const selectedFailure = selectedFor("failure");
+
+  const toggleSelectAllVisible = (checked) => {
+    const ids = eligibleVisible.map((o) => o.orderId);
+    setSelectedEmailOrders((current) => checked ? [...new Set([...current, ...ids])] : current.filter((id) => !ids.includes(id)));
+  };
+
   const alertsForOrder = alerts.filter((a) => a.status === "awaiting_verification" && a.isTest !== true && verifyOrder && Number(a.amountHint) === Number(verifyOrder.amount));
 
   const openVerify = (order) => {
+    setDetailId(null);
+    if (activePage !== "payments") setActivePage("payments");
     setVerifyOrder(order);
     setVerifiedAmount(String(order.amount ?? ""));
     setBankReference("");
@@ -138,6 +242,7 @@ const [statusBusyOrder, setStatusBusyOrder] = useState("");
     setConfirmedFromBank(false);
     setError("");
     setSuccess("");
+    window.setTimeout(() => document.querySelector(".bu-verify-box")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
   const closeVerify = () => {
@@ -149,82 +254,80 @@ const [statusBusyOrder, setStatusBusyOrder] = useState("");
     setConfirmedFromBank(false);
   };
 
-  const sendFailureEmail = async (order) => {
-  if (order.status !== "rejected" || emailBusy) return;
+  const sendOrderEmail = async (order) => {
+    const kind = kindOf(order);
+    if (!kind || emailBusy) return;
+    const cfg = EMAIL_KINDS[kind];
 
-  if (order.failureEmailSentAt) {
-    setError("A failure email is already recorded for this order.");
-    return;
-  }
+    if (emailSentAt(order)) {
+      setError(`A ${cfg.noun} email is already recorded for this order.`);
+      return;
+    }
 
-  if (!window.confirm(`Send a payment-failure email to ${order.customerEmail}?`)) {
-    return;
-  }
+    if (!window.confirm(`Send a ${cfg.noun} email to ${order.customerEmail}?`)) return;
 
-  setEmailBusy(true);
-  setError("");
-  setSuccess("");
+    setEmailBusy(true);
+    setError("");
+    setSuccess("");
 
-  try {
-    const result = await api(
-      `/admin/orders/${encodeURIComponent(order.orderId)}/failure-email`,
-      { method: "POST" }
-    );
+    try {
+      const result = await api(`/admin/orders/${encodeURIComponent(order.orderId)}/${cfg.single}`, { method: "POST" });
+      await loadData(true);
+      setSuccess(result.message || "Email submitted successfully.");
+    } catch (e) {
+      if (e.status === 401 || e.status === 403) logout("Admin session expired or unauthorized. Please sign in again.");
+      else setError(e.message || "Could not send email.");
+    } finally {
+      setEmailBusy(false);
+    }
+  };
 
-    await loadData(true);
-    setSuccess(result.message || "Email submitted successfully.");
-  } catch (e) {
-    setError(e.message || "Could not send email.");
-  } finally {
-    setEmailBusy(false);
-  }
-};
+  const sendBulkEmails = async (kind) => {
+    const cfg = EMAIL_KINDS[kind];
+    const eligible = selectedFor(kind);
 
-const sendBulkFailureEmails = async () => {
-  const eligible = orders.filter(
-    (order) =>
-      selectedEmailOrders.includes(order.orderId) &&
-      order.status === "rejected" &&
-      !order.failureEmailSentAt
-  );
+    if (!eligible.length) {
+      setError(`Select at least one ${kind === "success" ? "paid" : "failed"} order that has not already been emailed.`);
+      return;
+    }
 
-  if (!eligible.length) {
-    setError("Select at least one rejected order that has not already been emailed.");
-    return;
-  }
+    if (!window.confirm(`Send ${cfg.noun} emails to ${eligible.length} customers?`)) return;
 
-  if (
-    !window.confirm(
-      `Send payment-failure emails to ${eligible.length} customers?`
-    )
-  ) {
-    return;
-  }
+    setEmailBusy(true);
+    setError("");
+    setSuccess("");
 
-  setEmailBusy(true);
-  setError("");
-  setSuccess("");
-
-  try {
-    const result = await api("/admin/failure-emails/bulk", {
-      method: "POST",
-      body: JSON.stringify({
-        orderIds: eligible.map((order) => order.orderId),
-      }),
-    });
-
-    setSelectedEmailOrders([]);
-    await loadData(true);
-
-    setSuccess(
-      `Email results: ${result.sent} submitted, ${result.failed} unsuccessful.`
-    );
-  } catch (e) {
-    setError(e.message || "Could not process bulk emails.");
-  } finally {
-    setEmailBusy(false);
-  }
-};
+    try {
+      let sent = 0, failed = 0;
+      if (cfg.bulk) {
+        const result = await api(cfg.bulk, {
+          method: "POST",
+          body: JSON.stringify({ orderIds: eligible.map((order) => order.orderId) }),
+        });
+        sent = result.sent ?? 0;
+        failed = result.failed ?? 0;
+      } else {
+        // No bulk route for success emails on the backend — send one by one
+        for (const order of eligible) {
+          try {
+            await api(`/admin/orders/${encodeURIComponent(order.orderId)}/${cfg.single}`, { method: "POST" });
+            sent += 1;
+          } catch {
+            failed += 1;
+          }
+        }
+      }
+      const sentIds = eligible.map((order) => order.orderId);
+      setSelectedEmailOrders((current) => current.filter((id) => !sentIds.includes(id)));
+      await loadData(true);
+      setSuccess(`Email results: ${sent} submitted, ${failed} unsuccessful.`);
+    } catch (e) {
+      if (e.status === 401 || e.status === 403) logout("Admin session expired or unauthorized. Please sign in again.");
+      else setError(e.message || "Could not process bulk emails.");
+    } finally {
+      setEmailBusy(false);
+    }
+  };
 
   const handleVerify = async (event) => {
     event.preventDefault();
@@ -262,6 +365,38 @@ const sendBulkFailureEmails = async () => {
     }
   };
 
+  // "Paid" reuses the bank-verification flow. "Failed" uses POST /admin/orders/:id/manual-status.
+  const handleManualStatusChange = async (order, nextStatus) => {
+    if (nextStatus === "pending" || statusBusyOrder) return;
+
+    if (nextStatus === "paid") {
+      openVerify(order);
+      return;
+    }
+
+    if (nextStatus === "rejected") {
+      const reason = window.prompt(`Mark order ${order.orderId} as FAILED.\nA failure email will be sent to ${order.customerEmail} automatically.\n\nReason (saved as admin note):`, "Payment not received in bank account.");
+      if (reason === null) return;
+
+      setStatusBusyOrder(order.orderId);
+      setError("");
+      setSuccess("");
+      try {
+        const result = await api(`/admin/orders/${encodeURIComponent(order.orderId)}/manual-status`, {
+          method: "POST",
+          body: JSON.stringify({ status: "rejected", note: reason.trim() }),
+        });
+        await loadData(true);
+        setSuccess(result.message || "Order marked as failed.");
+      } catch (e) {
+        if (e.status === 401 || e.status === 403) logout("Admin session expired or unauthorized. Please sign in again.");
+        else setError(e.message || "Could not update order status.");
+      } finally {
+        setStatusBusyOrder("");
+      }
+    }
+  };
+
   const navigate = (page) => {
     setActivePage(page);
     setSearch("");
@@ -295,77 +430,126 @@ const sendBulkFailureEmails = async () => {
 
   const title = activePage === "overview" ? "Dashboard Overview" : activePage === "payments" ? "Payment Management" : activePage === "settings" ? "Admin Settings" : activePage === "users" ? "Users & Customers" : activePage === "subscriptions" ? "Subscriptions" : "Login Activity";
 
+  const stop = (e) => e.stopPropagation();
+
   const renderOrders = (records, actions = false) => <div className="bu-table-scroll">
-    <table className="bu-table">
+        <table className={`bu-table bu-orders-table${actions ? " bu-orders-table-actions" : ""}`}>
+      <colgroup>
+        {actions && <col className="bu-c-select" />}
+        <col className="bu-c-customer" />
+        <col className="bu-c-plan" />
+        <col className="bu-c-amount" />
+        <col className="bu-c-utr" />
+        <col className="bu-c-status" />
+        <col className="bu-c-created" />
+        <col className="bu-c-actions" />
+      </colgroup>
       <thead>
         <tr>
-          {actions && <th>Select</th>}
+          {actions && <th className="bu-col-select">
+            <label className="bu-select-all">
+              <input
+                type="checkbox"
+                aria-label="Select all emailable orders in this view"
+                checked={allVisibleSelected}
+                disabled={eligibleVisible.length === 0}
+                onChange={(event) => toggleSelectAllVisible(event.target.checked)}
+              />
+            </label>
+          </th>}
           <th>Customer</th>
           <th>Plan / Order ID</th>
           <th>Amount</th>
+          <th>Customer UTR</th>
           <th>Status</th>
           <th>Created</th>
-          {actions && <th>Action</th>}
+          <th>{actions ? "Actions" : "Details"}</th>
         </tr>
       </thead>
       <tbody>
-        {records.map((o) => <tr key={o.orderId}>
-          {actions && <td>
-            {o.status === "rejected" && !o.failureEmailSentAt && (
-              <input
-                type="checkbox"
-                aria-label={`Select ${o.customerEmail || o.orderId} for failure email`}
-                checked={selectedEmailOrders.includes(o.orderId)}
-                onChange={(event) => {
-                  setSelectedEmailOrders((current) =>
-                    event.target.checked
-                      ? [...new Set([...current, o.orderId])]
-                      : current.filter((id) => id !== o.orderId)
-                  );
-                }}
-              />
-            )}
-          </td>}
-          <td><div className="bu-person"><span className="bu-avatar">{String(o.customerName || "C").split(/\s+/).slice(0, 2).map((p) => p[0] || "").join("").toUpperCase()}</span><div className="bu-person-copy"><strong>{o.customerName || "Customer"}</strong><small>{o.customerEmail || "No email"}</small></div></div></td>
-          <td><span className="bu-plan-name">{o.planName || o.planId || "Plan"}</span><small className="bu-id">{o.orderId}</small></td>
-          <td className="bu-amount">{money(o.amount)}</td>
-          <td>
-  {actions && o.status === "pending" ? (
-    <select
-      className="bu-manual-status-select"
-      value="pending"
-      aria-label={`Change payment status for ${o.customerName || o.orderId}`}
-      disabled={statusBusyOrder === o.orderId}
-      onChange={(event) =>
-        handleManualStatusChange(o, event.target.value)
-      }
-    >
-      <option value="pending">Pending</option>
-      <option value="paid">Paid / Success</option>
-      <option value="rejected">Failed</option>
-    </select>
-  ) : (
-    <Status
-      value={o.status === "rejected" ? "failed" : o.status}
-    />
-  )}
-</td>
-          <td className="bu-muted bu-nowrap">{dateLabel(o.createdAt)}</td>
-          {actions && <td>
-            {o.status === "pending" ? (
-              <button type="button" className="bu-admin-secondary-button" onClick={() => openVerify(o)}>Verify payment</button>
-            ) : o.status === "rejected" ? (
-              o.failureEmailSentAt ? (
-                <span className="bu-muted">Email sent · {dateLabel(o.failureEmailSentAt)}</span>
+        {records.map((o) => {
+          const kind = kindOf(o);
+          const cfg = kind ? EMAIL_KINDS[kind] : null;
+          const sentAt = emailSentAt(o);
+
+                    return <tr key={o.orderId} className={`bu-order-row bu-order-${o.status || "unknown"}${detailId === o.orderId ? " bu-order-row-active" : ""}`} onClick={() => setDetailId(o.orderId)}>
+            {actions && <td className="bu-col-select" onClick={stop}>
+              {cfg && !sentAt && (
+                <input
+                  type="checkbox"
+                  aria-label={`Select ${o.customerEmail || o.orderId} for ${cfg.noun} email`}
+                  checked={selectedEmailOrders.includes(o.orderId)}
+                  onChange={(event) => {
+                    setSelectedEmailOrders((current) =>
+                      event.target.checked
+                        ? [...new Set([...current, o.orderId])]
+                        : current.filter((id) => id !== o.orderId)
+                    );
+                  }}
+                />
+              )}
+            </td>}
+            <td>
+              <div className="bu-person">
+                <span className="bu-avatar">{initials(o.customerName)}</span>
+                <div className="bu-person-copy">
+                  <strong>{o.customerName || "Customer"}</strong>
+                  <small>{o.customerEmail || "No email"}</small>
+                  {o.customerMobile && <small className="bu-mobile">{o.customerMobile}</small>}
+                </div>
+              </div>
+            </td>
+            <td>
+              <span className="bu-plan-name">{o.planName || o.planId || "Plan"}</span>
+              {Array.isArray(o.items) && o.items.length > 1 && <small className="bu-items-count">{o.items.length} items</small>}
+              <small className="bu-id">{o.orderId}</small>
+            </td>
+            <td className="bu-amount bu-nowrap">
+              {money(o.amount)}
+              {o.couponCode && <small className="bu-coupon-chip">{o.couponCode}</small>}
+            </td>
+            <td className="bu-nowrap">
+              {o.customerClaimedReference
+                ? <span className="bu-utr">{o.customerClaimedReference}</span>
+                : <span className="bu-muted">Not submitted</span>}
+            </td>
+            <td onClick={stop}>
+              {actions && o.status === "pending" ? (
+                <select
+                  className="bu-manual-status-select"
+                  value="pending"
+                  aria-label={`Change payment status for ${o.customerName || o.orderId}`}
+                  disabled={statusBusyOrder === o.orderId}
+                  onChange={(event) => handleManualStatusChange(o, event.target.value)}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="paid">Paid / Success</option>
+                  <option value="rejected">Failed</option>
+                </select>
               ) : (
-                <button type="button" className="bu-admin-secondary-button" disabled={emailBusy} onClick={() => sendFailureEmail(o)}>
-                  {emailBusy ? "Sending…" : "Send failure email"}
-                </button>
-              )
-            ) : <span className="bu-muted">—</span>}
-          </td>}
-        </tr>)}
-        {records.length === 0 && <tr><td colSpan={actions ? 7 : 5}><div className="bu-empty">No live orders match this view.</div></td></tr>}
+                <Status value={o.status === "rejected" ? "failed" : o.status} />
+              )}
+            </td>
+            <td className="bu-muted bu-nowrap">{dateLabel(o.createdAt)}</td>
+            <td onClick={stop}>
+              <div className="bu-row-actions">
+                <button type="button" className="bu-admin-secondary-button bu-details-button" onClick={() => setDetailId(o.orderId)}><Eye size={14} /> Details</button>
+                {actions && (o.status === "pending" ? (
+                  <button type="button" className="bu-admin-secondary-button" onClick={() => openVerify(o)}>Verify</button>
+                ) : cfg ? (
+                  sentAt ? (
+                    <span className="bu-muted">Email sent{sentAt !== true ? ` · ${dateLabel(sentAt)}` : ""}</span>
+                  ) : (
+                    <button type="button" className="bu-admin-secondary-button" disabled={emailBusy} onClick={() => sendOrderEmail(o)}>
+                      {emailBusy ? "Sending…" : cfg.button}
+                    </button>
+                  )
+                ) : null)}
+              </div>
+            </td>
+          </tr>;
+        })}
+        {records.length === 0 && <tr><td colSpan={actions ? 8 : 7}><div className="bu-empty">No live orders match this view.</div></td></tr>}
       </tbody>
     </table>
   </div>;
@@ -387,7 +571,7 @@ const sendBulkFailureEmails = async () => {
 
       <main className="bu-admin-content">
         <div className="bu-page-heading">
-          <div><p className="bu-overline">BUNDLEUPOTT / ADMIN</p><h1>{title}</h1><p>{activePage === "overview" ? "Live orders and bank-verified payment totals." : activePage === "payments" ? "Review pending orders and approve only verified bank credits." : "This section does not have a live backend data endpoint connected yet."}</p></div>
+          <div><p className="bu-overline">BUNDLEUPOTT / ADMIN</p><h1>{title}</h1><p>{activePage === "overview" ? "Live orders and bank-verified payment totals." : activePage === "payments" ? "Review pending orders and approve only verified bank credits. Click any row for full details." : "This section does not have a live backend data endpoint connected yet."}</p></div>
           <div className="bu-date-pill"><CalendarDays size={17} /><span>{new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</span></div>
         </div>
 
@@ -395,33 +579,128 @@ const sendBulkFailureEmails = async () => {
         {success && <div className="bu-admin-message bu-admin-message-success" role="status"><CheckCircle2 size={18} /><span>{success}</span></div>}
 
         {activePage === "overview" && <>
-          <section className="bu-stats-grid">
-            <div className="bu-stat-card"><div className="bu-stat-icon bu-blue"><IndianRupee size={23} /></div><div className="bu-stat-caption">Verified revenue</div><strong>{money(summary?.verifiedRevenue)}</strong><small>{summary?.paidOrders ?? 0} bank-verified paid orders</small></div>
-            <div className="bu-stat-card"><div className="bu-stat-icon bu-cyan"><CreditCard size={23} /></div><div className="bu-stat-caption">Total orders</div><strong>{summary?.totalOrders ?? orders.length}</strong><small>Live MongoDB records</small></div>
-            <div className="bu-stat-card"><div className="bu-stat-icon bu-mint"><CheckCircle2 size={23} /></div><div className="bu-stat-caption">Paid orders</div><strong>{summary?.paidOrders ?? 0}</strong><small>Approved after bank review</small></div>
-            <div className="bu-stat-card"><div className="bu-stat-icon bu-amber"><Clock3 size={23} /></div><div className="bu-stat-caption">Pending payments</div><strong>{summary?.pendingOrders ?? 0}</strong><small>{summary?.pendingAlerts ?? 0} alerts awaiting review</small></div>
+          <section className="bu-overview-top">
+            <div className="bu-stat-card bu-revenue-card">
+              <div className="bu-stat-icon bu-blue"><IndianRupee size={23} /></div>
+              <div className="bu-stat-caption">Total revenue (all payments)</div>
+              <strong>{money(totalRevenue)}</strong>
+              <small>{revenueStats.paidCount + revenueStats.pendingCount} payments · paid + pending</small>
+
+              <div className="bu-revenue-split">
+                <div>
+                  <i className="bu-dot bu-dot-paid" />
+                  <span>Verified</span>
+                  <b>{money(revenueStats.paid)}</b>
+                </div>
+                <div>
+                  <i className="bu-dot bu-dot-pending" />
+                  <span>Pending</span>
+                  <b>{money(revenueStats.pending)}</b>
+                </div>
+              </div>
+            </div>
+
+            <div className="bu-stat-card">
+              <div className="bu-stat-icon bu-cyan"><CreditCard size={23} /></div>
+              <div className="bu-stat-caption">Total orders</div>
+              <strong>{summary?.totalOrders ?? orders.length}</strong>
+              <small>Live MongoDB records</small>
+            </div>
+
+            <div className="bu-panel bu-period-panel">
+              <div className="bu-period-head">
+                <div>
+                  <h2>Order activity</h2>
+                  <p>{PERIODS.find((p) => p.key === period)?.caption}</p>
+                </div>
+                <div className="bu-period-tabs" role="tablist" aria-label="Time period">
+                  {PERIODS.map((p) => (
+                    <button
+                      key={p.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={period === p.key}
+                      className={period === p.key ? "bu-period-tab bu-period-tab-active" : "bu-period-tab"}
+                      onClick={() => setPeriod(p.key)}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bu-period-metrics">
+                <div><span>Orders</span><strong>{periodStats.total}</strong></div>
+                <div><span>Paid</span><strong className="bu-period-paid">{periodStats.paid}</strong></div>
+                <div><span>Pending</span><strong className="bu-period-pending">{periodStats.pending}</strong></div>
+                <div><span>Revenue</span><strong>{money(periodStats.revenue)}</strong></div>
+              </div>
+
+              <div className="bu-period-chart" aria-hidden="true">
+                {periodStats.buckets.map((count, i) => (
+                  <span
+                    key={i}
+                    className={count ? "bu-period-bar" : "bu-period-bar bu-period-bar-empty"}
+                    style={{ height: `${count ? Math.max((count / periodStats.max) * 100, 12) : 4}%` }}
+                    title={`${periodStats.labels[i]}: ${count} order${count === 1 ? "" : "s"}`}
+                  />
+                ))}
+              </div>
+              <div className="bu-period-axis">
+                <span>{periodStats.labels[0]}</span>
+                <span>{periodStats.labels[periodStats.labels.length - 1]}</span>
+              </div>
+            </div>
           </section>
-          <section className="bu-panel bu-list-panel"><div className="bu-panel-heading"><div><h2>Recent live orders</h2><p>Latest orders from your backend.</p></div><button type="button" className="bu-text-action" onClick={() => navigate("payments")}>Manage payments <ArrowRight size={16} /></button></div>{loading && !orders.length ? <div className="bu-empty">Loading live orders…</div> : renderOrders(orders.slice(0, 8))}</section>
+
+          <section className="bu-panel bu-list-panel">
+            <div className="bu-panel-heading">
+              <div><h2>Recent live orders</h2><p>Latest orders from your backend. Click a row for full details.</p></div>
+              <button type="button" className="bu-text-action" onClick={() => navigate("payments")}>Manage payments <ArrowRight size={16} /></button>
+            </div>
+            {loading && !orders.length ? <div className="bu-empty">Loading live orders…</div> : renderOrders(orders.slice(0, 8))}
+          </section>
         </>}
 
         {activePage === "payments" && <section className="bu-panel bu-list-panel">
           <div className="bu-panel-heading"><div><h2>Live orders <span className="bu-count">{visibleOrders.length}</span></h2><p>Customer claims and SMS alerts are not proof of bank credit.</p></div></div>
+
+          <div className="bu-status-tabs" role="tablist" aria-label="Filter by status">
+            {[
+              ["All", "All", orders.length],
+              ["Pending", "Pending", statusCounts.pending || 0],
+              ["Paid", "Paid", statusCounts.paid || 0],
+              ["Rejected", "Failed", statusCounts.rejected || 0],
+            ].map(([value, label, count]) => (
+              <button key={value} type="button" role="tab" aria-selected={statusFilter === value} className={statusFilter === value ? "bu-status-tab bu-status-tab-active" : "bu-status-tab"} onClick={() => setStatusFilter(value)}>
+                {label} <span>{count}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="bu-table-toolbar">
-            <label className="bu-search-field"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customer, email, plan, order ID…" /></label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Filter by status">
-              <option>All</option><option>Pending</option><option>Paid</option><option>Rejected</option>
-            </select>
-            <button
-              type="button"
-              className="bu-admin-primary-button"
-              disabled={emailBusy || selectedEmailOrders.length === 0}
-              onClick={sendBulkFailureEmails}
-            >
-              {emailBusy ? "Sending…" : `Email selected (${selectedEmailOrders.length})`}
-            </button>
+            <label className="bu-search-field"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, mobile, UTR, coupon, order ID…" /></label>
+            <div className="bu-email-actions">
+              <button
+                type="button"
+                className="bu-admin-primary-button bu-email-success"
+                disabled={emailBusy || selectedSuccess.length === 0}
+                onClick={() => sendBulkEmails("success")}
+              >
+                {emailBusy ? "Sending…" : `Email success (${selectedSuccess.length})`}
+              </button>
+              <button
+                type="button"
+                className="bu-admin-primary-button bu-email-failure"
+                disabled={emailBusy || selectedFailure.length === 0}
+                onClick={() => sendBulkEmails("failure")}
+              >
+                {emailBusy ? "Sending…" : `Email failure (${selectedFailure.length})`}
+              </button>
+            </div>
           </div>
           {verifyOrder && <section className="bu-verify-box">
-            <div className="bu-verify-heading"><div><h3>Verify payment</h3><p>{verifyOrder.orderId} · Expected amount {money(verifyOrder.amount)}</p></div><button type="button" className="bu-icon-button" onClick={closeVerify} aria-label="Close verification"><X size={18} /></button></div>
+            <div className="bu-verify-heading"><div><h3>Verify payment</h3><p>{verifyOrder.customerName} · {verifyOrder.orderId} · Expected amount {money(verifyOrder.amount)}{verifyOrder.customerClaimedReference ? ` · Customer UTR ${verifyOrder.customerClaimedReference}` : ""}</p></div><button type="button" className="bu-icon-button" onClick={closeVerify} aria-label="Close verification"><X size={18} /></button></div>
             <div className="bu-verify-warning"><ShieldCheck size={18} /><span>Only continue after independently confirming the exact bank credit and transaction reference in the receiving bank account.</span></div>
             <form className="bu-verify-form" onSubmit={handleVerify}>
               <div className="bu-verify-form-grid">
@@ -444,5 +723,15 @@ const sendBulkFailureEmails = async () => {
         <p className="bu-admin-refresh-note"><CheckCircle2 size={14} /> Live orders and summary refresh automatically every 15 seconds.</p>
       </main>
     </div>
+
+    <OrderDetailsDrawer
+      order={detailOrder}
+      onClose={closeDetails}
+      onVerify={openVerify}
+      onMarkFailed={(o) => handleManualStatusChange(o, "rejected")}
+      onSendEmail={sendOrderEmail}
+      emailBusy={emailBusy}
+      statusBusy={Boolean(detailOrder && statusBusyOrder === detailOrder.orderId)}
+    />
   </div>;
 }
